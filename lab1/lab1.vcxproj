@@ -74,11 +74,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CoffeMachine.cpp" />
+    <ClCompile Include="Drink.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Person.cpp" />
     <ClCompile Include="view\StreamInput.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CoffeMachine.h" />
+    <ClInclude Include="Drink.h" />
     <ClInclude Include="Person.h" />
     <ClInclude Include="view\StreamInput.h" />
   </ItemGroup>
