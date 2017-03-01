@@ -21,9 +21,6 @@
     <ClCompile Include="Person.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="view\StreamInput.cpp">
-      <Filter>view</Filter>
-    </ClCompile>
     <ClCompile Include="CoffeMachine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

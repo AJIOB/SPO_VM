@@ -1,4 +1,10 @@
-﻿#include "Person.h"
+﻿#ifdef _WIN32
+#include <windows.h>
+#elif _POSIX
+
+#endif
+
+#include "Person.h"
 
 Person::Person()
 {
@@ -17,6 +23,38 @@ unsigned long long Person::inputDrinkIndex() const
 	return res;
 }
 
+void Person::RunChild(const std::string& params) const
+{
+	//create process with parametres
+	//TODO
+#ifdef _WIN32
+	STARTUPINFO sInfo;
+	PROCESS_INFORMATION pInfo;
+
+	ZeroMemory(&sInfo, sizeof sInfo);
+	sInfo.cb = sizeof sInfo;
+	ZeroMemory(&pInfo, sizeof pInfo);
+
+	//auto tmp = params.c_str();
+	//LPTSTR s = (LPTSTR) std::wstring(tmp, tmp + params.length()).c_str();
+
+	//bool isCreated = CreateProcess("C:\Windows\System32\cmd.exe", NULL, NULL, NULL, FALSE, 0, NULL, NULL, &sInfo, &pInfo);
+
+	if (!CreateProcess(NULL, (LPSTR)(("lab1 " + params).c_str()), NULL, NULL, FALSE, 0, NULL, NULL, &sInfo, &pInfo))
+	{
+		std::cout << "Не удается включить автомат" << std::endl;
+		return;
+	}
+
+	WaitForSingleObject(pInfo.hProcess, INFINITE);
+
+	CloseHandle(pInfo.hThread);
+	CloseHandle(pInfo.hProcess);
+#elif _POSIX
+
+#endif
+}
+
 void Person::runMenu() const
 {
 	do
@@ -24,8 +62,9 @@ void Person::runMenu() const
 		std::cout << "Выберите, пожалуйста, ваше действие:" << std::endl;
 		std::cout << "1) Положить денег" << std::endl;
 		std::cout << "2) Просмотреть список доступных напитков" << std::endl;
-		std::cout << "3) Купить напиток" << std::endl;
-		std::cout << "4) Вернуть деньги" << std::endl;
+		std::cout << "3) Просмотреть доступную сумму" << std::endl;
+		std::cout << "4) Купить напиток" << std::endl;
+		std::cout << "5) Вернуть деньги" << std::endl;
 		std::cout << "0) Отойти от автомата" << std::endl;
 		std::cout << "Пожалуйста, сделайте свой выбор" << std::endl;
 	
@@ -49,9 +88,13 @@ void Person::runMenu() const
 
 			break;
 		case '3':
-			params += " b" + std::to_string(inputDrinkIndex());
+			params += " sm";
+
 			break;
 		case '4':
+			params += " b " + std::to_string(inputDrinkIndex());
+			break;
+		case '5':
 			params += " m";
 			break;
 		default:
@@ -59,9 +102,10 @@ void Person::runMenu() const
 			isSelectGood = false;
 		}
 
-		//create process with parametres
-		//TODO
-
+		if (isSelectGood)
+		{
+			RunChild(params);
+		}
 	} while (true);
 }
 

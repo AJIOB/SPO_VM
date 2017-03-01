@@ -1,3 +1,7 @@
+#ifndef DRINK_CLASS
+#define DRINK_CLASS
+
+
 #include<string>
 class Drink
 {
@@ -6,7 +10,7 @@ private:
     int amountLeft;
     int price;
 public:
-    Drink(string name_,int amountLeft_,int price_);
+    Drink(std::string name_,int amountLeft_,int price_);
     void addDrink(int count);
     void deleteDrink();
     void show();   
@@ -15,3 +19,6 @@ public:
     int getPrice();
     int getAmount();
 };
+
+
+#endif 
