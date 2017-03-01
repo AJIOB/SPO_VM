@@ -23,4 +23,4 @@ class CoffeMachine
         
 };
 
-#endif COFFE_CLASS
+#endif
