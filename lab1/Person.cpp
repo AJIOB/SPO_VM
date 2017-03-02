@@ -1,6 +1,6 @@
 ﻿#ifdef _WIN32
 #include <windows.h>
-#elif _POSIX
+#elif ((__linux__) || (__unix__))
 
 #endif
 
@@ -50,8 +50,10 @@ void Person::RunChild(const std::string& params) const
 
 	CloseHandle(pInfo.hThread);
 	CloseHandle(pInfo.hProcess);
-#elif _POSIX
+#elif ((__linux__) || (__unix__))
 
+#else
+	std::cout << "Bad operation system. Please, recompile me to Linux, Unix or Windows" << std::endl;
 #endif
 }
 

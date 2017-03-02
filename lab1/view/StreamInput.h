@@ -13,73 +13,70 @@ namespace Stream
 	
 	template<typename InputType>
 	void Input(InputType& elem);
-}
 
 
-
+	//cpp part 1. inline
 #define AJIOB_END_OF_LINE '\n'
 
-
-//cpp part 1. inline
-
-inline void Stream::Clear()
-{
-	std::cin.clear();
-
-	std::streambuf* tmp = std::cin.rdbuf();
-
-	while ( tmp->in_avail() != 0 )
+	inline void Clear()
 	{
-		tmp->sbumpc();
-    }
-}
+		std::cin.clear();
 
-template<typename InputType>
-InputType Stream::Input()
-{
-	InputType toReturn;
+		std::streambuf* tmp = std::cin.rdbuf();
 
-	while (true)
-	{
-		if (std::cin >> toReturn)
+		while ( tmp->in_avail() != 0 )
 		{
+			tmp->sbumpc();
+	    }
+	}
+
+	template<typename InputType>
+	InputType Input()
+	{
+		InputType toReturn;
+
+		while (true)
+		{
+			if (std::cin >> toReturn)
+			{
+				Clear();
+				break;
+			}
+			std::cout << "Ошибка ввода. Пожалуйста, повторите ввод" << std::endl;
 			Clear();
-			break;
 		}
-		std::cout << "Ошибка ввода. Пожалуйста, повторите ввод" << std::endl;
-		Clear();
+		return toReturn;
 	}
-	return toReturn;
-}
 
-template<typename InputType>
-void Stream::Input(InputType& elem)
-{
-	elem = Input<InputType>();
-}
-
-//for std::string
-template<>
-inline std::string Stream::Input()
-{
-	std::string buffer;
-
-	while (true)
+	template<typename InputType>
+	void Input(InputType& elem)
 	{
-		char tmp = std::cin.get();
-
-		if (tmp == AJIOB_END_OF_LINE)
-		{
-			break;
-		}
-
-		buffer.push_back(tmp);
+		elem = Input<InputType>();
 	}
 
-	return buffer;
-}
-//end for std::string
+	//for std::string
+	template<>
+	inline std::string Input()
+	{
+		std::string buffer;
+
+		while (true)
+		{
+			char tmp = std::cin.get();
+
+			if (tmp == AJIOB_END_OF_LINE)
+			{
+				break;
+			}
+
+			buffer.push_back(tmp);
+		}
+
+		return buffer;
+	}
+	//end for std::string
 
 #undef AJIOB_END_OF_LINE
+}
 
 #endif
