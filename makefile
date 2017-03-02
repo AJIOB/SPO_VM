@@ -1,21 +1,45 @@
 objects = main.o CoffeMachine.o Person.o Drink.o
 params = -std=c++11 -c
-way = lab1/
+sourceWay = lab1/
+destinationWay = bin/unix/
+destinationName = lab1.exe
 
-lab1.exe : $(objects)
-	g++ -o lab1.exe $(objects)
+objWay = $(destinationWay)obj/
+objBackHome = ../../../
 
-main.o: $(way)main.cpp $(way)Person.h $(way)CoffeMachine.h
-	g++ $(params) $(way)main.cpp
-CoffeMachine.o : $(way)CoffeMachine.cpp $(way)CoffeMachine.h
-	g++ $(params) $(way)CoffeMachine.cpp
-Person.o : $(way)Person.cpp $(way)Person.h
-	g++ $(params) $(way)Person.cpp
-Drink.o : $(way)Drink.cpp $(way)Drink.h
-	g++ $(params) $(way)Drink.cpp
+goObject = cd $(objWay) &&
+compilerPrefix = $(goObject) $(CXX)
+prefix = $(compilerPrefix) $(params) $(objBackHome)$(sourceWay)
 
-max_clean:
-	rm lab1.exe $(objects)
+MKDIR = mkdir -p
+RMDIR = -rm -r
 
-clean:
-	rm $(objects)
+
+.PHONY: $(destinationName) clean max_clean baseInit run
+
+
+$(destinationName) : baseInit $(objects)
+	$(compilerPrefix) -o $(objBackHome)$(destinationWay)$(destinationName) $(objects)
+
+main.o: $(sourceWay)main.cpp $(sourceWay)Person.h $(sourceWay)CoffeMachine.h
+	$(prefix)main.cpp
+CoffeMachine.o : $(sourceWay)CoffeMachine.cpp $(sourceWay)CoffeMachine.h
+	$(prefix)CoffeMachine.cpp
+Person.o : $(sourceWay)Person.cpp $(sourceWay)Person.h
+	$(prefix)Person.cpp
+Drink.o : $(sourceWay)Drink.cpp $(sourceWay)Drink.h
+	$(prefix)Drink.cpp
+
+max_clean :
+	$(MAKE) -i clean
+	$(RMDIR) $(destinationWay)
+
+clean :
+	$(RMDIR) $(objWay)
+
+baseInit :
+	$(MKDIR) $(destinationWay)
+	$(MKDIR) $(objWay)
+
+run :
+	$(destinationWay)$(destinationName)

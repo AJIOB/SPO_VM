@@ -8,15 +8,26 @@ int main(int argc, char* argv[])
 {
 	setlocale(LC_ALL, "");
 
-	if (argc <= 1)
+	try
 	{
-		//new Person
-		Person tmp;
+		if (argc <= 1)
+		{
+			//new Person
+			Person tmp;
+		}
+		else if (std::string("-m") == argv[1])
+		{
+			//new Machine
+			CoffeMachine tmp(argc - 2, argv + 2);
+		}
 	}
-	else if (std::string("-m") == argv[1])
+	catch (const int& eCode)
 	{
-		//new Machine
-		CoffeMachine tmp(argc - 2, argv + 2);
+		return eCode;
+	}
+	catch (...)
+	{
+		return 1;
 	}
 
 	return 0;

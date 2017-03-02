@@ -1,10 +1,46 @@
 ﻿#ifdef _WIN32
+
 #include <windows.h>
-#elif ((__linux__) || (__unix__))
+
+#elif (defined(__linux__) || defined(__unix__))
+
+#include <unistd.h>
+#include <sys/wait.h>
 
 #endif
 
 #include "Person.h"
+
+#if (defined(__linux__) || defined(__unix__))
+
+namespace
+{
+	inline char** BreakString(const std::string& s, const char delim)
+	{
+		//todo
+		return nullptr;
+	}
+
+	inline void DoubleFree(char** a)
+	{
+		if (!a)
+		{
+			return;
+		}
+
+		int i = 0;
+
+		while (a[i])
+		{
+			delete [] a[i];
+			i++;
+		}
+
+		delete [] a;
+	}
+}
+
+#endif
 
 Person::Person()
 {
@@ -27,6 +63,7 @@ void Person::RunChild(const std::string& params) const
 {
 	//create process with parametres
 	//TODO
+
 #ifdef _WIN32
 	STARTUPINFO sInfo;
 	PROCESS_INFORMATION pInfo;
@@ -34,11 +71,6 @@ void Person::RunChild(const std::string& params) const
 	ZeroMemory(&sInfo, sizeof sInfo);
 	sInfo.cb = sizeof sInfo;
 	ZeroMemory(&pInfo, sizeof pInfo);
-
-	//auto tmp = params.c_str();
-	//LPTSTR s = (LPTSTR) std::wstring(tmp, tmp + params.length()).c_str();
-
-	//bool isCreated = CreateProcess("C:\Windows\System32\cmd.exe", NULL, NULL, NULL, FALSE, 0, NULL, NULL, &sInfo, &pInfo);
 
 	if (!CreateProcess(NULL, (LPSTR)(("lab1 " + params).c_str()), NULL, NULL, FALSE, 0, NULL, NULL, &sInfo, &pInfo))
 	{
@@ -50,8 +82,35 @@ void Person::RunChild(const std::string& params) const
 
 	CloseHandle(pInfo.hThread);
 	CloseHandle(pInfo.hProcess);
-#elif ((__linux__) || (__unix__))
 
+#elif ((__linux__) || (__unix__))
+	
+
+	char** arrayOfParams = BreakString(params, ' ');
+
+	pid_t pid = fork();
+
+	if (pid < 0)
+	{
+		std::cout << "Не удается включить автомат" << std::endl;
+		return;
+	}
+	else if (pid > 0)
+	{
+		int status = 0;
+		waitpid(pid, &status, 0);
+		DoubleFree(arrayOfParams);
+
+		if (status != 0)
+		{
+			std::cout << "Автомат вернул код ошибки " << status << std::endl;
+		}
+	}
+	else
+	{
+		execv("lab1", nullptr);
+		throw 0;			//as exit from process
+	}
 #else
 	std::cout << "Bad operation system. Please, recompile me to Linux, Unix or Windows" << std::endl;
 #endif
