@@ -23,7 +23,8 @@ namespace
 			return nullptr;
 		}
 
-		char** res = new char* [s.length() / 2 + 3];			//обязательно + 2, а то может быть краш на нечетной длине строки
+		//обязательно + 2, а то может быть краш на нечетной длине строки (и еще +1 для пустой строки)
+		char** res = new char* [s.length() / 2 + 3];
 
 		//для выравнивания количества параметров
 		res[0] = new char[1];
@@ -129,15 +130,10 @@ void Person::RunChild(const std::string& params) const
 	}
 	else if (pid > 0)
 	{
-		int status = -1;
-
-		//while (status != 0)
-		//{
-			if (waitpid(pid, &status, 0) != pid)
-			{
-				std::cout << "Что-то пошло не так. Процесс не завершился" << std::endl;
-			}
-		//}
+		if (waitpid(pid, nullptr, 0) != pid)
+		{
+			std::cout << "Что-то пошло не так. Завершился не тот процесс" << std::endl;
+		}
 
 		DualFree(arrayOfParams);
 	}

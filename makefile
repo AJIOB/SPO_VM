@@ -47,4 +47,4 @@ copyDeps : $(deps)
 	$(COPY) $(deps) $(destinationWay)
 
 run :
-	$(destinationWay)$(destinationName)
+	cd $(destinationWay) && ./$(destinationName)
