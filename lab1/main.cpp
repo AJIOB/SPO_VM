@@ -20,6 +20,10 @@ int main(int argc, char* argv[])
 			//new Machine
 			CoffeMachine tmp(argc - 2, argv + 2);
 		}
+		else
+		{
+			std::cout << "Неожиданные параметры запуска. Программа аварийно завершена" << std::endl;
+		}
 	}
 	catch (const int& eCode)
 	{

@@ -22,12 +22,20 @@ namespace Stream
 	{
 		std::cin.clear();
 
+#ifdef _WIN32
 		std::streambuf* tmp = std::cin.rdbuf();
 
-		while ( tmp->in_avail() != 0 )
+		while ( tmp->in_avail() > 0 )
 		{
 			tmp->sbumpc();
-	    }
+		}
+#else
+		char c = std::cin.get();
+		while (c != AJIOB_END_OF_LINE && c != EOF)
+		{
+			c = std::cin.get();
+		}
+#endif
 	}
 
 	template<typename InputType>

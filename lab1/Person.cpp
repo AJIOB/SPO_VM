@@ -4,8 +4,9 @@
 
 #elif (defined(__linux__) || defined(__unix__))
 
-#include <unistd.h>
 #include <sys/wait.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #endif
 
@@ -17,11 +18,45 @@ namespace
 {
 	inline char** BreakString(const std::string& s, const char delim)
 	{
-		//todo
-		return nullptr;
+		if (s.length() == 0)
+		{
+			return nullptr;
+		}
+
+		char** res = new char* [s.length() / 2 + 3];			//обязательно + 2, а то может быть краш на нечетной длине строки
+
+		//для выравнивания количества параметров
+		res[0] = new char[1];
+		res[0][0] = '\0';
+
+		int i = 1, j = 0;
+
+		res[i] = new char[s.length() + 1];
+
+		for (char sym : s)
+		{
+			if (sym == delim)
+			{
+				res[i][j] = '\0';
+				i++;
+				j = 0;
+
+				res[i] = new char[s.length() + 1];
+				continue;
+			}
+
+			res[i][j] = sym;
+			j++;
+		}
+
+		res[i][j] = '\0';
+		i++;
+		res[i] = nullptr;
+
+		return res;
 	}
 
-	inline void DoubleFree(char** a)
+	inline void DualFree(char** a)
 	{
 		if (!a)
 		{
@@ -62,8 +97,6 @@ unsigned long long Person::inputDrinkIndex() const
 void Person::RunChild(const std::string& params) const
 {
 	//create process with parametres
-	//TODO
-
 #ifdef _WIN32
 	STARTUPINFO sInfo;
 	PROCESS_INFORMATION pInfo;
@@ -85,7 +118,6 @@ void Person::RunChild(const std::string& params) const
 
 #elif ((__linux__) || (__unix__))
 	
-
 	char** arrayOfParams = BreakString(params, ' ');
 
 	pid_t pid = fork();
@@ -97,19 +129,21 @@ void Person::RunChild(const std::string& params) const
 	}
 	else if (pid > 0)
 	{
-		int status = 0;
-		waitpid(pid, &status, 0);
-		DoubleFree(arrayOfParams);
+		int status = -1;
 
-		if (status != 0)
-		{
-			std::cout << "Автомат вернул код ошибки " << status << std::endl;
-		}
+		//while (status != 0)
+		//{
+			if (waitpid(pid, &status, 0) != pid)
+			{
+				std::cout << "Что-то пошло не так. Процесс не завершился" << std::endl;
+			}
+		//}
+
+		DualFree(arrayOfParams);
 	}
 	else
 	{
-		execv("lab1", nullptr);
-		throw 0;			//as exit from process
+		execve("lab1.exe", arrayOfParams, nullptr);
 	}
 #else
 	std::cout << "Bad operation system. Please, recompile me to Linux, Unix or Windows" << std::endl;
@@ -138,29 +172,43 @@ void Person::runMenu() const
 
 		switch (k)
 		{
-		case '0':
-			return;
-		case '1':
-			params += " a " + std::to_string(inputMoney());
-			
-			break;
-		case '2':
-			params += " s";
+			case '0':
+			{
+				return;
+			}
+			case '1':
+			{
+				params += " a " + std::to_string(inputMoney());
+				
+				break;
+			}
+			case '2':
+			{
+				params += " s";
 
-			break;
-		case '3':
-			params += " sm";
+				break;
+			}
+			case '3':
+			{
+				params += " sm";
 
-			break;
-		case '4':
-			params += " b " + std::to_string(inputDrinkIndex());
-			break;
-		case '5':
-			params += " m";
-			break;
-		default:
-			std::cout << "Извините, такого варианта не существует. Пожалуйста, повторите выбор" << std::endl;
-			isSelectGood = false;
+				break;
+			}
+			case '4':
+			{
+				params += " b " + std::to_string(inputDrinkIndex());
+				break;
+			}
+			case '5':
+			{
+				params += " m";
+				break;
+			}
+			default:
+			{
+				std::cout << "Извините, такого варианта не существует. Пожалуйста, повторите выбор" << std::endl;
+				isSelectGood = false;
+			}
 		}
 
 		if (isSelectGood)

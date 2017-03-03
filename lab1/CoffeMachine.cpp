@@ -97,7 +97,7 @@ void CoffeMachine::showAvailable()
 {
     for (auto it = drinks.begin(); it != drinks.end(); ++it)
 	{
-        std::cout<< it->getName() << ". Цена " << it->getPrice() << ". Кол-во доступных " << it->getAmount() << std::endl;   
+        std::cout<< it->getName() <<  ". Индекс " << it - drinks.begin() << ". Цена " << it->getPrice() << ". Кол-во доступных " << it->getAmount() << std::endl;   
     }
 }
 
