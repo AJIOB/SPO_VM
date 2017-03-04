@@ -18,7 +18,7 @@ void Drink::deleteDrink()
 }
 void Drink::show()
 {
-    std::cout<<name<<"  Öåíà:  "<<price<<"  Îñòàòîê:  "<<amountLeft<<std::endl;
+    std::cout<<name<<"  Ð¦ÐµÐ½Ð°:  "<<price<<"  ÐžÑÑ‚Ð°Ñ‚Ð¾Ðº:  "<<amountLeft<<std::endl;
 }
 
 std::string Drink::getName()
