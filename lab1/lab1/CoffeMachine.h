@@ -7,7 +7,6 @@
 class CoffeMachine
 {
     private:
-//        int moneyCount;
         int money;
         std::vector<Drink> drinks;
     public:
