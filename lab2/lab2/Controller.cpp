@@ -65,28 +65,52 @@ void SelectMode()
 
 void WorkAsPerson()
 {
-	//TODO
+	//TODO compille!!!!!!
+	
 	//check machine (chek opening flags)
-
+	if(!event[0]=OpenEvent(EVENT_ALL_ACCESS,null,isMachineFree))
+	{
+		std::cout<<"Îøèáêà! Àâòîìàò íå çàïóùåí";		//error. Machine is not started
+		CloseHandle(event[0]);
+		return;
+	}
+	
 	Person person;
 
 	//start loop
-
-	person.runConsole();
-	//wait 1
-	person.sendRequest();
-	//raise flag2
-	//wait flag3
-	person.getResponce();
-	//raise flag2
-	//loop
-	
+	do
+	{
+		person.runConsole();
+		//wait 1
+		waitForSingleObject(event[0],INFINITE);
+		
+		person.sendRequest();
+		//raise flag2
+		if(!pulseEvant(event[1]))
+		{
+			std::cout<<"Îøèáêà! Ñîáûòèå íå ñîçäàíî";		//error. Event is not pulsed
+			return;
+		}
+		
+		//wait flag3
+		waitForSingleObject(event[2],INFINITE);
+		
+		person.getResponce();
+		//raise flag2
+		if(!pulseEvant(event[1]))
+		{
+			std::cout<<"Îøèáêà! Ñîáûòèå íå ñîçäàíî";		//error. Event is not pulsed
+			return;
+		}
+		
+	}
+	while(true);
 }
 
 void WorkAsCoffeeMachine() //TVS
 {
 #ifdef _WIN32
-	//TODO 
+	//TODO  compile!!!!!
 	
 	Handle* event[3];
 	
