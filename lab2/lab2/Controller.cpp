@@ -1,4 +1,16 @@
-﻿#include "Controller.h"
+﻿#ifdef _WIN32
+
+#include <windows.h>
+
+#elif (defined(__linux__) || defined(__unix__))
+
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#endif
+
+#include "Controller.h"
 
 void SelectMode()
 {
@@ -30,27 +42,37 @@ void SelectMode()
 	}
 }
 
+#ifdef _WIN32
+	//todo Windows
+#elif (defined(__linux__) || defined(__unix__))
+	//todo linux
+#else
+#error Bad operation system. Please, recompile me to Linux, Unix or Windows
+#endif
+
 void WorkAsPerson()
 {
 	//TODO
 	//check machine (chek opening flags)
+
+	Person person;
+
 	//start loop
-	//console
+
+	person.runConsole();
 	//wait 1
-	//input to file
+	person.sendRequest();
 	//raise flag2
 	//wait flag3
-	//resut to console
+	person.getResponce();
 	//raise flag2
 	//loop
 	
-	Person person;
 }
 
 void WorkAsCoffeeMachine()
 {
 	//TODO
-	//vector<string>
 	//check existing
 	//create events
 	CoffeMachine machine;
