@@ -1,4 +1,4 @@
-#include <iostream>
+ï»¿#include <iostream>
 #include <fstream>
 #include <string>
 
@@ -13,7 +13,7 @@ namespace
 
 void CoffeMachine::showMoney() const
 {
-	std::cout<<"Ó âàñ "<< money<<" ðóáëåé, íèùåáðîä"<<std::endl;
+	std::cout<<"Ð£ Ð²Ð°Ñ "<< money<<" Ñ€ÑƒÐ±Ð»ÐµÐ¹, Ð½Ð¸Ñ‰ÐµÐ±Ñ€Ð¾Ð´"<<std::endl;
 }
 
 CoffeMachine::CoffeMachine()
@@ -22,7 +22,7 @@ CoffeMachine::CoffeMachine()
     
     if (!f)
     {
-        std::cout<<("Îøèáêà îòêðûòèÿ ôàéëà") << std::endl;
+        std::cout<<("ÐžÑˆÐ¸Ð±ÐºÐ° Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚Ð¸Ñ Ñ„Ð°Ð¹Ð»Ð°") << std::endl;
         return;
     }
     
@@ -30,7 +30,7 @@ CoffeMachine::CoffeMachine()
     
     if (!f)
     {
-        std::cout<<("Îøèáêà ÷òåíèÿ èç ôàéëà") << std::endl;
+        std::cout<<("ÐžÑˆÐ¸Ð±ÐºÐ° Ñ‡Ñ‚ÐµÐ½Ð¸Ñ Ð¸Ð· Ñ„Ð°Ð¹Ð»Ð°") << std::endl;
         return;
     }
     
@@ -47,7 +47,7 @@ CoffeMachine::CoffeMachine()
         f >> cost;
         if (!f)
         {
-            std::cout<<("Îøèáêà ÷òåíèÿ èç ôàéëà") << std::endl;
+            std::cout<<("ÐžÑˆÐ¸Ð±ÐºÐ° Ñ‡Ñ‚ÐµÐ½Ð¸Ñ Ð¸Ð· Ñ„Ð°Ð¹Ð»Ð°") << std::endl;
             return;
         }
             
@@ -55,7 +55,7 @@ CoffeMachine::CoffeMachine()
         f >>count;
         if (!f)
         {
-            std::cout<<("Îøèáêà ÷òåíèÿ èç ôàéëà") << std::endl;
+            std::cout<<("ÐžÑˆÐ¸Ð±ÐºÐ° Ñ‡Ñ‚ÐµÐ½Ð¸Ñ Ð¸Ð· Ñ„Ð°Ð¹Ð»Ð°") << std::endl;
             return;
         }
         
@@ -88,13 +88,13 @@ void CoffeMachine::showAvailable()
 {
     for (auto it = drinks.begin(); it != drinks.end(); ++it)
 	{
-        std::cout<< it->getName() <<  ". Èíäåêñ " << it - drinks.begin() << ". Öåíà " << it->getPrice() << ". Êîë-âî äîñòóïíûõ " << it->getAmount() << std::endl;   
+        std::cout<< it->getName() <<  ". Ð˜Ð½Ð´ÐµÐºÑ " << it - drinks.begin() << ". Ð¦ÐµÐ½Ð° " << it->getPrice() << ". ÐšÐ¾Ð»-Ð²Ð¾ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð½Ñ‹Ñ… " << it->getAmount() << std::endl;   
     }
 }
 
 void CoffeMachine::moneyBack()
 {
-    std::cout<<"Âîçüìèòå âàøè: "<< money<<" ðóáëåé îáðàòíî, íèùåáðîä"<<std::endl;
+    std::cout<<"Ð’Ð¾Ð·ÑŒÐ¼Ð¸Ñ‚Ðµ Ð²Ð°ÑˆÐ¸: "<< money<<" Ñ€ÑƒÐ±Ð»ÐµÐ¹ Ð¾Ð±Ñ€Ð°Ñ‚Ð½Ð¾, Ð½Ð¸Ñ‰ÐµÐ±Ñ€Ð¾Ð´"<<std::endl;
 	money=0;
 }
 
@@ -106,7 +106,7 @@ std::string CoffeMachine::getCommand()
     
     if (!f)
     {
-        std::cout<<("Îøèáêà îòêðûòèÿ ôàéëà") << std::endl;
+        std::cout<<("ÐžÑˆÐ¸Ð±ÐºÐ° Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚Ð¸Ñ Ñ„Ð°Ð¹Ð»Ð°") << std::endl;
         return;
     }
     
@@ -115,7 +115,7 @@ std::string CoffeMachine::getCommand()
     
     if (!f)
     {
-        std::cout<<("Îøèáêà ÷òåíèÿ èç ôàéëà") << std::endl;
+        std::cout<<("ÐžÑˆÐ¸Ð±ÐºÐ° Ñ‡Ñ‚ÐµÐ½Ð¸Ñ Ð¸Ð· Ñ„Ð°Ð¹Ð»Ð°") << std::endl;
         return;
     }
 }
@@ -128,7 +128,7 @@ void CoffeMachine::setCommand()
 void proceed()
 {
 
-	//TODo AJIOB
+	//TODo 
 	//getCommand();
 	
 	//proceed operation
@@ -141,11 +141,11 @@ void proceed()
         int result = this->buy(atoi(argv[1]));
         switch (result)
         {
-            case 0: std::cout<<("Ñïàñèáî çà ïîêóïêó") << std::endl; break;
-            case 1: std::cout<<("Íåäîñòàòî÷íî ñðåäñòâ") << std::endl; break;
-            case 2: std::cout<<("Èçâèíèòå, äàííîãî íàïèòêà íåò â íàëè÷èè") << std::endl; break;
-			case 3: std::cout<<("Íåñóùåñòâóþùèé ID íàïèòêà") << std::endl; break;
-        default: std::cout<<("Íåèçâåñòíàÿ îøèáêà") << std::endl; break;;
+            case 0: std::cout<<("Ð¡Ð¿Ð°ÑÐ¸Ð±Ð¾ Ð·Ð° Ð¿Ð¾ÐºÑƒÐ¿ÐºÑƒ") << std::endl; break;
+            case 1: std::cout<<("ÐÐµÐ´Ð¾ÑÑ‚Ð°Ñ‚Ð¾Ñ‡Ð½Ð¾ ÑÑ€ÐµÐ´ÑÑ‚Ð²") << std::endl; break;
+            case 2: std::cout<<("Ð˜Ð·Ð²Ð¸Ð½Ð¸Ñ‚Ðµ, Ð´Ð°Ð½Ð½Ð¾Ð³Ð¾ Ð½Ð°Ð¿Ð¸Ñ‚ÐºÐ° Ð½ÐµÑ‚ Ð² Ð½Ð°Ð»Ð¸Ñ‡Ð¸Ð¸") << std::endl; break;
+			case 3: std::cout<<("ÐÐµÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÑŽÑ‰Ð¸Ð¹ ID Ð½Ð°Ð¿Ð¸Ñ‚ÐºÐ°") << std::endl; break;
+        default: std::cout<<("ÐÐµÐ¸Ð·Ð²ÐµÑÑ‚Ð½Ð°Ñ Ð¾ÑˆÐ¸Ð±ÐºÐ°") << std::endl; break;;
         }
     }
     else if (argv[0] == std::string("s"))
@@ -163,7 +163,7 @@ void proceed()
 
     else
     {
-        std::cout<<("Îøèáêà") << std::endl;
+        std::cout<<("ÐžÑˆÐ¸Ð±ÐºÐ°") << std::endl;
     }
 	
 	
