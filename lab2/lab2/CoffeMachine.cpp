@@ -1,4 +1,4 @@
-ï»¿#include <iostream>
+#include <iostream>
 #include <fstream>
 #include <string>
 
@@ -13,65 +13,60 @@ namespace
 
 void CoffeMachine::showMoney() const
 {
-	std::cout<<"Ð£ Ð²Ð°Ñ "<< money<<" Ñ€ÑƒÐ±Ð»ÐµÐ¹, Ð½Ð¸Ñ‰ÐµÐ±Ñ€Ð¾Ð´"<<std::endl;
+	std::cout<<"Ó âàñ "<< money<<" ðóáëåé, íèùåáðîä"<<std::endl;
 }
 
-CoffeMachine::CoffeMachine(int argc, char* argv[])
+CoffeMachine::CoffeMachine()
 {
-    init();
-	getCommand();
-    if (argv[0] == std::string("a"))
+	std::ifstream f(fName);
+    
+    if (!f)
     {
-        this->addMoney(atoi(argv[1]));
+        std::cout<<("Îøèáêà îòêðûòèÿ ôàéëà") << std::endl;
+        return;
     }
-    else if (argv[0] == std::string("b"))
+    
+    f >> this->money;
+    
+    if (!f)
     {
-        int result = this->buy(atoi(argv[1]));
-        switch (result)
+        std::cout<<("Îøèáêà ÷òåíèÿ èç ôàéëà") << std::endl;
+        return;
+    }
+    
+    do
+    {
+        std::string name;
+        f >> name;
+        if (!f)
         {
-            case 0: std::cout<<("Ð¡Ð¿Ð°ÑÐ¸Ð±Ð¾ Ð·Ð° Ð¿Ð¾ÐºÑƒÐ¿ÐºÑƒ") << std::endl; break;
-            case 1: std::cout<<("ÐÐµÐ´Ð¾ÑÑ‚Ð°Ñ‚Ð¾Ñ‡Ð½Ð¾ ÑÑ€ÐµÐ´ÑÑ‚Ð²") << std::endl; break;
-            case 2: std::cout<<("Ð˜Ð·Ð²Ð¸Ð½Ð¸Ñ‚Ðµ, Ð´Ð°Ð½Ð½Ð¾Ð³Ð¾ Ð½Ð°Ð¿Ð¸Ñ‚ÐºÐ° Ð½ÐµÑ‚ Ð² Ð½Ð°Ð»Ð¸Ñ‡Ð¸Ð¸") << std::endl; break;
-			case 3: std::cout<<("ÐÐµÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÑŽÑ‰Ð¸Ð¹ ID Ð½Ð°Ð¿Ð¸Ñ‚ÐºÐ°") << std::endl; break;
-        default: std::cout<<("ÐÐµÐ¸Ð·Ð²ÐµÑÑ‚Ð½Ð°Ñ Ð¾ÑˆÐ¸Ð±ÐºÐ°") << std::endl; break;;
+            break;
         }
-    }
-    else if (argv[0] == std::string("s"))
-    {
-        this->showAvailable();
-    }
-    else if (argv[0] == std::string("m"))
-    {
-        this->moneyBack();
-    }
-	else if (argv[0] == std::string("sm"))
-    {
-        this->showMoney();
-    }
-
-    else
-    {
-        std::cout<<("ÐžÑˆÐ¸Ð±ÐºÐ°") << std::endl;
-    }
+        
+        int cost;
+        f >> cost;
+        if (!f)
+        {
+            std::cout<<("Îøèáêà ÷òåíèÿ èç ôàéëà") << std::endl;
+            return;
+        }
+            
+        int count;
+        f >>count;
+        if (!f)
+        {
+            std::cout<<("Îøèáêà ÷òåíèÿ èç ôàéëà") << std::endl;
+            return;
+        }
+        
+        drinks.push_back(Drink(name, count, cost));
+        
+    } while (true);
 }
 
 CoffeMachine::~CoffeMachine()
 {
-	std::ofstream f(fName);
-    
-    if (!f)
-    {
-        std::cout<<("ÐžÑˆÐ¸Ð±ÐºÐ° Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚Ð¸Ñ Ñ„Ð°Ð¹Ð»Ð°") << std::endl;
-        return;
-    }
-    
-    f << money << std::endl;
-
-    for (auto it = drinks.begin(); it != drinks.end(); ++it)
-    {
-        
-        f << it->getName() << " " << it->getPrice() << " " << it->getAmount() << std::endl;   
-    }
+	
 }
 
 void CoffeMachine::addMoney(int money)
@@ -93,23 +88,25 @@ void CoffeMachine::showAvailable()
 {
     for (auto it = drinks.begin(); it != drinks.end(); ++it)
 	{
-        std::cout<< it->getName() <<  ". Ð˜Ð½Ð´ÐµÐºÑ " << it - drinks.begin() << ". Ð¦ÐµÐ½Ð° " << it->getPrice() << ". ÐšÐ¾Ð»-Ð²Ð¾ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð½Ñ‹Ñ… " << it->getAmount() << std::endl;   
+        std::cout<< it->getName() <<  ". Èíäåêñ " << it - drinks.begin() << ". Öåíà " << it->getPrice() << ". Êîë-âî äîñòóïíûõ " << it->getAmount() << std::endl;   
     }
 }
 
 void CoffeMachine::moneyBack()
 {
-    std::cout<<"Ð’Ð¾Ð·ÑŒÐ¼Ð¸Ñ‚Ðµ Ð²Ð°ÑˆÐ¸: "<< money<<" Ñ€ÑƒÐ±Ð»ÐµÐ¹ Ð¾Ð±Ñ€Ð°Ñ‚Ð½Ð¾, Ð½Ð¸Ñ‰ÐµÐ±Ñ€Ð¾Ð´"<<std::endl;
+    std::cout<<"Âîçüìèòå âàøè: "<< money<<" ðóáëåé îáðàòíî, íèùåáðîä"<<std::endl;
 	money=0;
 }
 
 std::string CoffeMachine::getCommand()
 {
+
+	//todo AJIOB
 	std::ifstream f(transferFile);
     
     if (!f)
     {
-        std::cout<<("ÐžÑˆÐ¸Ð±ÐºÐ° Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚Ð¸Ñ Ñ„Ð°Ð¹Ð»Ð°") << std::endl;
+        std::cout<<("Îøèáêà îòêðûòèÿ ôàéëà") << std::endl;
         return;
     }
     
@@ -118,55 +115,59 @@ std::string CoffeMachine::getCommand()
     
     if (!f)
     {
-        std::cout<<("ÐžÑˆÐ¸Ð±ÐºÐ° Ñ‡Ñ‚ÐµÐ½Ð¸Ñ Ð¸Ð· Ñ„Ð°Ð¹Ð»Ð°") << std::endl;
+        std::cout<<("Îøèáêà ÷òåíèÿ èç ôàéëà") << std::endl;
         return;
     }
 }
 
-void CoffeMachine::init()
+void CoffeMachine::setCommand()
 {
-	std::ifstream f(fName);
-    
-    if (!f)
+	//todo AJIOB
+}
+
+void proceed()
+{
+
+	//TODo AJIOB
+	//getCommand();
+	
+	//proceed operation
+	if (argv[0] == std::string("a"))
     {
-        std::cout<<("ÐžÑˆÐ¸Ð±ÐºÐ° Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚Ð¸Ñ Ñ„Ð°Ð¹Ð»Ð°") << std::endl;
-        return;
+        this->addMoney(atoi(argv[1]));
     }
-    
-    f >> this->money;
-    
-    if (!f)
+    else if (argv[0] == std::string("b"))
     {
-        std::cout<<("ÐžÑˆÐ¸Ð±ÐºÐ° Ñ‡Ñ‚ÐµÐ½Ð¸Ñ Ð¸Ð· Ñ„Ð°Ð¹Ð»Ð°") << std::endl;
-        return;
+        int result = this->buy(atoi(argv[1]));
+        switch (result)
+        {
+            case 0: std::cout<<("Ñïàñèáî çà ïîêóïêó") << std::endl; break;
+            case 1: std::cout<<("Íåäîñòàòî÷íî ñðåäñòâ") << std::endl; break;
+            case 2: std::cout<<("Èçâèíèòå, äàííîãî íàïèòêà íåò â íàëè÷èè") << std::endl; break;
+			case 3: std::cout<<("Íåñóùåñòâóþùèé ID íàïèòêà") << std::endl; break;
+        default: std::cout<<("Íåèçâåñòíàÿ îøèáêà") << std::endl; break;;
+        }
     }
-    
-    do
+    else if (argv[0] == std::string("s"))
     {
-        std::string name;
-        f >> name;
-        if (!f)
-        {
-            break;
-        }
-        
-        int cost;
-        f >> cost;
-        if (!f)
-        {
-            std::cout<<("ÐžÑˆÐ¸Ð±ÐºÐ° Ñ‡Ñ‚ÐµÐ½Ð¸Ñ Ð¸Ð· Ñ„Ð°Ð¹Ð»Ð°") << std::endl;
-            return;
-        }
-            
-        int count;
-        f >>count;
-        if (!f)
-        {
-            std::cout<<("ÐžÑˆÐ¸Ð±ÐºÐ° Ñ‡Ñ‚ÐµÐ½Ð¸Ñ Ð¸Ð· Ñ„Ð°Ð¹Ð»Ð°") << std::endl;
-            return;
-        }
-        
-        drinks.push_back(Drink(name, count, cost));
-        
-    } while (true);
+        this->showAvailable();
+    }
+    else if (argv[0] == std::string("m"))
+    {
+        this->moneyBack();
+    }
+	else if (argv[0] == std::string("sm"))
+    {
+        this->showMoney();
+    }
+
+    else
+    {
+        std::cout<<("Îøèáêà") << std::endl;
+    }
+	
+	
+	//setCommand(//set to file);
+	
+	//return;
 }
