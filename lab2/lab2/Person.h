@@ -2,18 +2,20 @@
 #define PERSON_CLASS
 
 #include <iostream>
-#include <string>
+#include <sstream>
+
 #include "view/StreamInput.h"
+#include "Controller.h"
 
 class Person
 {
-	std::string query;
+	std::stringstream query;
 public:
 	Person();
 	~Person();
 	bool runConsole();
-	void sendRequest();
-	void getResponce();
+	void sendRequest() const;
+	void getResponce() const;
 
 private:
 	unsigned long long inputDrinkIndex() const;

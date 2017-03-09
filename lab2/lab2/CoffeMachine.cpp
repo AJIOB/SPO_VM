@@ -110,9 +110,8 @@ void CoffeMachine::setCommand() const
 	f.close();
 }
 
-std::vector<std::string> CoffeMachine::getCommand()
+std::vector<std::string> CoffeMachine::getCommand() const
 {
-	//todo AJIOB
 	std::fstream f;
 	f.open(transferFile, std::ios::in);
     
@@ -147,6 +146,8 @@ std::vector<std::string> CoffeMachine::getCommand()
 
 		res.back().push_back(line[i]);
 	}
+
+	delete [] line;
 
 	return res;
 }

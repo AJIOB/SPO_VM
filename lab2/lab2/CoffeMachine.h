@@ -16,7 +16,7 @@ class CoffeMachine
     int money;
     std::vector<Drink> drinks;
 	void setCommand() const;
-	std::vector<std::string> getCommand();
+	std::vector<std::string> getCommand() const;
 	void addMoney(int money);
     int buy (int drinkID);
     void showAvailable();

@@ -16,9 +16,9 @@
 #ifdef _WIN32
 namespace
 {
-	static const LPCTSTR isMachineFree = TEXT("isMachineFree");
-	static const LPCTSTR fromUser = TEXT("fromUser");
-	static const LPCTSTR fromMachine = TEXT("fromMachine");
+	const LPCTSTR isMachineFree = TEXT("isMachineFree");
+	const LPCTSTR fromUser = TEXT("fromUser");
+	const LPCTSTR fromMachine = TEXT("fromMachine");
 }
 #elif (defined(__linux__) || defined(__unix__))
 	//todo linux
@@ -66,7 +66,11 @@ void SelectMode()
 void WorkAsPerson()
 {
 	//TODO compille!!!!!!
-	//TODO TVS add two other events
+	//TODO TVS: add two other events
+	//TODO TVS: add event array declaration
+	//TODO TVS: NULL write by CAPS LOCK
+	//TODO TVS: WinAPI funcs starts with upper-case letter (always)
+	//TODO TVS: add #ifdef block to WinAPI part
 	
 	//check machine (chek opening flags)
 	if(!event[0]=OpenEvent(EVENT_ALL_ACCESS,null,isMachineFree))
@@ -112,6 +116,7 @@ void WorkAsCoffeeMachine() //TVS
 {
 #ifdef _WIN32
 	//TODO  compile!!!!!
+	//TODO TVS: HANDLE write in CAPS
 	
 	Handle* event[3];
 	
@@ -121,7 +126,7 @@ void WorkAsCoffeeMachine() //TVS
 		std::cout<<"Ошибка! Автомат уже запущен.";		//error. Machine already started
 		CloseHandle(event[0]);
 		return;
-	}
+	}//TODO TVS: else after return is redundant
 	else if(event[1]=OpenEvent(null,null,fromUser))
 	{
 		std::cout<<"Ошибка! Автомат уже запущен.";		//error. Machine already started

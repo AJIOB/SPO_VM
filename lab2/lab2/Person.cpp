@@ -8,14 +8,56 @@ Person::~Person()
 {
 }
 
-void Person::sendRequest()
+void Person::sendRequest() const
 {
-	//todo
+	std::fstream f;
+	f.open(transferFile, std::ios::out | std::ios::trunc);
+    
+    if (!f)
+    {
+        std::cout << ("Ошибка открытия файла") << std::endl;
+        return;
+    }
+
+	f << query.str();
+	f.close();
 }
 
-void Person::getResponce()
+void Person::getResponce() const
 {
-	//todo
+	std::fstream f;
+	f.open(transferFile, std::ios::in);
+    
+    if (!f)
+    {
+        std::cout<<("Ошибка открытия файла") << std::endl;
+        return;
+    }
+    
+	f.seekg(0, std::ios::end);
+	int size = static_cast<int> (f.tellg());
+
+	if (size <= 0)
+	{
+		std::cout << "Автомат ничего не ответил" << std::endl;
+		return;
+	}
+
+	char* line = new char[size + 1];
+
+	//стали на чтение
+	f.seekg(0);
+	for (int i = 0; i < size; ++i)
+	{
+		line[i] = f.get();
+	}
+	f.close();
+
+	std::string res(line, line + size);
+
+	delete [] line;
+
+	std::cout << res << std::endl;
 }
 
 unsigned long long Person::inputDrinkIndex() const
@@ -90,7 +132,7 @@ bool Person::runConsole()
 
 		if (isSelectGood)
 		{
-			query = params;
+			query.str(params);
 			return true;
 		}
 	} while (true);
