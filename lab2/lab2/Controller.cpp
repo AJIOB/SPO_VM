@@ -70,18 +70,20 @@ void WorkAsPerson()
 	
 }
 
-void WorkAsCoffeeMachine()
+void WorkAsCoffeeMachine() //TVS
 {
-	//TODO
-	//check existing
+	//TODO 
+	//check existing 
 	//create events
 	CoffeMachine machine;
-	//loop start
-	//raise flag1
-	// wait	flag2
-	machine.proceed();
-	//raise flag3
-	//wait flag2
-	//write to file
-	//loop
+	do
+	{
+		//raise flag1
+		// wait	flag2
+		machine.proceed();
+		//raise flag3
+		//wait flag2
+		machine.writeToFile();
+	}
+	while(true);
 }

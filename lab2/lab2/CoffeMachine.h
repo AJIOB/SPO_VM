@@ -17,9 +17,10 @@ class CoffeMachine
 		void moneyBack();
     public:
 	void showMoney() const;
-        CoffeMachine(int argc, char* argv[]);
+        CoffeMachine();
         ~CoffeMachine();
-        void proceed();  
+        void proceed();
+		void writeToFile();
 };
 
 #endif

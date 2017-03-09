@@ -171,3 +171,22 @@ void proceed()
 	
 	//return;
 }
+
+void writeToFile()
+{
+	std::ofstream f(fName);
+    
+    if (!f)
+    {
+        std::cout<<("Ошибка открытия файла") << std::endl;
+        return;
+    }
+    
+    f << money << std::endl;
+
+    for (auto it = drinks.begin(); it != drinks.end(); ++it)
+    {
+        
+        f << it->getName() << " " << it->getPrice() << " " << it->getAmount() << std::endl;   
+    }
+}
