@@ -164,7 +164,7 @@ void Person::runMenu() const
 
 		bool isSelectGood = true;
 
-		std::string params = "-m";
+		std::string params;
 
 		switch (k)
 		{
@@ -174,30 +174,30 @@ void Person::runMenu() const
 			}
 			case '1':
 			{
-				params += " a " + std::to_string(inputMoney());
+				params += "a " + std::to_string(inputMoney());
 				
 				break;
 			}
 			case '2':
 			{
-				params += " s";
+				params += "s";
 
 				break;
 			}
 			case '3':
 			{
-				params += " sm";
+				params += "sm";
 
 				break;
 			}
 			case '4':
 			{
-				params += " b " + std::to_string(inputDrinkIndex());
+				params += "b " + std::to_string(inputDrinkIndex());
 				break;
 			}
 			case '5':
 			{
-				params += " m";
+				params += "m";
 				break;
 			}
 			default:
