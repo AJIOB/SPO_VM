@@ -1,11 +1,11 @@
-#include "Controller.h"
+ï»¿#include "Controller.h"
 
 void SelectMode()
 {
-	std::cout << "Âûáåðèòå, ïîæàëóéñòà, ðåæèì ðàáîòû:" << std::endl;
-	std::cout << "1) Ïîëüçîâàòåëü" << std::endl;
-	std::cout << "2) Àâòîìàò" << std::endl;
-	std::cout << "Ïîæàëóéñòà, ñäåëàéòå ñâîé âûáîð" << std::endl;
+	std::cout << "Ð’Ñ‹Ð±ÐµÑ€Ð¸Ñ‚Ðµ, Ð¿Ð¾Ð¶Ð°Ð»ÑƒÐ¹ÑÑ‚Ð°, Ñ€ÐµÐ¶Ð¸Ð¼ Ñ€Ð°Ð±Ð¾Ñ‚Ñ‹:" << std::endl;
+	std::cout << "1) ÐŸÐ¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÑŒ" << std::endl;
+	std::cout << "2) ÐÐ²Ñ‚Ð¾Ð¼Ð°Ñ‚" << std::endl;
+	std::cout << "ÐŸÐ¾Ð¶Ð°Ð»ÑƒÐ¹ÑÑ‚Ð°, ÑÐ´ÐµÐ»Ð°Ð¹Ñ‚Ðµ ÑÐ²Ð¾Ð¹ Ð²Ñ‹Ð±Ð¾Ñ€" << std::endl;
 	
 	auto k = std::cin.get();
 	Stream::Clear();
@@ -24,7 +24,7 @@ void SelectMode()
 		}
 	default:
 		{
-			std::cout << "Èçâèíèòå, òàêîãî âàòèàíòà íå ñóùåñòâóåò. Âûõîäèì..." << std::endl;
+			std::cout << "Ð˜Ð·Ð²Ð¸Ð½Ð¸Ñ‚Ðµ, Ñ‚Ð°ÐºÐ¾Ð³Ð¾ Ð²Ð°Ñ€Ð¸Ð°Ð½Ñ‚Ð° Ð½Ðµ ÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÐµÑ‚. Ð’Ñ‹Ñ…Ð¾Ð´Ð¸Ð¼..." << std::endl;
 			break;
 		}
 	}
