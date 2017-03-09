@@ -33,10 +33,33 @@ void SelectMode()
 void WorkAsPerson()
 {
 	//TODO
+	//check machine (chek opening flags)
+	//start loop
+	//console
+	//wait 1
+	//input to file
+	//raise flag2
+	//wait flag3
+	//resut to console
+	//raise flag2
+	//loop
+	
 	Person person;
 }
 
 void WorkAsCoffeeMachine()
 {
 	//TODO
+	//vector<string>
+	//check existing
+	//create events
+	CoffeMachine machine;
+	//loop start
+	//raise flag1
+	// wait	flag2
+	machine.proceed();
+	//raise flag3
+	//wait flag2
+	//write to file
+	//loop
 }

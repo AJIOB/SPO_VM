@@ -8,6 +8,7 @@
 namespace
 {
     const std::string fName = "info.db";
+	extern static const std::string transferFile;
 }
 
 void CoffeMachine::showMoney() const
@@ -18,12 +19,7 @@ void CoffeMachine::showMoney() const
 CoffeMachine::CoffeMachine(int argc, char* argv[])
 {
     init();
-	
-    if(argc>2 || argc<=0)
-    {
-        std::cout<<("Произошла ошибка, неверная информация");
-        return;
-    }
+	getCommand();
     if (argv[0] == std::string("a"))
     {
         this->addMoney(atoi(argv[1]));
@@ -105,6 +101,26 @@ void CoffeMachine::moneyBack()
 {
     std::cout<<"Возьмите ваши: "<< money<<" рублей обратно, нищеброд"<<std::endl;
 	money=0;
+}
+
+std::string CoffeMachine::getCommand()
+{
+	std::ifstream f(transferFile);
+    
+    if (!f)
+    {
+        std::cout<<("Ошибка открытия файла") << std::endl;
+        return;
+    }
+    
+	//f.tellg();
+    //f.getline(line,sizeof(f)+1);
+    
+    if (!f)
+    {
+        std::cout<<("Ошибка чтения из файла") << std::endl;
+        return;
+    }
 }
 
 void CoffeMachine::init()
