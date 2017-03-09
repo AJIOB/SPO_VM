@@ -66,11 +66,12 @@ void SelectMode()
 void WorkAsPerson()
 {
 	//TODO compille!!!!!!
+	//TODO TVS add two other events
 	
 	//check machine (chek opening flags)
 	if(!event[0]=OpenEvent(EVENT_ALL_ACCESS,null,isMachineFree))
 	{
-		std::cout<<"Îøèáêà! Àâòîìàò íå çàïóùåí";		//error. Machine is not started
+		std::cout<<"Ошибка! Автомат не запущен";		//error. Machine is not started
 		CloseHandle(event[0]);
 		return;
 	}
@@ -86,9 +87,9 @@ void WorkAsPerson()
 		
 		person.sendRequest();
 		//raise flag2
-		if(!pulseEvant(event[1]))
+		if(!PulseEvent(event[1]))
 		{
-			std::cout<<"Îøèáêà! Ñîáûòèå íå ñîçäàíî";		//error. Event is not pulsed
+			std::cout<<"Ошибка! Не уделось провзаимодействовать с автоматом";		//error. Event is not pulsed
 			return;
 		}
 		
@@ -97,9 +98,9 @@ void WorkAsPerson()
 		
 		person.getResponce();
 		//raise flag2
-		if(!pulseEvant(event[1]))
+		if(!PulseEvent(event[1]))
 		{
-			std::cout<<"Îøèáêà! Ñîáûòèå íå ñîçäàíî";		//error. Event is not pulsed
+			std::cout<<"Ошибка! Не уделось провзаимодействовать с автоматом";		//error. Event is not pulsed
 			return;
 		}
 		
@@ -117,19 +118,19 @@ void WorkAsCoffeeMachine() //TVS
 	//check existing
 	if(event[0]=OpenEvent(null,null,isMachineFree))
 	{
-		std::cout<<"Îøèáêà! Àâòîìàò óæå çàïóùåí.";		//error. Machine already started
+		std::cout<<"Ошибка! Автомат уже запущен.";		//error. Machine already started
 		CloseHandle(event[0]);
 		return;
 	}
 	else if(event[1]=OpenEvent(null,null,fromUser))
 	{
-		std::cout<<"Îøèáêà! Àâòîìàò óæå çàïóùåí.";		//error. Machine already started
+		std::cout<<"Ошибка! Автомат уже запущен.";		//error. Machine already started
 		CloseHandle(event[1]);
 		return;
 	}
 	else if(event[2]=OpenEvent(null,null,fromMachine))
 	{
-		std::cout<<"Îøèáêà! Àâòîìàò óæå çàïóùåí.";		//error. Machine already started
+		std::cout<<"Ошибка! Автомат уже запущен.";		//error. Machine already started
 		CloseHandle(event[2]);
 		return;
 	}
@@ -144,9 +145,9 @@ void WorkAsCoffeeMachine() //TVS
 	do
 	{
 		//raise flag1
-		if(!pulseEvant(event[0]))
+		if(!PulseEvent(event[0]))
 		{
-			std::cout<<"Îøèáêà! Ñîáûòèå íå ñîçäàíî";		//error. Event is not pulsed
+			std::cout<<"Ошибка! Не уделось провзаимодействовать с пользователем.";		//error. Event is not pulsed
 			return;
 		}
 		
@@ -156,9 +157,9 @@ void WorkAsCoffeeMachine() //TVS
 		machine.proceed();
 		
 		//raise flag3
-		if(!pulseEvant(event[2]))
+		if(!PulseEvent(event[2]))
 		{
-			std::cout<<"Îøèáêà! Ñîáûòèå íå ñîçäàíî";		//error. Event is not pulsed
+			std::cout<<"Ошибка! Не уделось провзаимодействовать с пользователем";		//error. Event is not pulsed
 			return;
 		}
 		
@@ -168,6 +169,8 @@ void WorkAsCoffeeMachine() //TVS
 		machine.writeToFile();
 	}
 	while(true);
+	
+	//TODO TVS: close handles
 	
 #elif (defined(__linux__) || defined(__unix__))
 	//todo linux

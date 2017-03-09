@@ -1,90 +1,21 @@
-﻿#ifdef _WIN32
-
-#include <windows.h>
-
-#elif (defined(__linux__) || defined(__unix__))
-
-#include <sys/wait.h>
-#include <sys/types.h>
-#include <unistd.h>
-
-#endif
-
-#include "Person.h"
-
-#if (defined(__linux__) || defined(__unix__))
-
-namespace
-{
-	inline char** BreakString(const std::string& s, const char delim)
-	{
-		if (s.length() == 0)
-		{
-			return nullptr;
-		}
-
-		//обязательно + 2, а то может быть краш на нечетной длине строки (и еще +1 для пустой строки)
-		char** res = new char* [s.length() / 2 + 3];
-
-		//для выравнивания количества параметров
-		res[0] = new char[1];
-		res[0][0] = '\0';
-
-		int i = 1, j = 0;
-
-		res[i] = new char[s.length() + 1];
-
-		for (char sym : s)
-		{
-			if (sym == delim)
-			{
-				res[i][j] = '\0';
-				i++;
-				j = 0;
-
-				res[i] = new char[s.length() + 1];
-				continue;
-			}
-
-			res[i][j] = sym;
-			j++;
-		}
-
-		res[i][j] = '\0';
-		i++;
-		res[i] = nullptr;
-
-		return res;
-	}
-
-	inline void DualFree(char** a)
-	{
-		if (!a)
-		{
-			return;
-		}
-
-		int i = 0;
-
-		while (a[i])
-		{
-			delete [] a[i];
-			i++;
-		}
-
-		delete [] a;
-	}
-}
-
-#endif
+﻿#include "Person.h"
 
 Person::Person()
 {
-	runMenu();
 }
 
 Person::~Person()
 {
+}
+
+void Person::sendRequest()
+{
+	//todo
+}
+
+void Person::getResponce()
+{
+	//todo
 }
 
 unsigned long long Person::inputDrinkIndex() const
@@ -95,58 +26,8 @@ unsigned long long Person::inputDrinkIndex() const
 	return res;
 }
 
-void Person::RunChild(const std::string& params) const
-{
-	//create process with parametres
-#ifdef _WIN32
-	STARTUPINFO sInfo;
-	PROCESS_INFORMATION pInfo;
 
-	ZeroMemory(&sInfo, sizeof sInfo);
-	sInfo.cb = sizeof sInfo;
-	ZeroMemory(&pInfo, sizeof pInfo);
-
-	if (!CreateProcess(NULL, (LPSTR)(("lab1 " + params).c_str()), NULL, NULL, FALSE, 0, NULL, NULL, &sInfo, &pInfo))
-	{
-		std::cout << "Не удается включить автомат" << std::endl;
-		return;
-	}
-
-	WaitForSingleObject(pInfo.hProcess, INFINITE);
-
-	CloseHandle(pInfo.hThread);
-	CloseHandle(pInfo.hProcess);
-
-#elif ((__linux__) || (__unix__))
-	
-	char** arrayOfParams = BreakString(params, ' ');
-
-	pid_t pid = fork();
-
-	if (pid < 0)
-	{
-		std::cout << "Не удается включить автомат" << std::endl;
-		return;
-	}
-	else if (pid > 0)
-	{
-		if (waitpid(pid, nullptr, 0) != pid)
-		{
-			std::cout << "Что-то пошло не так. Завершился не тот процесс" << std::endl;
-		}
-
-		DualFree(arrayOfParams);
-	}
-	else
-	{
-		execve("lab1.exe", arrayOfParams, nullptr);
-	}
-#else
-	std::cout << "Bad operation system. Please, recompile me to Linux, Unix or Windows" << std::endl;
-#endif
-}
-
-void Person::runMenu() const
+bool Person::runConsole()
 {
 	do
 	{
@@ -170,7 +51,7 @@ void Person::runMenu() const
 		{
 			case '0':
 			{
-				return;
+				return false;
 			}
 			case '1':
 			{
@@ -209,7 +90,8 @@ void Person::runMenu() const
 
 		if (isSelectGood)
 		{
-			RunChild(params);
+			query = params;
+			return true;
 		}
 	} while (true);
 }

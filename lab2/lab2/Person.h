@@ -7,14 +7,16 @@
 
 class Person
 {
+	std::string query;
 public:
 	Person();
 	~Person();
+	bool runConsole();
+	void sendRequest();
+	void getResponce();
 
 private:
 	unsigned long long inputDrinkIndex() const;
-	void RunChild(const std::string& params) const;
-	void runMenu() const;
 
 	unsigned long long inputMoney() const;
 };

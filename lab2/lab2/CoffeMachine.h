@@ -1,26 +1,32 @@
 #ifndef COFFE_CLASS
 #define COFFE_CLASS
 
-#include"Drink.h"
 #include <vector>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+
+#include"Drink.h"
 
 class CoffeMachine
 {
-    private:
-        int money;
-        std::vector<Drink> drinks;
-		void setCommand();
-		void getCommand();
-		void addMoney(int money);
-        int buy (int drinkID);
-        void showAvailable();
-		void moneyBack();
-    public:
-	void showMoney() const;
-        CoffeMachine();
-        ~CoffeMachine();
-        void proceed();
-		void writeToFile();
+	std::stringstream out;
+
+    int money;
+    std::vector<Drink> drinks;
+	void setCommand() const;
+	std::vector<std::string> getCommand();
+	void addMoney(int money);
+    int buy (int drinkID);
+    void showAvailable();
+	void moneyBack();
+public:
+void showMoney();
+    CoffeMachine();
+    ~CoffeMachine();
+    void proceed();
+	void writeToFile();
 };
 
 #endif
