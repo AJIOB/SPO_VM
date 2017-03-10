@@ -209,9 +209,9 @@ void WorkAsCoffeeMachine() //TVS
 
 #elif (defined(__linux__) || defined(__unix__))
 
-void StartWorkingWithNewUser()
+pid_t StartWorkingWithNewUser()
 {
-	if (isWorkWithUserNow || PIDq.empty())
+	if (PIDq.empty())
 	{
 		return 0;
 	}
@@ -222,8 +222,6 @@ void StartWorkingWithNewUser()
 	{
 		return 0;
 	}
-
-	isWorkWithUserNow = true;
 
 	kill(currPID, SIGF0);
 
@@ -260,7 +258,7 @@ int setSigAction(int sig, void (*handleFun) (int, siginfo_t*, void*))
 	struct sigaction act;
 	memset(&act, NULL, sizeof(act));	//clear all struct
 	act.sa_sigaction = handleFun;
-	sct.sa_flags = SA_SIGINFO;
+	act.sa_flags = SA_SIGINFO;
 	sigset_t set;
 	sigemptyset(&set);
 	sigaddset(&set, sig);
@@ -309,6 +307,11 @@ void WorkAsCoffeeMachine()
 		if (!isWorkWithUserNow)
 		{
 			currPID = StartWorkingWithNewUser();
+
+			if (currPID != 0)
+			{
+				isWorkWithUserNow = true;
+			}
 		}
 
 		if (signalIsHere[2])
@@ -390,11 +393,15 @@ void WorkAsPerson()
 		return;
 	}
 
+	std::cout << "Ждем совей очереди..." << std::endl;
+
 	kill(serverPID, SIGF0);
 
 	while (!signalIsHere[0]) {}
 
 	signalIsHere[0] = false;
+
+	Person person;
 
 	while (true)
 	{
