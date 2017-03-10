@@ -134,6 +134,7 @@ std::vector<std::string> CoffeMachine::getCommand() const
 
 	//break to strings
 	std::vector<std::string> res;
+	res.push_back(std::string());
 
 	for (int i = 0; i < size; ++i)
 	{
