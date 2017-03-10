@@ -43,7 +43,7 @@ void Person::getResponce() const
 		res.push_back(f.get());
 	}
 	f.close();
-	res.pop_back();			//лишний символ
+	res.pop_back(); //лишний символ
 
 	if (res.size() == 0)
 	{

@@ -4,14 +4,18 @@
 
 #elif (defined(__linux__) || defined(__unix__))
 
-#include <sys/wait.h>
-#include <sys/types.h>
-#include <unistd.h>
+#include <cstring>
+#include <signal.h>
+//#include <sys/signal.h>
+//#include <sys/types.h>
+//#include <unistd.h>
 
 #else
 #error Bad operation system. Please, recompile me to Linux, Unix or Windows
 #endif
 
+
+#include "Controller.h"
 
 #ifdef _WIN32
 namespace
@@ -21,11 +25,16 @@ namespace
 	const LPCTSTR fromMachine = TEXT("fromMachine");
 }
 #elif (defined(__linux__) || defined(__unix__))
-//todo linux
+namespace
+{
+	const char ServerPIDfilename[] = "serverPID.db";
+	const int SIGF1 = 10;
+	const int SIGF2 = 11;
+	const int SIGF3 = 12;
+}
 #endif
 
 
-#include "Controller.h"
 
 void SelectMode()
 {
@@ -197,14 +206,28 @@ void WorkAsCoffeeMachine() //TVS
 }
 
 #elif (defined(__linux__) || defined(__unix__))
+void hdlF1Machine(int sig)
+{
+	
+}
+
+
 void WorkAsPerson()
 {
-	//todo linux
+//todo linux
 }
 
 void WorkAsCoffeeMachine()
 {
-	
+	struct sigaction act;
+	memset(&act, NULL, sizeof(act));	//clear all struct
+	act.sa_handler = hdlF1Machine;
+	sigset_t set;
+	sigemptyset(&set);
+
+	sigaddset(&set, SIGF1);
+	act.sa_mask = set;
+	sigaction(SIGF1, &act, NULL);
 }
 
 #endif
