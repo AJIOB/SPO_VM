@@ -277,7 +277,17 @@ void setSigsMachine()
 
 void WritePID(pid_t pid)
 {
-//TODO
+	std::fstream f;
+	f.open(transferFile, std::ios::out | std::ios::trunc);
+
+	if (!f)
+	{
+		std::cout << ("Ошибка открытия файла") << std::endl;
+		return;
+	}
+
+	f << (int)pid;
+	f.close();
 }
 
 void WorkAsCoffeeMachine()
@@ -344,11 +354,29 @@ void setSigsPerson()
 
 pid_t getServerPID()
 {
-	pid_t res;
+	std::fstream f;
+	f.open(ServerPIDfilename, std::ios::in);
 
-	res = 0;	//TODO: read PID
+	if (!f)
+	{
+		std::cout << ("Ошибка взаимодействия с автоматом. Пожалуйста, сначала запустите автомат") << std::endl;
+		return 0;
+	}
 
-	return res;
+	int buffer;
+
+//стали на чтение
+	f.seekg(0);
+	f >> buffer;
+	if (!f)
+	{
+		std::cout << ("Ошибка взаимодействия с автоматом. Пожалуйста, сначала запустите автомат") << std::endl;
+		f.close();
+		return 0;
+	}
+	f.close();
+
+	return buffer;
 }
 
 void WorkAsPerson()
@@ -356,6 +384,11 @@ void WorkAsPerson()
 	setSigsPerson();
 
 	pid_t serverPID = getServerPID();
+
+	if (serverPID == 0)
+	{
+		return;
+	}
 
 	kill(serverPID, SIGF0);
 
