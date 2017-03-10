@@ -276,7 +276,7 @@ void setSigsMachine()
 void WritePID(pid_t pid)
 {
 	std::fstream f;
-	f.open(transferFile, std::ios::out | std::ios::trunc);
+	f.open(ServerPIDfilename, std::ios::out | std::ios::trunc);
 
 	if (!f)
 	{
