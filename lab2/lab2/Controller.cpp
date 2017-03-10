@@ -58,125 +58,153 @@ void SelectMode()
 }
 
 #ifdef _WIN32
-//todo Windows
-#elif (defined(__linux__) || defined(__unix__))
-//todo linux
-#endif
 
 void WorkAsPerson()
 {
-	//TODO compille!!!!!!
-	//TODO TVS: add two other events
-	//TODO TVS: add event array declaration
-	//TODO TVS: NULL write by CAPS LOCK
-	//TODO TVS: WinAPI funcs starts with upper-case letter (always)
-	//TODO TVS: add #ifdef block to WinAPI part
+	HANDLE EVENT[3];
 
 	//check machine (chek opening flags)
-	if (!event[0] = OpenEvent(EVENT_ALL_ACCESS, null, isMachineFree))
+	EVENT[0] = OpenEvent(EVENT_MODIFY_STATE, NULL, isMachineFree);
+	if (EVENT[0] == NULL)
 	{
 		std::cout << "Ошибка! Автомат не запущен"; //error. Machine is not started
-		CloseHandle(event[0]);
+		CloseHandle(EVENT[0]);
 		return;
 	}
 
+	EVENT[1] = OpenEvent(EVENT_MODIFY_STATE, NULL, fromUser);
+	if (EVENT[1] == NULL)
+	{
+		std::cout << "Ошибка! Автомат не запущен"; //error. Machine is not started
+		CloseHandle(EVENT[0]);
+		return;
+	}
+
+	EVENT[2] = OpenEvent(EVENT_MODIFY_STATE, NULL, fromMachine);
+	if (EVENT[2] == NULL)
+	{
+		std::cout << "Ошибка! Автомат не запущен"; //error. Machine is not started
+		CloseHandle(EVENT[0]);
+		return;
+	}
 	Person person;
 
 	//start loop
 	do
 	{
-		person.runConsole();
+		if (!person.runConsole())
+		{
+			break;
+		}
 		//wait 1
-		waitForSingleObject(event[0],INFINITE);
+		WaitForSingleObject(EVENT[0],INFINITE);
 
 		person.sendRequest();
 		//raise flag2
-		if (!PulseEvent(event[1]))
+		if (!SetEvent(EVENT[1]))
 		{
 			std::cout << "Ошибка! Не уделось провзаимодействовать с автоматом"; //error. Event is not pulsed
-			return;
+			break;
 		}
 
 		//wait flag3
-		waitForSingleObject(event[2],INFINITE);
+		WaitForSingleObject(EVENT[2],INFINITE);
 
 		person.getResponce();
 		//raise flag2
-		if (!PulseEvent(event[1]))
+		if (!SetEvent(EVENT[1]))
 		{
 			std::cout << "Ошибка! Не уделось провзаимодействовать с автоматом"; //error. Event is not pulsed
-			return;
+			break;
 		}
 	}
 	while (true);
+
+	for (int i = 0; i < 3; i ++)
+	{
+		CloseHandle(EVENT[i]);
+	}
 }
 
 void WorkAsCoffeeMachine() //TVS
 {
-#ifdef _WIN32
-	//TODO  compile!!!!!
-	//TODO TVS: HANDLE write in CAPS
-
-	Handle* event[3];
+	HANDLE EVENT[3];
 
 	//check existing
-	if (event[0] = OpenEvent(null, null, isMachineFree))
+	EVENT[0] = OpenEvent(NULL, NULL, isMachineFree);
+	if (EVENT[0])
 	{
 		std::cout << "Ошибка! Автомат уже запущен."; //error. Machine already started
-		CloseHandle(event[0]);
-		return;
-	}//TODO TVS: else after return is redundant
-	else if (event[1] = OpenEvent(null, null, fromUser))
-	{
-		std::cout << "Ошибка! Автомат уже запущен."; //error. Machine already started
-		CloseHandle(event[1]);
+		CloseHandle(EVENT[0]);
 		return;
 	}
-	else if (event[2] = OpenEvent(null, null, fromMachine))
+
+	EVENT[1] = OpenEvent(NULL, NULL, fromUser);
+	if (EVENT[1])
 	{
 		std::cout << "Ошибка! Автомат уже запущен."; //error. Machine already started
-		CloseHandle(event[2]);
+		CloseHandle(EVENT[1]);
+		return;
+	}
+
+	EVENT[2] = OpenEvent(NULL, NULL, fromMachine);
+	if (EVENT[2])
+	{
+		std::cout << "Ошибка! Автомат уже запущен."; //error. Machine already started
+		CloseHandle(EVENT[2]);
 		return;
 	}
 
 	//create events
-	event[0] = CreateEvent(null, false, false, isMachineFree);
-	event[1] = CreateEvent(null, false, false, fromUser);
-	event[2] = CreateEvent(null, false, false, fromMachine);
+	EVENT[0] = CreateEvent(NULL, false, false, isMachineFree);
+	EVENT[1] = CreateEvent(NULL, false, false, fromUser);
+	EVENT[2] = CreateEvent(NULL, false, false, fromMachine);
 
 
 	CoffeMachine machine;
 	do
 	{
 		//raise flag1
-		if (!PulseEvent(event[0]))
+		if (!SetEvent(EVENT[0]))
 		{
 			std::cout << "Ошибка! Не уделось провзаимодействовать с пользователем."; //error. Event is not pulsed
 			return;
 		}
 
 		// wait	flag2
-		waitForSingleObject(event[1],INFINITE);
+		WaitForSingleObject(EVENT[1],INFINITE);
 
 		machine.proceed();
 
 		//raise flag3
-		if (!PulseEvent(event[2]))
+		if (!SetEvent(EVENT[2]))
 		{
 			std::cout << "Ошибка! Не уделось провзаимодействовать с пользователем"; //error. Event is not pulsed
 			return;
 		}
 
 		//wait flag2
-		waitForSingleObject(event[1],INFINITE);
+		WaitForSingleObject(EVENT[1],INFINITE);
 
 		machine.writeToFile();
 	}
 	while (true);
 
-	//TODO TVS: close handles
+	for (int i = 0; i < 3; i ++)
+	{
+		CloseHandle(EVENT[i]);
+	}
+}
 
 #elif (defined(__linux__) || defined(__unix__))
+void WorkAsPerson()
+{
 	//todo linux
-#endif
 }
+
+void WorkAsCoffeeMachine()
+{
+	
+}
+
+#endif

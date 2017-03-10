@@ -117,7 +117,7 @@ std::vector<std::string> CoffeMachine::getCommand() const
 	if (!f)
 	{
 		std::cout << ("Ошибка открытия файла") << std::endl;
-		return;
+		return std::vector<std::string>();
 	}
 
 	f.seekg(0, std::ios::end);
