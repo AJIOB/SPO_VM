@@ -4,11 +4,11 @@
 
 #elif (defined(__linux__) || defined(__unix__))
 
+#include <queue>
 #include <cstring>
 #include <signal.h>
-//#include <sys/signal.h>
-//#include <sys/types.h>
-//#include <unistd.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #else
 #error Bad operation system. Please, recompile me to Linux, Unix or Windows
@@ -28,12 +28,14 @@ namespace
 namespace
 {
 	const char ServerPIDfilename[] = "serverPID.db";
-	const int SIGF1 = 10;
-	const int SIGF2 = 11;
-	const int SIGF3 = 12;
+	const int SIGF0 = 10;
+	const int SIGF1 = 11;
+	const int SIGF2 = 12;
+
+	std::queue<pid_t> PIDq;
+	bool signalIsHere[] = {false, false, false};
 }
 #endif
-
 
 
 void SelectMode()
@@ -206,28 +208,180 @@ void WorkAsCoffeeMachine() //TVS
 }
 
 #elif (defined(__linux__) || defined(__unix__))
-void hdlF1Machine(int sig)
+
+void StartWorkingWithNewUser()
 {
-	
+	if (isWorkWithUserNow || PIDq.empty())
+	{
+		return 0;
+	}
+
+	pid_t currPID = PIDq.front();
+	PIDq.pop();
+	if (currPID == 0)
+	{
+		return 0;
+	}
+
+	isWorkWithUserNow = true;
+
+	kill(currPID, SIGF0);
+
+	return currPID;
 }
 
-
-void WorkAsPerson()
+//save pid to queue
+void hdlF0Machine(int sig, siginfo_t* sigptr, void*)
 {
-//todo linux
+	if (!sigptr)
+	{
+		return;
+	}
+
+	PIDq.push(sigptr -> si_pid);
+
+	signalIsHere[0] = true;
+}
+
+//нужно обработать результаты
+void hdlF1Machine(int sig, siginfo_t* sigptr, void*)
+{
+	signalIsHere[1] = true;
+}
+
+//предыдущий пользователь закончил работу
+void hdlF2Machine(int sig, siginfo_t* sigptr, void*)
+{
+	signalIsHere[2] = true;
+}
+
+int setSigAction(int sig, void (*handleFun) (int, siginfo_t*, void*))
+{
+	struct sigaction act;
+	memset(&act, NULL, sizeof(act));	//clear all struct
+	act.sa_sigaction = handleFun;
+	sct.sa_flags = SA_SIGINFO;
+	sigset_t set;
+	sigemptyset(&set);
+	sigaddset(&set, sig);
+	act.sa_mask = set;
+	return sigaction(sig, &act, NULL);
+}
+
+void setSigsMachine()
+{
+	setSigAction(SIGF0, hdlF0Machine);
+	setSigAction(SIGF1, hdlF1Machine);
+	setSigAction(SIGF2, hdlF2Machine);
+}
+
+void WritePID(pid_t pid)
+{
+//TODO
 }
 
 void WorkAsCoffeeMachine()
 {
-	struct sigaction act;
-	memset(&act, NULL, sizeof(act));	//clear all struct
-	act.sa_handler = hdlF1Machine;
-	sigset_t set;
-	sigemptyset(&set);
+	setSigsMachine();
 
-	sigaddset(&set, SIGF1);
-	act.sa_mask = set;
-	sigaction(SIGF1, &act, NULL);
+	WritePID(getpid());
+
+	pid_t currPID = 0;
+	bool isWorkWithUserNow;
+	CoffeMachine machine;
+
+	isWorkWithUserNow = false;
+
+	currPID = 0;	
+
+	while (true)
+	{
+		if (!isWorkWithUserNow)
+		{
+			currPID = StartWorkingWithNewUser();
+		}
+
+		if (signalIsHere[2])
+		{
+			signalIsHere[2] = false;
+			isWorkWithUserNow = false;
+			continue;
+		}
+
+		if (signalIsHere[1])
+		{
+			signalIsHere[1] = false;
+			machine.proceed();
+			machine.writeToFile();
+
+			kill(currPID, SIGF1);
+
+			continue;
+		}
+	}
+}
+
+//------------------Person--------------
+//значит, можно начинать работу
+void hdlF0Person(int sig, siginfo_t* sigptr, void*)
+{
+	signalIsHere[0] = true;
+}
+
+//можем читать результат
+void hdlF1Person(int sig, siginfo_t* sigptr, void*)
+{
+	signalIsHere[1] = true;
+}
+
+
+void setSigsPerson()
+{
+	setSigAction(SIGF0, hdlF0Person);
+	setSigAction(SIGF1, hdlF1Person);
+}
+
+
+pid_t getServerPID()
+{
+	pid_t res;
+
+	res = 0;	//TODO: read PID
+
+	return res;
+}
+
+void WorkAsPerson()
+{
+	setSigsPerson();
+
+	pid_t serverPID = getServerPID();
+
+	kill(serverPID, SIGF0);
+
+	while (!signalIsHere[0]) {}
+
+	signalIsHere[0] = false;
+
+	while (true)
+	{
+		if (!person.runConsole())
+		{
+			break;
+		}
+
+		person.sendRequest();
+		
+		kill(serverPID, SIGF1);
+
+		while (!signalIsHere[1]) {}
+
+		signalIsHere[1] = false;
+
+		person.getResponce();
+	}
+
+	kill(serverPID, SIGF2);
 }
 
 #endif
