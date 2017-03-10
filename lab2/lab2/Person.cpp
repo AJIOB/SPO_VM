@@ -12,12 +12,12 @@ void Person::sendRequest() const
 {
 	std::fstream f;
 	f.open(transferFile, std::ios::out | std::ios::trunc);
-    
-    if (!f)
-    {
-        std::cout << ("Ошибка открытия файла") << std::endl;
-        return;
-    }
+
+	if (!f)
+	{
+		std::cout << ("Ошибка открытия файла") << std::endl;
+		return;
+	}
 
 	f << query.str();
 	f.close();
@@ -27,15 +27,15 @@ void Person::getResponce() const
 {
 	std::fstream f;
 	f.open(transferFile, std::ios::in);
-    
-    if (!f)
-    {
-        std::cout<<("Ошибка открытия файла") << std::endl;
-        return;
-    }
-    
+
+	if (!f)
+	{
+		std::cout << ("Ошибка открытия файла") << std::endl;
+		return;
+	}
+
 	f.seekg(0, std::ios::end);
-	int size = static_cast<int> (f.tellg());
+	int size = static_cast<int>(f.tellg());
 
 	if (size <= 0)
 	{
@@ -81,7 +81,7 @@ bool Person::runConsole()
 		std::cout << "5) Вернуть деньги" << std::endl;
 		std::cout << "0) Отойти от автомата" << std::endl;
 		std::cout << "Пожалуйста, сделайте свой выбор" << std::endl;
-	
+
 		auto k = std::cin.get();
 		Stream::Clear();
 
@@ -91,39 +91,39 @@ bool Person::runConsole()
 
 		switch (k)
 		{
-			case '0':
+		case '0':
 			{
 				return false;
 			}
-			case '1':
+		case '1':
 			{
 				params += "a " + std::to_string(inputMoney());
-				
+
 				break;
 			}
-			case '2':
+		case '2':
 			{
 				params += "s";
 
 				break;
 			}
-			case '3':
+		case '3':
 			{
 				params += "sm";
 
 				break;
 			}
-			case '4':
+		case '4':
 			{
 				params += "b " + std::to_string(inputDrinkIndex());
 				break;
 			}
-			case '5':
+		case '5':
 			{
 				params += "m";
 				break;
 			}
-			default:
+		default:
 			{
 				std::cout << "Извините, такого варианта не существует. Пожалуйста, повторите выбор" << std::endl;
 				isSelectGood = false;
@@ -135,7 +135,8 @@ bool Person::runConsole()
 			query.str(params);
 			return true;
 		}
-	} while (true);
+	}
+	while (true);
 }
 
 unsigned long long Person::inputMoney() const

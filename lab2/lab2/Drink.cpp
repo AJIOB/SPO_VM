@@ -1,24 +1,26 @@
 #include "Drink.h"
 #include <iostream>
 
-Drink::Drink(std::string name_,int amountLeft_,int price_)
+Drink::Drink(std::string name_, int amountLeft_, int price_)
 {
-    name=name_;
-    amountLeft=amountLeft_;
-    price=price_;
+	name = name_;
+	amountLeft = amountLeft_;
+	price = price_;
 }
 
 void Drink::addDrink(int count)
 {
-    amountLeft+=count;
+	amountLeft += count;
 }
+
 void Drink::deleteDrink()
 {
-    amountLeft--;
+	amountLeft--;
 }
+
 void Drink::show()
 {
-    std::cout<<name<<"  Цена:  "<<price<<"  Остаток:  "<<amountLeft<<std::endl;
+	std::cout << name << "  Цена:  " << price << "  Остаток:  " << amountLeft << std::endl;
 }
 
 std::string Drink::getName()

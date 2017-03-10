@@ -21,7 +21,7 @@ namespace
 	const LPCTSTR fromMachine = TEXT("fromMachine");
 }
 #elif (defined(__linux__) || defined(__unix__))
-	//todo linux
+//todo linux
 #endif
 
 
@@ -33,7 +33,7 @@ void SelectMode()
 	std::cout << "1) Пользователь" << std::endl;
 	std::cout << "2) Автомат" << std::endl;
 	std::cout << "Пожалуйста, сделайте свой выбор" << std::endl;
-	
+
 	auto k = std::cin.get();
 	Stream::Clear();
 
@@ -41,7 +41,7 @@ void SelectMode()
 	{
 	case '1':
 		{
-			WorkAsPerson();				
+			WorkAsPerson();
 			break;
 		}
 	case '2':
@@ -58,9 +58,9 @@ void SelectMode()
 }
 
 #ifdef _WIN32
-	//todo Windows
+//todo Windows
 #elif (defined(__linux__) || defined(__unix__))
-	//todo linux
+//todo linux
 #endif
 
 void WorkAsPerson()
@@ -71,15 +71,15 @@ void WorkAsPerson()
 	//TODO TVS: NULL write by CAPS LOCK
 	//TODO TVS: WinAPI funcs starts with upper-case letter (always)
 	//TODO TVS: add #ifdef block to WinAPI part
-	
+
 	//check machine (chek opening flags)
-	if(!event[0]=OpenEvent(EVENT_ALL_ACCESS,null,isMachineFree))
+	if (!event[0] = OpenEvent(EVENT_ALL_ACCESS, null, isMachineFree))
 	{
-		std::cout<<"Ошибка! Автомат не запущен";		//error. Machine is not started
+		std::cout << "Ошибка! Автомат не запущен"; //error. Machine is not started
 		CloseHandle(event[0]);
 		return;
 	}
-	
+
 	Person person;
 
 	//start loop
@@ -88,28 +88,27 @@ void WorkAsPerson()
 		person.runConsole();
 		//wait 1
 		waitForSingleObject(event[0],INFINITE);
-		
+
 		person.sendRequest();
 		//raise flag2
-		if(!PulseEvent(event[1]))
+		if (!PulseEvent(event[1]))
 		{
-			std::cout<<"Ошибка! Не уделось провзаимодействовать с автоматом";		//error. Event is not pulsed
+			std::cout << "Ошибка! Не уделось провзаимодействовать с автоматом"; //error. Event is not pulsed
 			return;
 		}
-		
+
 		//wait flag3
 		waitForSingleObject(event[2],INFINITE);
-		
+
 		person.getResponce();
 		//raise flag2
-		if(!PulseEvent(event[1]))
+		if (!PulseEvent(event[1]))
 		{
-			std::cout<<"Ошибка! Не уделось провзаимодействовать с автоматом";		//error. Event is not pulsed
+			std::cout << "Ошибка! Не уделось провзаимодействовать с автоматом"; //error. Event is not pulsed
 			return;
 		}
-		
 	}
-	while(true);
+	while (true);
 }
 
 void WorkAsCoffeeMachine() //TVS
@@ -117,68 +116,67 @@ void WorkAsCoffeeMachine() //TVS
 #ifdef _WIN32
 	//TODO  compile!!!!!
 	//TODO TVS: HANDLE write in CAPS
-	
+
 	Handle* event[3];
-	
+
 	//check existing
-	if(event[0]=OpenEvent(null,null,isMachineFree))
+	if (event[0] = OpenEvent(null, null, isMachineFree))
 	{
-		std::cout<<"Ошибка! Автомат уже запущен.";		//error. Machine already started
+		std::cout << "Ошибка! Автомат уже запущен."; //error. Machine already started
 		CloseHandle(event[0]);
 		return;
 	}//TODO TVS: else after return is redundant
-	else if(event[1]=OpenEvent(null,null,fromUser))
+	else if (event[1] = OpenEvent(null, null, fromUser))
 	{
-		std::cout<<"Ошибка! Автомат уже запущен.";		//error. Machine already started
+		std::cout << "Ошибка! Автомат уже запущен."; //error. Machine already started
 		CloseHandle(event[1]);
 		return;
 	}
-	else if(event[2]=OpenEvent(null,null,fromMachine))
+	else if (event[2] = OpenEvent(null, null, fromMachine))
 	{
-		std::cout<<"Ошибка! Автомат уже запущен.";		//error. Machine already started
+		std::cout << "Ошибка! Автомат уже запущен."; //error. Machine already started
 		CloseHandle(event[2]);
 		return;
 	}
-	
+
 	//create events
-	event[0]=CreateEvent(null,false,false,isMachineFree);
-	event[1]=CreateEvent(null,false,false,fromUser);
-	event[2]=CreateEvent(null,false,false,fromMachine);
-	
-	
+	event[0] = CreateEvent(null, false, false, isMachineFree);
+	event[1] = CreateEvent(null, false, false, fromUser);
+	event[2] = CreateEvent(null, false, false, fromMachine);
+
+
 	CoffeMachine machine;
 	do
 	{
 		//raise flag1
-		if(!PulseEvent(event[0]))
+		if (!PulseEvent(event[0]))
 		{
-			std::cout<<"Ошибка! Не уделось провзаимодействовать с пользователем.";		//error. Event is not pulsed
+			std::cout << "Ошибка! Не уделось провзаимодействовать с пользователем."; //error. Event is not pulsed
 			return;
 		}
-		
+
 		// wait	flag2
 		waitForSingleObject(event[1],INFINITE);
-		
+
 		machine.proceed();
-		
+
 		//raise flag3
-		if(!PulseEvent(event[2]))
+		if (!PulseEvent(event[2]))
 		{
-			std::cout<<"Ошибка! Не уделось провзаимодействовать с пользователем";		//error. Event is not pulsed
+			std::cout << "Ошибка! Не уделось провзаимодействовать с пользователем"; //error. Event is not pulsed
 			return;
 		}
-		
+
 		//wait flag2
 		waitForSingleObject(event[1],INFINITE);
-		
+
 		machine.writeToFile();
 	}
-	while(true);
-	
+	while (true);
+
 	//TODO TVS: close handles
-	
+
 #elif (defined(__linux__) || defined(__unix__))
 	//todo linux
 #endif
-	
 }

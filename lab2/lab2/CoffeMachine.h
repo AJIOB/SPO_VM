@@ -7,25 +7,26 @@
 #include <string>
 #include <sstream>
 
-#include"Drink.h"
+#include "Drink.h"
+#include "Controller.h"
 
 class CoffeMachine
 {
 	std::stringstream out;
 
-    int money;
-    std::vector<Drink> drinks;
+	int money;
+	std::vector<Drink> drinks;
 	void setCommand() const;
 	std::vector<std::string> getCommand() const;
 	void addMoney(int money);
-    int buy (int drinkID);
-    void showAvailable();
+	int buy(int drinkID);
+	void showAvailable();
 	void moneyBack();
 public:
-void showMoney();
-    CoffeMachine();
-    ~CoffeMachine();
-    void proceed();
+	void showMoney();
+	CoffeMachine();
+	~CoffeMachine();
+	void proceed();
 	void writeToFile();
 };
 

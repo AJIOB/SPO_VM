@@ -13,12 +13,12 @@ int main(int argc, char* argv[])
 		{
 			SelectMode();
 		}
-		else if (argc == 1 && std::string("-p") == argv[1])
+		else if (argc == 2 && std::string("-p") == argv[1])
 		{
 			//new Person
 			WorkAsPerson();
 		}
-		else if (argc == 1 && std::string("-m") == argv[1])
+		else if (argc == 2 && std::string("-m") == argv[1])
 		{
 			//new Machine
 			WorkAsCoffeeMachine();

@@ -8,10 +8,10 @@ namespace Stream
 {
 	void Clear();
 
-	template<typename InputType>
+	template <typename InputType>
 	InputType Input();
-	
-	template<typename InputType>
+
+	template <typename InputType>
 	void Input(InputType& elem);
 
 
@@ -25,7 +25,7 @@ namespace Stream
 #ifdef _WIN32
 		std::streambuf* tmp = std::cin.rdbuf();
 
-		while ( tmp->in_avail() > 0 )
+		while (tmp->in_avail() > 0)
 		{
 			tmp->sbumpc();
 		}
@@ -38,7 +38,7 @@ namespace Stream
 #endif
 	}
 
-	template<typename InputType>
+	template <typename InputType>
 	InputType Input()
 	{
 		InputType toReturn;
@@ -56,14 +56,14 @@ namespace Stream
 		return toReturn;
 	}
 
-	template<typename InputType>
+	template <typename InputType>
 	void Input(InputType& elem)
 	{
 		elem = Input<InputType>();
 	}
 
 	//for std::string
-	template<>
+	template <>
 	inline std::string Input()
 	{
 		std::string buffer;
@@ -82,6 +82,7 @@ namespace Stream
 
 		return buffer;
 	}
+
 	//end for std::string
 
 #undef AJIOB_END_OF_LINE
