@@ -34,28 +34,22 @@ void Person::getResponce() const
 		return;
 	}
 
-	f.seekg(0, std::ios::end);
-	int size = static_cast<int>(f.tellg());
+	std::string res;
 
-	if (size <= 0)
+	//стали на чтение
+	f.seekg(0);
+	while (f)
+	{
+		res.push_back(f.get());
+	}
+	f.close();
+	res.pop_back();			//лишний символ
+
+	if (res.size() == 0)
 	{
 		std::cout << "Автомат ничего не ответил" << std::endl;
 		return;
 	}
-
-	char* line = new char[size + 1];
-
-	//стали на чтение
-	f.seekg(0);
-	for (int i = 0; i < size; ++i)
-	{
-		line[i] = f.get();
-	}
-	f.close();
-
-	std::string res(line, line + size);
-
-	delete [] line;
 
 	std::cout << res << std::endl;
 }
