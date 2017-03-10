@@ -68,6 +68,7 @@ CoffeMachine::~CoffeMachine()
 void CoffeMachine::addMoney(int money)
 {
 	this->money += money;
+	out << money << " рублей успешно зачислено" << std::endl;
 }
 
 int CoffeMachine::buy(int drinkID)

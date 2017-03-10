@@ -64,7 +64,7 @@ void WorkAsPerson()
 	HANDLE EVENT[3];
 
 	//check machine (chek opening flags)
-	EVENT[0] = OpenEvent(EVENT_MODIFY_STATE, NULL, isMachineFree);
+	EVENT[0] = OpenEvent(EVENT_ALL_ACCESS, NULL, isMachineFree);
 	if (EVENT[0] == NULL)
 	{
 		std::cout << "Ошибка! Автомат не запущен"; //error. Machine is not started
@@ -72,7 +72,7 @@ void WorkAsPerson()
 		return;
 	}
 
-	EVENT[1] = OpenEvent(EVENT_MODIFY_STATE, NULL, fromUser);
+	EVENT[1] = OpenEvent(EVENT_ALL_ACCESS, NULL, fromUser);
 	if (EVENT[1] == NULL)
 	{
 		std::cout << "Ошибка! Автомат не запущен"; //error. Machine is not started
@@ -80,7 +80,7 @@ void WorkAsPerson()
 		return;
 	}
 
-	EVENT[2] = OpenEvent(EVENT_MODIFY_STATE, NULL, fromMachine);
+	EVENT[2] = OpenEvent(EVENT_ALL_ACCESS, NULL, fromMachine);
 	if (EVENT[2] == NULL)
 	{
 		std::cout << "Ошибка! Автомат не запущен"; //error. Machine is not started
