@@ -23,6 +23,7 @@ namespace
 	const LPCTSTR isMachineFree = TEXT("isMachineFree");
 	const LPCTSTR fromUser = TEXT("fromUser");
 	const LPCTSTR fromMachine = TEXT("fromMachine");
+	const LPCTSTR disconnectUser = TEXT("disconnectUser");
 }
 #elif (defined(__linux__) || defined(__unix__))
 namespace
@@ -72,7 +73,7 @@ void SelectMode()
 
 void WorkAsPerson()
 {
-	HANDLE EVENT[3];
+	HANDLE EVENT[4];
 
 	//check machine (chek opening flags)
 	EVENT[0] = OpenEvent(EVENT_ALL_ACCESS, NULL, isMachineFree);
@@ -87,7 +88,7 @@ void WorkAsPerson()
 	if (EVENT[1] == NULL)
 	{
 		std::cout << "Ошибка! Автомат не запущен"; //error. Machine is not started
-		CloseHandle(EVENT[0]);
+		CloseHandle(EVENT[1]);
 		return;
 	}
 
@@ -95,10 +96,22 @@ void WorkAsPerson()
 	if (EVENT[2] == NULL)
 	{
 		std::cout << "Ошибка! Автомат не запущен"; //error. Machine is not started
-		CloseHandle(EVENT[0]);
+		CloseHandle(EVENT[2]);
 		return;
 	}
+	EVENT[3] = OpenEvent(EVENT_ALL_ACCESS, NULL, disconnectUser);
+	if (EVENT[3] == NULL)
+	{
+		std::cout << "Ошибка! Автомат не запущен"; //error. Machine is not started
+		CloseHandle(EVENT[3]);
+		return;
+	}
+
 	Person person;
+	std::cout << "Ждем совей очереди..." << std::endl;
+
+	//wait 1
+	WaitForSingleObject(EVENT[0],INFINITE);
 
 	//start loop
 	do
@@ -107,9 +120,7 @@ void WorkAsPerson()
 		{
 			break;
 		}
-		//wait 1
-		WaitForSingleObject(EVENT[0],INFINITE);
-
+		
 		person.sendRequest();
 		//raise flag2
 		if (!SetEvent(EVENT[1]))
@@ -123,6 +134,7 @@ void WorkAsPerson()
 
 		person.getResponce();
 		//raise flag2
+
 		if (!SetEvent(EVENT[1]))
 		{
 			std::cout << "Ошибка! Не уделось провзаимодействовать с автоматом"; //error. Event is not pulsed
@@ -131,7 +143,12 @@ void WorkAsPerson()
 	}
 	while (true);
 
-	for (int i = 0; i < 3; i ++)
+	if (!SetEvent(EVENT[3]))
+	{
+		std::cout << "Ошибка! Не уделось провзаимодействовать с автоматом"; //error. Event is not pulsed
+	}
+
+	for (int i = 0; i < 4; i ++)
 	{
 		CloseHandle(EVENT[i]);
 	}
@@ -139,30 +156,41 @@ void WorkAsPerson()
 
 void WorkAsCoffeeMachine() //TVS
 {
-	HANDLE EVENT[3];
+	HANDLE EVENT[4];
 
 	//check existing
-	EVENT[0] = OpenEvent(NULL, NULL, isMachineFree);
-	if (EVENT[0])
+	EVENT[0] = OpenEvent(EVENT_ALL_ACCESS, NULL, isMachineFree);
+	if (EVENT[0] != NULL)
 	{
-		std::cout << "Ошибка! Автомат уже запущен."; //error. Machine already started
+		std::cout << "Ошибка! Автомат уже запущен. Для выхода введите любой символ"; //error. Machine already started
 		CloseHandle(EVENT[0]);
+		std::cin.get();
 		return;
 	}
 
-	EVENT[1] = OpenEvent(NULL, NULL, fromUser);
-	if (EVENT[1])
+	EVENT[1] = OpenEvent(EVENT_ALL_ACCESS, NULL, fromUser);
+	if (EVENT[1] != NULL)
 	{
-		std::cout << "Ошибка! Автомат уже запущен."; //error. Machine already started
+		std::cout << "Ошибка! Автомат уже запущен. Для выхода введите любой символ"; //error. Machine already started
 		CloseHandle(EVENT[1]);
+		std::cin.get();
 		return;
 	}
 
-	EVENT[2] = OpenEvent(NULL, NULL, fromMachine);
-	if (EVENT[2])
+	EVENT[2] = OpenEvent(EVENT_ALL_ACCESS, NULL, fromMachine);
+	if (EVENT[2] != NULL)
 	{
-		std::cout << "Ошибка! Автомат уже запущен."; //error. Machine already started
+		std::cout << "Ошибка! Автомат уже запущен. Для выхода введите любой символ"; //error. Machine already started
 		CloseHandle(EVENT[2]);
+		std::cin.get();
+		return;
+	}
+	EVENT[3] = OpenEvent(EVENT_ALL_ACCESS, NULL, disconnectUser);
+	if (EVENT[3] != NULL)
+	{
+		std::cout << "Ошибка! Автомат уже запущен. Для выхода введите любой символ"; //error. Machine already started
+		CloseHandle(EVENT[3]);
+		std::cin.get();
 		return;
 	}
 
@@ -170,34 +198,54 @@ void WorkAsCoffeeMachine() //TVS
 	EVENT[0] = CreateEvent(NULL, false, false, isMachineFree);
 	EVENT[1] = CreateEvent(NULL, false, false, fromUser);
 	EVENT[2] = CreateEvent(NULL, false, false, fromMachine);
+	EVENT[3] = CreateEvent(NULL, false, false, disconnectUser);
 
 
 	CoffeMachine machine;
+
+	//raise flag1
+	if (!SetEvent(EVENT[0]))
+	{
+		std::cout << "Ошибка! Не уделось провзаимодействовать с пользователем."; //error. Event is not pulsed
+		return;
+	}
+
+	HANDLE E1[] = {EVENT[1], EVENT[3]};
+
 	do
 	{
-		//raise flag1
-		if (!SetEvent(EVENT[0]))
-		{
-			std::cout << "Ошибка! Не уделось провзаимодействовать с пользователем."; //error. Event is not pulsed
-			return;
-		}
-
-		// wait	flag2
-		WaitForSingleObject(EVENT[1],INFINITE);
-
-		machine.proceed();
-
-		//raise flag3
-		if (!SetEvent(EVENT[2]))
-		{
-			std::cout << "Ошибка! Не уделось провзаимодействовать с пользователем"; //error. Event is not pulsed
-			return;
-		}
-
 		//wait flag2
-		WaitForSingleObject(EVENT[1],INFINITE);
+		DWORD dw = WaitForMultipleObjects(2, E1, false, INFINITE);
+		switch (dw)
+		{
+		case WAIT_FAILED:
+			std::cout << "Ошибка! Не уделось провзаимодействовать с пользователем";
+			break;
+		case WAIT_OBJECT_0 + 0:
+			machine.proceed();
+			machine.writeToFile();
 
-		machine.writeToFile();
+			//raise flag3
+			if (!SetEvent(EVENT[2]))
+			{
+				std::cout << "Ошибка! Не уделось провзаимодействовать с пользователем"; //error. Event is not pulsed
+				return;
+			}
+
+			WaitForSingleObject(EVENT[1],INFINITE);
+
+			break;
+		case WAIT_OBJECT_0 + 1:
+			//raise flag1
+			if (!SetEvent(EVENT[0]))
+			{
+				std::cout << "Ошибка! Не уделось провзаимодействовать с пользователем."; //error. Event is not pulsed
+				return;
+			}
+			break;
+		default: 
+			std::cout << "Ошибка! Что-то пошло не так. Вы не должны видеть это.";
+		}
 	}
 	while (true);
 
