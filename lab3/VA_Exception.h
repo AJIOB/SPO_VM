@@ -10,12 +10,10 @@ class VA_Exception : public std::exception
 public:
 	VA_Exception() : exception()
 	{
-		
 	}
 
 	explicit VA_Exception(std::string s) : errorText(s)
 	{
-		
 	}
 
 #ifdef _WIN32
@@ -29,7 +27,6 @@ public:
 		return errorText.c_str();
 	}
 #endif
-
 };
 
 #endif

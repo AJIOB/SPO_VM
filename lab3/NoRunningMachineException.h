@@ -8,7 +8,6 @@ class NoRunningMachineException : public VA_Exception
 public:
 	NoRunningMachineException() : VA_Exception("Machine is not running")
 	{
-		
 	}
 };
 

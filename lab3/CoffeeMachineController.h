@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include "CoffeeMachine.h"
+#include "AllExceptions.h"
 
 class CoffeeMachineController
 {

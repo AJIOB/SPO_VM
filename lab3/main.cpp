@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 #include <string>
 #include <clocale>
 
@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
-			std::cout << "Неожиданные параметры запуска. Программа аварийно завершена" << std::endl;
+			throw BadCommandLineArgumentsException();
 		}
 	}
 	catch (const int& eCode)
@@ -36,7 +36,8 @@ int main(int argc, char* argv[])
 	}
 	catch (VA_Exception& e)
 	{
-		std::cout << "Ошибка. " << e.what() << std::endl;
+		std::cout << "Ошибка. " << e.what() << ". Для выхода введите любой символ" << std::endl;
+		std::cin.get();
 		return 2;
 	}
 	catch (...)

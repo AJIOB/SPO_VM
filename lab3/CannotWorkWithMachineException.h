@@ -8,7 +8,6 @@ class CannotWorkWithMachineException : public VA_Exception
 public:
 	CannotWorkWithMachineException() : VA_Exception("Cannot work with machine")
 	{
-		
 	}
 };
 

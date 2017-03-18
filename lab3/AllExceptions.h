@@ -4,5 +4,8 @@
 #include "VA_Exception.h"
 #include "NoRunningMachineException.h"
 #include "CannotWorkWithMachineException.h"
+#include "BadCommandLineArgumentsException.h"
+#include "MachineAlreadyRunningException.h"
+#include "CannotWorkWithPersonException.h"
 
 #endif

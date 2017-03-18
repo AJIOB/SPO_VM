@@ -72,6 +72,15 @@
     <ClInclude Include="CannotWorkWithMachineException.h">
       <Filter>exceptions\header</Filter>
     </ClInclude>
+    <ClInclude Include="BadCommandLineArgumentsException.h">
+      <Filter>exceptions\header</Filter>
+    </ClInclude>
+    <ClInclude Include="MachineAlreadyRunningException.h">
+      <Filter>exceptions\header</Filter>
+    </ClInclude>
+    <ClInclude Include="CannotWorkWithPersonException.h">
+      <Filter>exceptions\header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

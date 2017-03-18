@@ -19,7 +19,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -75,12 +75,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AllExceptions.h" />
+    <ClInclude Include="BadCommandLineArgumentsException.h" />
     <ClInclude Include="CannotWorkWithMachineException.h" />
+    <ClInclude Include="CannotWorkWithPersonException.h" />
     <ClInclude Include="CoffeeMachine.h" />
     <ClInclude Include="CoffeeMachineController.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="Drink.h" />
+    <ClInclude Include="MachineAlreadyRunningException.h" />
     <ClInclude Include="NoRunningMachineException.h" />
     <ClInclude Include="Person.h" />
     <ClInclude Include="PersonController.h" />

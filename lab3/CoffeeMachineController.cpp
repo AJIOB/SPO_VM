@@ -29,36 +29,28 @@ CoffeeMachineController::CoffeeMachineController()
 	EVENT[0] = OpenEvent(EVENT_ALL_ACCESS, NULL, isMachineFree);
 	if (EVENT[0] != NULL)
 	{
-		std::cout << "Ошибка! Автомат уже запущен. Для выхода введите любой символ"; //error. Machine already started
 		CloseHandle(EVENT[0]);
-		std::cin.get();
-		return;
+		throw MachineAlreadyRunningException();
 	}
 
 	EVENT[1] = OpenEvent(EVENT_ALL_ACCESS, NULL, fromUser);
 	if (EVENT[1] != NULL)
 	{
-		std::cout << "Ошибка! Автомат уже запущен. Для выхода введите любой символ"; //error. Machine already started
 		CloseHandle(EVENT[1]);
-		std::cin.get();
-		return;
+		throw MachineAlreadyRunningException();
 	}
 
 	EVENT[2] = OpenEvent(EVENT_ALL_ACCESS, NULL, fromMachine);
 	if (EVENT[2] != NULL)
 	{
-		std::cout << "Ошибка! Автомат уже запущен. Для выхода введите любой символ"; //error. Machine already started
 		CloseHandle(EVENT[2]);
-		std::cin.get();
-		return;
+		throw MachineAlreadyRunningException();
 	}
 	EVENT[3] = OpenEvent(EVENT_ALL_ACCESS, NULL, disconnectUser);
 	if (EVENT[3] != NULL)
 	{
-		std::cout << "Ошибка! Автомат уже запущен. Для выхода введите любой символ"; //error. Machine already started
 		CloseHandle(EVENT[3]);
-		std::cin.get();
-		return;
+		throw MachineAlreadyRunningException();
 	}
 
 	//create events
@@ -103,8 +95,7 @@ void CoffeeMachineController::run()
 			//raise flag3
 			if (!SetEvent(EVENT[2]))
 			{
-				std::cout << "Ошибка! Не уделось провзаимодействовать с пользователем"; //error. Event is not pulsed
-				return;
+				throw CannotWorkWithPersonException();
 			}
 
 			WaitForSingleObject(EVENT[1],INFINITE);
@@ -114,8 +105,7 @@ void CoffeeMachineController::run()
 			//raise flag1
 			if (!SetEvent(EVENT[0]))
 			{
-				std::cout << "Ошибка! Не уделось провзаимодействовать с пользователем."; //error. Event is not pulsed
-				return;
+				throw CannotWorkWithPersonException();
 			}
 			break;
 		default:
