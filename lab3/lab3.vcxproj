@@ -74,7 +74,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CoffeMachine.h" />
+    <ClInclude Include="CoffeeMachine.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="Drink.h" />
@@ -82,7 +82,7 @@
     <ClInclude Include="view\StreamInput.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CoffeMachine.cpp" />
+    <ClCompile Include="CoffeeMachine.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="Drink.cpp" />
     <ClCompile Include="main.cpp" />
