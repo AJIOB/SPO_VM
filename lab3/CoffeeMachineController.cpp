@@ -208,7 +208,7 @@ CoffeeMachineController::CoffeeMachineController()
 
 CoffeeMachineController::~CoffeeMachineController()
 {
-	
+	unlink(serverPIDfilename);
 }
 
 void CoffeeMachineController::run()
