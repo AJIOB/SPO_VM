@@ -6,7 +6,6 @@
 
 class PersonController
 {
-
 #ifdef _WIN32
 	HANDLE EVENT[4];
 #elif (defined(__linux__) || defined(__unix__))

@@ -20,7 +20,7 @@ namespace VA
 
 #elif (defined(__linux__) || defined(__unix__))
 
-		static const char ServerPIDfilename[] = "serverPID.db";
+		static const char serverPIDfilename[] = "serverPID.db";
 		static const int SIGF0 = 10;
 		static const int SIGF1 = 11;
 		static const int SIGF2 = 12;

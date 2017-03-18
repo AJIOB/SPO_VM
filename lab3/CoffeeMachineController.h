@@ -13,7 +13,7 @@ class CoffeeMachineController
 #elif (defined(__linux__) || defined(__unix__))
 	pid_t currPID;
 
-	writePID();
+	void writePID();
 #endif
 
 	CoffeeMachine machine;

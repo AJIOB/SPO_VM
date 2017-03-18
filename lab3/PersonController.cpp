@@ -16,12 +16,15 @@
 
 #include "PersonController.h"
 
+namespace
+{
+	using namespace VA::constants;
+}
+
 #ifdef _WIN32
 
 PersonController::PersonController()
 {
-	using namespace VA::constants;
-
 	//check machine (chek opening flags)
 	EVENT[0] = OpenEvent(EVENT_ALL_ACCESS, NULL, isMachineFree);
 	if (EVENT[0] == NULL)
@@ -82,7 +85,7 @@ void PersonController::run()
 		{
 			break;
 		}
-		
+
 		person.sendRequest();
 		//raise flag2
 		if (!SetEvent(EVENT[1]))
@@ -108,6 +111,11 @@ void PersonController::run()
 
 #elif (defined(__linux__) || defined(__unix__))
 
+namespace
+{
+	bool signalIsHere[] = {false, false, false};
+}
+
 //значит, можно начинать работу
 void hdlF0Person(int sig, siginfo_t* sigptr, void*)
 {
@@ -120,10 +128,25 @@ void hdlF1Person(int sig, siginfo_t* sigptr, void*)
 	signalIsHere[1] = true;
 }
 
+int setSigActionPerson(int sig, void (*handleFun) (int, siginfo_t*, void*))
+{
+	struct sigaction act;
+	memset(&act, NULL, sizeof(act));	//clear all struct
+	act.sa_sigaction = handleFun;
+	act.sa_flags = SA_SIGINFO;
+	sigset_t set;
+	sigemptyset(&set);
+	sigaddset(&set, sig);
+	act.sa_mask = set;
+	return sigaction(sig, &act, NULL);
+}
+
 pid_t PersonController::getServerPID()
 {
+	using VA::constants::serverPIDfilename;
+
 	std::fstream f;
-	f.open(ServerPIDfilename, std::ios::in);
+	f.open(serverPIDfilename, std::ios::in);
 
 	if (!f)
 	{
@@ -149,8 +172,8 @@ pid_t PersonController::getServerPID()
 
 PersonController::PersonController()
 {
-	setSigAction(SIGF0, hdlF0Person);
-	setSigAction(SIGF1, hdlF1Person);
+	setSigActionPerson(SIGF0, hdlF0Person);
+	setSigActionPerson(SIGF1, hdlF1Person);
 
 	pid_t serverPID = getServerPID();
 
@@ -162,8 +185,6 @@ PersonController::PersonController()
 
 void PersonController::run()
 {
-	
-
 	std::cout << "Ждем совей очереди..." << std::endl;
 
 	kill(serverPID, SIGF0);
@@ -194,7 +215,8 @@ void PersonController::run()
 }
 
 PersonController::~PersonController()
-{	
+{
+	using VA::constants::SIGF2;
 	kill(serverPID, SIGF2);
 }
 

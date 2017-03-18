@@ -16,12 +16,15 @@
 
 #include "CoffeeMachineController.h"
 
+namespace
+{
+	using namespace VA::constants;
+}
+
 #ifdef _WIN32
 
 CoffeeMachineController::CoffeeMachineController()
 {
-	using namespace VA::constants;
-
 	//check existing
 	EVENT[0] = OpenEvent(EVENT_ALL_ACCESS, NULL, isMachineFree);
 	if (EVENT[0] != NULL)
@@ -115,7 +118,7 @@ void CoffeeMachineController::run()
 				return;
 			}
 			break;
-		default: 
+		default:
 			std::cout << "Ошибка! Что-то пошло не так. Вы не должны видеть это.";
 		}
 	}
@@ -190,7 +193,7 @@ int setSigAction(int sig, void (*handleFun) (int, siginfo_t*, void*))
 void CoffeeMachineController::writePID()
 {
 	std::fstream f;
-	f.open(ServerPIDfilename, std::ios::out | std::ios::trunc);
+	f.open(serverPIDfilename, std::ios::out | std::ios::trunc);
 
 	if (!f)
 	{
