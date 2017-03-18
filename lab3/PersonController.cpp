@@ -29,27 +29,29 @@ PersonController::PersonController()
 	EVENT[0] = OpenEvent(EVENT_ALL_ACCESS, NULL, isMachineFree);
 	if (EVENT[0] == NULL)
 	{
-		CloseHandle(EVENT[0]);
 		throw NoRunningMachineException();
 	}
 
 	EVENT[1] = OpenEvent(EVENT_ALL_ACCESS, NULL, fromUser);
 	if (EVENT[1] == NULL)
 	{
-		CloseHandle(EVENT[1]);
+		CloseHandle(EVENT[0]);
 		throw NoRunningMachineException();
 	}
 
 	EVENT[2] = OpenEvent(EVENT_ALL_ACCESS, NULL, fromMachine);
 	if (EVENT[2] == NULL)
 	{
-		CloseHandle(EVENT[2]);
+		CloseHandle(EVENT[0]);
+		CloseHandle(EVENT[1]);
 		throw NoRunningMachineException();
 	}
 	EVENT[3] = OpenEvent(EVENT_ALL_ACCESS, NULL, disconnectUser);
 	if (EVENT[3] == NULL)
 	{
-		CloseHandle(EVENT[3]);
+		CloseHandle(EVENT[0]);
+		CloseHandle(EVENT[1]);
+		CloseHandle(EVENT[2]);
 		throw NoRunningMachineException();
 	}
 }
