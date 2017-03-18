@@ -1,5 +1,10 @@
 ﻿#include "Person.h"
 
+namespace
+{
+	using namespace VA::constants;
+}
+
 Person::Person()
 {
 }
@@ -10,8 +15,6 @@ Person::~Person()
 
 void Person::sendRequest() const
 {
-	using VA::constants::transferFile;
-
 	std::fstream f;
 	f.open(transferFile, std::ios::out | std::ios::trunc);
 
@@ -27,8 +30,6 @@ void Person::sendRequest() const
 
 void Person::getResponce() const
 {
-	using VA::constants::transferFile;
-
 	std::fstream f;
 	f.open(transferFile, std::ios::in);
 

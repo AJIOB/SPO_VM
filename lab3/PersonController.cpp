@@ -29,32 +29,28 @@ PersonController::PersonController()
 	EVENT[0] = OpenEvent(EVENT_ALL_ACCESS, NULL, isMachineFree);
 	if (EVENT[0] == NULL)
 	{
-		std::cout << "Ошибка! Автомат не запущен"; //error. Machine is not started
 		CloseHandle(EVENT[0]);
-		return;
+		throw NoRunningMachineException();
 	}
 
 	EVENT[1] = OpenEvent(EVENT_ALL_ACCESS, NULL, fromUser);
 	if (EVENT[1] == NULL)
 	{
-		std::cout << "Ошибка! Автомат не запущен"; //error. Machine is not started
 		CloseHandle(EVENT[1]);
-		return;
+		throw NoRunningMachineException();
 	}
 
 	EVENT[2] = OpenEvent(EVENT_ALL_ACCESS, NULL, fromMachine);
 	if (EVENT[2] == NULL)
 	{
-		std::cout << "Ошибка! Автомат не запущен"; //error. Machine is not started
 		CloseHandle(EVENT[2]);
-		return;
+		throw NoRunningMachineException();
 	}
 	EVENT[3] = OpenEvent(EVENT_ALL_ACCESS, NULL, disconnectUser);
 	if (EVENT[3] == NULL)
 	{
-		std::cout << "Ошибка! Автомат не запущен"; //error. Machine is not started
 		CloseHandle(EVENT[3]);
-		return;
+		throw NoRunningMachineException();
 	}
 }
 
@@ -62,7 +58,7 @@ PersonController::~PersonController()
 {
 	if (!SetEvent(EVENT[3]))
 	{
-		std::cout << "Ошибка! Не уделось провзаимодействовать с автоматом"; //error. Event is not pulsed
+		std::cout << "Ошибка! Не удалось провзаимодействовать с автоматом"; //error. Event is not pulsed
 	}
 
 	for (int i = 0; i < 4; i ++)
@@ -90,8 +86,7 @@ void PersonController::run()
 		//raise flag2
 		if (!SetEvent(EVENT[1]))
 		{
-			std::cout << "Ошибка! Не уделось провзаимодействовать с автоматом"; //error. Event is not pulsed
-			break;
+			throw CannotWorkWithMachineException();
 		}
 
 		//wait flag3
@@ -102,8 +97,7 @@ void PersonController::run()
 
 		if (!SetEvent(EVENT[1]))
 		{
-			std::cout << "Ошибка! Не уделось провзаимодействовать с автоматом"; //error. Event is not pulsed
-			break;
+			throw CannotWorkWithMachineException();
 		}
 	}
 	while (true);
@@ -143,15 +137,12 @@ int setSigActionPerson(int sig, void (*handleFun) (int, siginfo_t*, void*))
 
 pid_t PersonController::getServerPID()
 {
-	using VA::constants::serverPIDfilename;
-
 	std::fstream f;
 	f.open(serverPIDfilename, std::ios::in);
 
 	if (!f)
 	{
-		std::cout << ("Ошибка взаимодействия с автоматом. Пожалуйста, сначала запустите автомат") << std::endl;
-		return 0;
+		throw NoRunningMachineException();
 	}
 
 	int buffer;
@@ -161,9 +152,8 @@ pid_t PersonController::getServerPID()
 	f >> buffer;
 	if (!f)
 	{
-		std::cout << ("Ошибка взаимодействия с автоматом. Пожалуйста, сначала запустите автомат") << std::endl;
 		f.close();
-		return 0;
+		throw NoRunningMachineException();
 	}
 	f.close();
 
@@ -179,7 +169,7 @@ PersonController::PersonController()
 
 	if (serverPID == 0)
 	{
-		return;
+		throw NoRunningMachineException();
 	}
 }
 
@@ -192,8 +182,6 @@ void PersonController::run()
 	while (!signalIsHere[0]) {}
 
 	signalIsHere[0] = false;
-
-	Person person;
 
 	while (true)
 	{
@@ -216,7 +204,6 @@ void PersonController::run()
 
 PersonController::~PersonController()
 {
-	using VA::constants::SIGF2;
 	kill(serverPID, SIGF2);
 }
 

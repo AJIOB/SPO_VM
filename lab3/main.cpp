@@ -3,6 +3,7 @@
 #include <clocale>
 
 #include "Controller.h"
+#include "VA_Exception.h"
 
 int main(int argc, char* argv[])
 {
@@ -32,6 +33,11 @@ int main(int argc, char* argv[])
 	catch (const int& eCode)
 	{
 		return eCode;
+	}
+	catch (VA_Exception& e)
+	{
+		std::cout << "Ошибка. " << e.what() << std::endl;
+		return 2;
 	}
 	catch (...)
 	{

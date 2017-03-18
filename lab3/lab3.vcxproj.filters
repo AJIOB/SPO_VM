@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
     <Filter Include="view">
       <UniqueIdentifier>{71841f69-ef96-4496-9ace-13f15b90cf03}</UniqueIdentifier>
     </Filter>
@@ -31,6 +27,13 @@
     <Filter Include="controller\source">
       <UniqueIdentifier>{02357221-f368-4884-94bb-de0640b904f9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="exceptions">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="exceptions\header">
+      <UniqueIdentifier>{d9dbd346-c2ac-418f-b60e-b7edc1ad28c4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="view\StreamInput.h">
@@ -56,6 +59,18 @@
     </ClInclude>
     <ClInclude Include="CoffeeMachineController.h">
       <Filter>controller\header</Filter>
+    </ClInclude>
+    <ClInclude Include="AllExceptions.h">
+      <Filter>exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="VA_Exception.h">
+      <Filter>exceptions\header</Filter>
+    </ClInclude>
+    <ClInclude Include="NoRunningMachineException.h">
+      <Filter>exceptions\header</Filter>
+    </ClInclude>
+    <ClInclude Include="CannotWorkWithMachineException.h">
+      <Filter>exceptions\header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

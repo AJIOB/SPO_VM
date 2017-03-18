@@ -3,6 +3,8 @@
 namespace
 {
 	const std::string fName = "info.db";
+
+	using namespace VA::constants;
 }
 
 void CoffeeMachine::showMoney()
@@ -97,8 +99,6 @@ void CoffeeMachine::moneyBack()
 
 void CoffeeMachine::setCommand() const
 {
-	using VA::constants::transferFile;
-
 	std::fstream f;
 	f.open(transferFile, std::ios::out | std::ios::trunc);
 
@@ -114,8 +114,6 @@ void CoffeeMachine::setCommand() const
 
 std::vector<std::string> CoffeeMachine::getCommand() const
 {
-	using VA::constants::transferFile;
-
 	std::fstream f;
 	f.open(transferFile, std::ios::in);
 
