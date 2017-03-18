@@ -9,7 +9,9 @@ class PersonController
 
 #ifdef _WIN32
 	HANDLE EVENT[4];
-#elif 0
+#elif (defined(__linux__) || defined(__unix__))
+	pid_t serverPID;
+
 	pid_t getServerPID();
 #endif
 

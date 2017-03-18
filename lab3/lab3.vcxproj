@@ -75,18 +75,22 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CoffeeMachine.h" />
+    <ClInclude Include="CoffeeMachineController.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="Drink.h" />
     <ClInclude Include="Person.h" />
+    <ClInclude Include="PersonController.h" />
     <ClInclude Include="view\StreamInput.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CoffeeMachine.cpp" />
+    <ClCompile Include="CoffeeMachineController.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="Drink.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Person.cpp" />
+    <ClCompile Include="PersonController.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -5,10 +5,6 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="view">
       <UniqueIdentifier>{71841f69-ef96-4496-9ace-13f15b90cf03}</UniqueIdentifier>
     </Filter>
@@ -25,14 +21,18 @@
     <Filter Include="model\source">
       <UniqueIdentifier>{7b3db6d5-3eb2-45c3-8e35-72aa912806ef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="controller">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="controller\header">
+      <UniqueIdentifier>{8c02792f-b731-429f-90f2-047c5269547e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="controller\source">
+      <UniqueIdentifier>{02357221-f368-4884-94bb-de0640b904f9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Constants.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Controller.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="view\StreamInput.h">
       <Filter>view</Filter>
     </ClInclude>
@@ -45,6 +45,18 @@
     <ClInclude Include="Drink.h">
       <Filter>model\header</Filter>
     </ClInclude>
+    <ClInclude Include="Constants.h">
+      <Filter>model</Filter>
+    </ClInclude>
+    <ClInclude Include="Controller.h">
+      <Filter>controller\header</Filter>
+    </ClInclude>
+    <ClInclude Include="PersonController.h">
+      <Filter>controller\header</Filter>
+    </ClInclude>
+    <ClInclude Include="CoffeeMachineController.h">
+      <Filter>controller\header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -56,11 +68,17 @@
     <ClCompile Include="Drink.cpp">
       <Filter>model\source</Filter>
     </ClCompile>
-    <ClCompile Include="Controller.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Person.cpp">
       <Filter>model\source</Filter>
+    </ClCompile>
+    <ClCompile Include="Controller.cpp">
+      <Filter>controller\source</Filter>
+    </ClCompile>
+    <ClCompile Include="PersonController.cpp">
+      <Filter>controller\source</Filter>
+    </ClCompile>
+    <ClCompile Include="CoffeeMachineController.cpp">
+      <Filter>controller\source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

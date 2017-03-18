@@ -17,6 +17,7 @@
 #include "PersonController.h"
 
 #ifdef _WIN32
+
 PersonController::PersonController()
 {
 	using namespace VA::constants;
@@ -150,15 +151,18 @@ PersonController::PersonController()
 {
 	setSigAction(SIGF0, hdlF0Person);
 	setSigAction(SIGF1, hdlF1Person);
-}
-void WorkAsPerson()
-{
+
 	pid_t serverPID = getServerPID();
 
 	if (serverPID == 0)
 	{
 		return;
 	}
+}
+
+void PersonController::run()
+{
+	
 
 	std::cout << "Ждем совей очереди..." << std::endl;
 
@@ -187,10 +191,11 @@ void WorkAsPerson()
 
 		person.getResponce();
 	}
-
-	kill(serverPID, SIGF2);
 }
 
 PersonController::~PersonController()
-{
+{	
+	kill(serverPID, SIGF2);
+}
+
 #endif
