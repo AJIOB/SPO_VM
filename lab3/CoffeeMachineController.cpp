@@ -15,6 +15,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>        /* For mode constants */
 #include <fcntl.h>           /* For O_* constants */
+#include <pthread.h>		//for mutex
 
 #else
 #error Bad operation system. Please, recompile me to Linux, Unix or Windows
@@ -258,7 +259,7 @@ CoffeeMachineController::CoffeeMachineController()
 		throw ReallocSharedMemoryException();
 	}
 
-	void* address = mmap(NULL, sizeof(&commands), PROT_READ, MAP_SHARED, shmPersonNameID, 0);
+	void* address = mmap(NULL, sizeof(&commands) + sizeof(RWlistMutex), PROT_READ, MAP_SHARED, shmPersonNameID, 0);
 	if (address == MAP_FAILED)
 	{
 		throw MapSharedMemoryException();
@@ -266,6 +267,15 @@ CoffeeMachineController::CoffeeMachineController()
 
 	//write adress to shm
 	memcpy(address, &commands, sizeof(&commands));
+
+	//make mutex
+	RWlistMutex = new pthread_mutex_t();
+	if (pthread_mutex_init(RWlistMutex, NULL) != 0)
+	{
+		throw InitMutexException();
+	}
+
+	memcpy(((char *)address) + sizeof(&commands), RWlistMutex, sizeof(RWlistMutex));
 }
 
 CoffeeMachineController::~CoffeeMachineController()
@@ -274,6 +284,13 @@ CoffeeMachineController::~CoffeeMachineController()
 	{
 		std::cout << "Ошибка удаления PID автомата" << std::endl;
 	}
+
+	if (pthread_mutex_destroy(RWlistMutex) != 0)
+	{
+		std::cout << "Ошибка удаления mutex-а" << std::endl;
+	}
+
+	delete RWlistMutex;
 
 	if (munmap(NULL, sizeof(&commands)) != 0)
 	{

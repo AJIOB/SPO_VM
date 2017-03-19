@@ -12,6 +12,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>        /* For mode constants */
 #include <fcntl.h>           /* For O_* constants */
+#include <pthread.h>		//for mutex
 
 #else
 #error Bad operation system. Please, recompile me to Linux, Unix or Windows
@@ -216,11 +217,16 @@ PersonController::PersonController(std::string name) : person(name)
 
 	//read shm adress
 	memcpy(commands, address, sizeof(commands));
+
+	memcpy(RWlistMutex, (char *)address + sizeof(commands), sizeof(RWlistMutex));
 }
 
 void PersonController::run()
 {
 	std::cout << "Ждем совей очереди..." << std::endl;
+
+	//todo: add mutex
+	commands->push_back(Command(true, person.getName()));
 
 	kill(serverPID, SIGF0);
 

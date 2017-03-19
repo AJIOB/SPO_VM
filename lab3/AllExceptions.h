@@ -10,5 +10,6 @@
 #include "CreateSharedMemoryException.h"
 #include "ReallocSharedMemoryException.h"
 #include "MapSharedMemoryException.h"
+#include "InitMutexException.h"
 
 #endif

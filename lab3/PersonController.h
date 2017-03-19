@@ -15,6 +15,7 @@ class PersonController
 #elif (defined(__linux__) || defined(__unix__))
 	pid_t serverPID;
 	int shmPersonNameID;
+	pthread_mutex_t* RWlistMutex;
 
 	pid_t getServerPID();
 #endif
