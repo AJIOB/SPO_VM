@@ -4,6 +4,8 @@
 #include <iostream>
 #include "CoffeeMachine.h"
 #include "AllExceptions.h"
+#include <list>
+#include "Structs.h"
 
 class CoffeeMachineController
 {
@@ -21,11 +23,11 @@ class CoffeeMachineController
 #endif
 
 	CoffeeMachine machine;
-
+	std::list<Command> commands;
+	std::list<std::string> names;
 public:
 	CoffeeMachineController();
 	~CoffeeMachineController();
-
 	void run();
 };
 

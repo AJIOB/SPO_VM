@@ -2,6 +2,8 @@
 
 #include <windows.h>
 
+#define BUF_SIZE 256
+
 #elif (defined(__linux__) || defined(__unix__))
 
 #include <queue>
@@ -28,6 +30,24 @@ namespace
 
 CoffeeMachineController::CoffeeMachineController()
 {
+	HANDLE hFile;
+	LPVOID fileBuf;
+
+
+	hFile = CreateFileMapping(INVALID_HANDLE_VALUE,NULL,PAGE_READWRITE,0,BUF_SIZE,shmPersonName);
+	
+	fileBuf = MapViewOfFile(hFile,FILE_MAP_ALL_ACCESS,0,0,BUF_SIZE);
+	if(fileBuf == NULL)
+	{
+		 std::cout<<"Ошибка при работе с общей памятью";
+       CloseHandle(hFile);
+      return;
+	}
+	
+	CopyMemory(fileBuf,&commands,sizeof(&commands));
+
+
+
 	//check existing
 	EVENT[0] = OpenEvent(EVENT_ALL_ACCESS, NULL, isMachineFree);
 	if (EVENT[0] != NULL)

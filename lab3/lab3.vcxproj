@@ -87,6 +87,7 @@
     <ClInclude Include="NoRunningMachineException.h" />
     <ClInclude Include="Person.h" />
     <ClInclude Include="PersonController.h" />
+    <ClInclude Include="Structs.h" />
     <ClInclude Include="VA_Exception.h" />
     <ClInclude Include="view\StreamInput.h" />
   </ItemGroup>
