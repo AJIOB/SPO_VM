@@ -9,6 +9,9 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys/mman.h>
+#include <sys/stat.h>        /* For mode constants */
+#include <fcntl.h>           /* For O_* constants */
 
 #else
 #error Bad operation system. Please, recompile me to Linux, Unix or Windows
@@ -204,6 +207,13 @@ CoffeeMachineController::CoffeeMachineController()
 	writePID();
 
 	currPID = 0;
+
+	shmPersonNameID = shm_open(shmPersonName, O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+
+	if (shmPersonNameID < 0)
+	{
+		throw CannotCreateSharedMemoryException();
+	}
 }
 
 CoffeeMachineController::~CoffeeMachineController()

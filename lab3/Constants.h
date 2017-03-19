@@ -25,6 +25,7 @@ namespace VA
 		static const int SIGF1 = 11;
 		static const int SIGF2 = 12;
 
+		static const char shmPersonName[] = "//shmPersonName";
 #endif
 	}
 }

@@ -7,5 +7,6 @@
 #include "BadCommandLineArgumentsException.h"
 #include "MachineAlreadyRunningException.h"
 #include "CannotWorkWithPersonException.h"
+#include "CannotCreateSharedMemoryException.h"
 
 #endif
