@@ -1,6 +1,7 @@
 ﻿#ifdef _WIN32
 
 #include <windows.h>
+#include<algorithm>
 
 #define BUF_SIZE 256
 
@@ -30,24 +31,6 @@ namespace
 
 CoffeeMachineController::CoffeeMachineController()
 {
-	HANDLE hFile;
-	LPVOID fileBuf;
-
-
-	hFile = CreateFileMapping(INVALID_HANDLE_VALUE,NULL,PAGE_READWRITE,0,BUF_SIZE,shmPersonName);
-	
-	fileBuf = MapViewOfFile(hFile,FILE_MAP_ALL_ACCESS,0,0,BUF_SIZE);
-	if(fileBuf == NULL)
-	{
-		 std::cout<<"Ошибка при работе с общей памятью";
-       CloseHandle(hFile);
-      return;
-	}
-	
-	CopyMemory(fileBuf,&commands,sizeof(&commands));
-
-
-
 	//check existing
 	EVENT[0] = OpenEvent(EVENT_ALL_ACCESS, NULL, isMachineFree);
 	if (EVENT[0] != NULL)
@@ -102,8 +85,44 @@ void CoffeeMachineController::run()
 
 	HANDLE E1[] = {EVENT[1], EVENT[3]};
 
+	HANDLE hFile;
+	LPVOID fileBuf;
+
+	hFile = CreateFileMapping(INVALID_HANDLE_VALUE,NULL,PAGE_READWRITE,0,BUF_SIZE,shmPersonName);
+	fileBuf = MapViewOfFile(hFile,FILE_MAP_ALL_ACCESS,0,0,BUF_SIZE);
+	if (fileBuf == NULL)
+	{
+		std::cout<<"Ошибка работы с общей памятью";
+		return ;
+	}
+
+	CopyMemory(fileBuf,&commands,sizeof(&commands));
+	listMutex = CreateMutex(NULL,FALSE,mutex);
+
 	do
 	{
+
+		WaitForSingleObject(listMutex, INFINITE);
+		while(!commands.empty())
+		{
+			if(commands.front().isAdd)
+			{
+				names.push_back(commands.front().name);
+				
+			}
+			else
+			{
+				auto res = std::find(names.begin(), names.end(), commands.front().name);
+				if (res != names.end())
+				{
+					names.erase(res);
+				}
+			}
+			commands.pop_front();
+		}
+		ReleaseMutex(listMutex);
+
+
 		//wait flag2
 		DWORD dw = WaitForMultipleObjects(2, E1, false, INFINITE);
 		switch (dw)

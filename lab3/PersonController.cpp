@@ -1,7 +1,7 @@
 ﻿#ifdef _WIN32
 
 #include <windows.h>
-
+#define BUF_SIZE 256
 #elif (defined(__linux__) || defined(__unix__))
 
 #include <queue>
@@ -75,6 +75,31 @@ PersonController::~PersonController()
 void PersonController::run()
 {
 	std::cout << "Ждем совей очереди..." << std::endl;
+	
+	HANDLE hFile;
+	//открытие shared memory
+	hFile = OpenFileMapping(FILE_MAP_ALL_ACCESS,FALSE,shmPersonName);
+
+	if (hFile == NULL)
+	{
+		std::cout<<"Ошибка при работе с общей памятью";
+		return;
+	}
+
+	commands =reinterpret_cast<std::list<Command>*>( MapViewOfFile(hFile,FILE_MAP_ALL_ACCESS,0,0,BUF_SIZE));
+	if(commands == NULL)
+	{
+		std::cout<<"Ошибка при работе с общей памятью";
+		CloseHandle(hFile);
+		return;
+	}
+
+	WaitForSingleObject(listMutex, INFINITE);
+	
+	commands->push_back(Command());
+	commands->back().isAdd = true;
+	commands->back().name = person.getName();
+	ReleaseMutex(listMutex);
 
 	//wait 1
 	WaitForSingleObject(EVENT[0],INFINITE);
