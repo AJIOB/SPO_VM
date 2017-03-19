@@ -12,6 +12,7 @@ class CoffeeMachineController
 #ifdef _WIN32
 
 	HANDLE EVENT[4];
+	HANDLE listMutex;
 
 #elif (defined(__linux__) || defined(__unix__))
 	pid_t currPID;

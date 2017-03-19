@@ -19,6 +19,7 @@ namespace VA
 		static const LPCTSTR disconnectUser = TEXT("disconnectUser");
 
 		static const LPCTSTR shmPersonName = TEXT("shmPersonName");
+		static const LPCTSTR mutex = TEXT("mutex");
 
 
 #elif (defined(__linux__) || defined(__unix__))
