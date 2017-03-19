@@ -18,7 +18,7 @@ class PersonController
 	Person person;
 
 public:
-	PersonController();
+	PersonController(std::string name);
 	~PersonController();
 
 	void run();

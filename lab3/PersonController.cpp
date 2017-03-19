@@ -23,7 +23,7 @@ namespace
 
 #ifdef _WIN32
 
-PersonController::PersonController()
+PersonController::PersonController(std::string name) : person(name)
 {
 	//check machine (chek opening flags)
 	EVENT[0] = OpenEvent(EVENT_ALL_ACCESS, NULL, isMachineFree);

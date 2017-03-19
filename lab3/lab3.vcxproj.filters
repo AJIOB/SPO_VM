@@ -81,6 +81,9 @@
     <ClInclude Include="CannotWorkWithPersonException.h">
       <Filter>exceptions\header</Filter>
     </ClInclude>
+    <ClInclude Include="Structs.h">
+      <Filter>controller\header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

@@ -32,7 +32,11 @@ void SelectMode()
 
 void WorkAsPerson()
 {
-	PersonController controller;
+	std::string name;
+	std::cout<<"Введите ваше имя"<<std::endl;
+	Stream::Input(name);
+
+	PersonController controller(name);
 	controller.run();
 }
 

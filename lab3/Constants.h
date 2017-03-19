@@ -18,6 +18,9 @@ namespace VA
 		static const LPCTSTR fromMachine = TEXT("fromMachine");
 		static const LPCTSTR disconnectUser = TEXT("disconnectUser");
 
+		static const LPCTSTR shmPersonName = TEXT("shmPersonName");
+
+
 #elif (defined(__linux__) || defined(__unix__))
 
 		static const char serverPIDfilename[] = "serverPID.db";

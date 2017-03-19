@@ -5,8 +5,9 @@ namespace
 	using namespace VA::constants;
 }
 
-Person::Person()
+Person::Person(std::string name)
 {
+	this->name = name;
 }
 
 Person::~Person()
@@ -26,6 +27,11 @@ void Person::sendRequest() const
 
 	f << query.str();
 	f.close();
+}
+
+std::string Person::getName() const
+{
+	return name;
 }
 
 void Person::getResponce() const
