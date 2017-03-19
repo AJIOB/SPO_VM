@@ -88,7 +88,7 @@ void PersonController::run()
 		//raise flag2
 		if (!SetEvent(EVENT[1]))
 		{
-			throw CannotWorkWithMachineException();
+			throw WorkWithMachineException();
 		}
 
 		//wait flag3
@@ -99,7 +99,7 @@ void PersonController::run()
 
 		if (!SetEvent(EVENT[1]))
 		{
-			throw CannotWorkWithMachineException();
+			throw WorkWithMachineException();
 		}
 	}
 	while (true);

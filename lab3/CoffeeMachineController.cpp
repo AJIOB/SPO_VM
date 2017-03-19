@@ -118,7 +118,7 @@ void CoffeeMachineController::run()
 			//raise flag3
 			if (!SetEvent(EVENT[2]))
 			{
-				throw CannotWorkWithPersonException();
+				throw WorkWithPersonException();
 			}
 
 			WaitForSingleObject(EVENT[1],INFINITE);
@@ -128,7 +128,7 @@ void CoffeeMachineController::run()
 			//raise flag1
 			if (!SetEvent(EVENT[0]))
 			{
-				throw CannotWorkWithPersonException();
+				throw WorkWithPersonException();
 			}
 			break;
 		default:
@@ -231,16 +231,21 @@ CoffeeMachineController::CoffeeMachineController()
 	shmPersonNameID = shm_open(shmPersonName, O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
 	if (shmPersonNameID < 0)
 	{
-		throw CannotCreateSharedMemoryException();
+		throw CreateSharedMemoryException();
 	}
 
 	int err = ftruncate(shmPersonNameID, sizeof(&commands));
 	if (err != 0)
 	{
-		throw CannotReallocSharedMemoryException();
+		throw ReallocSharedMemoryException();
 	}
 
 	//todo: write adress of commands to shm
+	void* address = mmap(NULL, sizeof(&commands), PROT_READ, MAP_SHARED, shmPersonNameID, 0);
+	if (address == MAP_FAILED)
+	{
+		throw MapSharedMemoryException();
+	}
 }
 
 CoffeeMachineController::~CoffeeMachineController()

@@ -76,8 +76,8 @@
   <ItemGroup>
     <ClInclude Include="AllExceptions.h" />
     <ClInclude Include="BadCommandLineArgumentsException.h" />
-    <ClInclude Include="CannotWorkWithMachineException.h" />
-    <ClInclude Include="CannotWorkWithPersonException.h" />
+    <ClInclude Include="WorkWithMachineException.h" />
+    <ClInclude Include="WorkWithPersonException.h" />
     <ClInclude Include="CoffeeMachine.h" />
     <ClInclude Include="CoffeeMachineController.h" />
     <ClInclude Include="Constants.h" />

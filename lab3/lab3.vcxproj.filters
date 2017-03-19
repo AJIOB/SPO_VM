@@ -69,7 +69,7 @@
     <ClInclude Include="NoRunningMachineException.h">
       <Filter>exceptions\header</Filter>
     </ClInclude>
-    <ClInclude Include="CannotWorkWithMachineException.h">
+    <ClInclude Include="WorkWithMachineException.h">
       <Filter>exceptions\header</Filter>
     </ClInclude>
     <ClInclude Include="BadCommandLineArgumentsException.h">
@@ -78,7 +78,7 @@
     <ClInclude Include="MachineAlreadyRunningException.h">
       <Filter>exceptions\header</Filter>
     </ClInclude>
-    <ClInclude Include="CannotWorkWithPersonException.h">
+    <ClInclude Include="WorkWithPersonException.h">
       <Filter>exceptions\header</Filter>
     </ClInclude>
     <ClInclude Include="Structs.h">
