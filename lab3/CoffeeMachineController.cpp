@@ -28,6 +28,19 @@ namespace
 
 CoffeeMachineController::CoffeeMachineController()
 {
+	hFile = CreateFileMapping(INVALID_HANDLE_VALUE,NULL,PAGE_READWRITE,0,BUF_SIZE,shmPersonName);
+	fileBuf = MapViewOfFile(hFile,FILE_MAP_ALL_ACCESS,0,0,BUF_SIZE);
+	if (fileBuf == NULL)
+	{
+		std::cout<<"Ошибка работы с общей памятью";
+		return ;
+	}
+
+	CopyMemory(fileBuf,&commands,sizeof(&commands));
+	listMutex = CreateMutex(NULL,FALSE,mutex);
+
+	outputThread = CreateThread(NULL,0,CoffeeMachineController::threadOutputting,this,0,NULL);   // returns the thread identifier 
+
 	//check existing
 	EVENT[0] = OpenEvent(EVENT_ALL_ACCESS, NULL, isMachineFree);
 	if (EVENT[0] != NULL)
@@ -69,6 +82,9 @@ CoffeeMachineController::~CoffeeMachineController()
 	{
 		CloseHandle(EVENT[i]);
 	}
+	UnmapViewOfFile(fileBuf);
+	CloseHandle(hFile);
+	CloseHandle(outputThread);
 }
 
 void CoffeeMachineController::run()
@@ -82,44 +98,8 @@ void CoffeeMachineController::run()
 
 	HANDLE E1[] = {EVENT[1], EVENT[3]};
 
-	HANDLE hFile;
-	LPVOID fileBuf;
-
-	hFile = CreateFileMapping(INVALID_HANDLE_VALUE,NULL,PAGE_READWRITE,0,BUF_SIZE,shmPersonName);
-	fileBuf = MapViewOfFile(hFile,FILE_MAP_ALL_ACCESS,0,0,BUF_SIZE);
-	if (fileBuf == NULL)
-	{
-		std::cout<<"Ошибка работы с общей памятью";
-		return ;
-	}
-
-	CopyMemory(fileBuf,&commands,sizeof(&commands));
-	listMutex = CreateMutex(NULL,FALSE,mutex);
-
 	do
 	{
-
-		WaitForSingleObject(listMutex, INFINITE);
-		while(!commands.empty())
-		{
-			if(commands.front().isAdd)
-			{
-				names.push_back(commands.front().name);
-				
-			}
-			else
-			{
-				auto res = std::find(names.begin(), names.end(), commands.front().name);
-				if (res != names.end())
-				{
-					names.erase(res);
-				}
-			}
-			commands.pop_front();
-		}
-		ReleaseMutex(listMutex);
-
-
 		//wait flag2
 		DWORD dw = WaitForMultipleObjects(2, E1, false, INFINITE);
 		switch (dw)
@@ -152,6 +132,42 @@ void CoffeeMachineController::run()
 		}
 	}
 	while (true);
+}
+
+DWORD WINAPI CoffeeMachineController::threadOutputting( LPVOID lpParam)
+{	
+	CoffeeMachineController* p = reinterpret_cast<CoffeeMachineController*>(lpParam);
+	WaitForSingleObject(p->listMutex, INFINITE);
+		
+	while(!p->commands.empty())
+		{
+			if(p->commands.front().isAdd)
+			{
+				p->names.push_back(p->commands.front().name);
+			}
+			else
+			{
+				auto res = std::find(p->names.begin(), p->names.end(), p->commands.front().name);
+				if (res != p->names.end())
+				{
+					p->names.erase(res);
+				}
+			}
+			p->commands.pop_front();
+		}
+		ReleaseMutex(p->listMutex);
+
+		if(!(p->names.empty()))
+		{
+			WaitForSingleObject(p->listMutex, INFINITE);
+			for(auto i = p->names.begin(); i != p->names.end(); i++)
+			{
+				std::cout<<*i << " ";
+			}
+	
+			ReleaseMutex(p->listMutex);
+		}
+	return 0;
 }
 
 #elif (defined(__linux__) || defined(__unix__))
