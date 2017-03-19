@@ -11,6 +11,7 @@ class PersonController
 	HANDLE EVENT[4];
 #elif (defined(__linux__) || defined(__unix__))
 	pid_t serverPID;
+	int shmPersonNameID;
 
 	pid_t getServerPID();
 #endif

@@ -9,6 +9,9 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys/mman.h>
+#include <sys/stat.h>        /* For mode constants */
+#include <fcntl.h>           /* For O_* constants */
 
 #else
 #error Bad operation system. Please, recompile me to Linux, Unix or Windows
@@ -173,6 +176,21 @@ PersonController::PersonController(std::string name) : person(name)
 	{
 		throw NoRunningMachineException();
 	}
+
+	shmPersonNameID = shm_open(shmPersonName, O_RDONLY, S_IRUSR);
+	if (shmPersonNameID < 0)
+	{
+		throw CreateSharedMemoryException();
+	}
+
+	void* address = mmap(NULL, sizeof(commands), PROT_READ, MAP_SHARED, shmPersonNameID, 0);
+	if (address == MAP_FAILED)
+	{
+		throw MapSharedMemoryException();
+	}
+
+	//read shm adress
+	memcpy(commands, address, sizeof(commands));
 }
 
 void PersonController::run()
@@ -206,6 +224,16 @@ void PersonController::run()
 
 PersonController::~PersonController()
 {
+	if (munmap(NULL, sizeof(&commands)) != 0)
+	{
+		std::cout << "Ошибка удаления разбиения shared memory" << std::endl;
+	}
+
+	if (shm_unlink(shmPersonName) != 0)
+	{
+		std::cout << "Ошибка отключения от shared memory" << std::endl;
+	}
+
 	kill(serverPID, SIGF2);
 }
 
