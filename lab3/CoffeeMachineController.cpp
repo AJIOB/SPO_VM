@@ -234,26 +234,34 @@ CoffeeMachineController::CoffeeMachineController()
 		throw CreateSharedMemoryException();
 	}
 
-	int err = ftruncate(shmPersonNameID, sizeof(&commands));
-	if (err != 0)
+	if (ftruncate(shmPersonNameID, sizeof(&commands)) != 0)
 	{
 		throw ReallocSharedMemoryException();
 	}
 
-	//todo: write adress of commands to shm
 	void* address = mmap(NULL, sizeof(&commands), PROT_READ, MAP_SHARED, shmPersonNameID, 0);
 	if (address == MAP_FAILED)
 	{
 		throw MapSharedMemoryException();
 	}
+
+	//write adress to shm
+	memcpy(address, &commands, sizeof(&commands));
 }
 
 CoffeeMachineController::~CoffeeMachineController()
 {
-	unlink(serverPIDfilename);
+	if (unlink(serverPIDfilename) != 0)
+	{
+		std::cout << "Ошибка удаления PID автомата" << std::endl;
+	}
 
-	int res = shm_unlink(shmPersonName);
-	if (res != 0)
+	if (munmap(NULL, sizeof(&commands)) != 0)
+	{
+		std::cout << "Ошибка удаления разбиения shared memory" << std::endl;
+	}
+
+	if (shm_unlink(shmPersonName) != 0)
 	{
 		std::cout << "Ошибка отключения от shared memory" << std::endl;
 	}
