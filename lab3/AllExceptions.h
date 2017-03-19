@@ -8,5 +8,6 @@
 #include "MachineAlreadyRunningException.h"
 #include "CannotWorkWithPersonException.h"
 #include "CannotCreateSharedMemoryException.h"
+#include "CannotReallocSharedMemoryException.h"
 
 #endif

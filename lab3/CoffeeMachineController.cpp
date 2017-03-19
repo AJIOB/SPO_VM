@@ -209,16 +209,29 @@ CoffeeMachineController::CoffeeMachineController()
 	currPID = 0;
 
 	shmPersonNameID = shm_open(shmPersonName, O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
-
 	if (shmPersonNameID < 0)
 	{
 		throw CannotCreateSharedMemoryException();
 	}
+
+	int err = ftruncate(shmPersonNameID, sizeof(&commands));
+	if (err != 0)
+	{
+		throw CannotReallocSharedMemoryException();
+	}
+
+	//todo: write adress of commands to shm
 }
 
 CoffeeMachineController::~CoffeeMachineController()
 {
 	unlink(serverPIDfilename);
+
+	int res = shm_unlink(shmPersonName);
+	if (res != 0)
+	{
+		std::cout << "Ошибка отключения от shared memory" << std::endl;
+	}
 }
 
 void CoffeeMachineController::run()
