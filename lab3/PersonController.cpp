@@ -162,7 +162,7 @@ pid_t PersonController::getServerPID()
 	return buffer;
 }
 
-PersonController::PersonController()
+PersonController::PersonController(std::string name) : person(name)
 {
 	setSigActionPerson(SIGF0, hdlF0Person);
 	setSigActionPerson(SIGF1, hdlF1Person);

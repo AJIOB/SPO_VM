@@ -1,5 +1,5 @@
-#ifndef CCSM_EXCEPTION
-#define CCSM_EXCEPTION
+#ifndef CRSM_EXCEPTION
+#define CRSM_EXCEPTION
 
 #include "VA_Exception.h"
 
