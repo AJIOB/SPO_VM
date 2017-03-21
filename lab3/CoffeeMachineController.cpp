@@ -180,6 +180,7 @@ namespace
 {
 	std::queue<pid_t> PIDq;
 	bool signalIsHere[] = {false, false, false};
+    bool isMachineClose = false;
 }
 
 pid_t StartWorkingWithNewUser()
@@ -226,6 +227,12 @@ void hdlF2Machine(int sig, siginfo_t* sigptr, void*)
 	signalIsHere[2] = true;
 }
 
+//set exit flag
+void hdlTERMMachine(int sig, siginfo_t* sigptr, void*)
+{
+    isMachineClose = true;
+}
+
 int setSigAction(int sig, void (*handleFun) (int, siginfo_t*, void*))
 {
 	struct sigaction act;
@@ -259,11 +266,12 @@ CoffeeMachineController::CoffeeMachineController()
 	setSigAction(SIGF0, hdlF0Machine);
 	setSigAction(SIGF1, hdlF1Machine);
 	setSigAction(SIGF2, hdlF2Machine);
+    setSigAction(SIGTERM, hdlTERMMachine);
 
 	writePID();
 
 	currPID = 0;
-
+/*
 	shmPersonNameID = shm_open(shmPersonName, O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
 	if (shmPersonNameID < 0)
 	{
@@ -283,15 +291,19 @@ CoffeeMachineController::CoffeeMachineController()
 
 	//write adress to shm
 	memcpy(address, &commands, sizeof(&commands));
+*/
+    //mutex attribute (make mutex global)
+    pthread_mutexattr_init(&attrmutex);
+    pthread_mutexattr_setpshared(&attrmutex, PTHREAD_PROCESS_SHARED);
 
-	//make mutex
-	RWlistMutex = new pthread_mutex_t();
-	if (pthread_mutex_init(RWlistMutex, NULL) != 0)
+    //make mutex
+    RWlistMutex = new pthread_mutex_t();
+	if (pthread_mutex_init(RWlistMutex, &attrmutex) != 0)
 	{
 		throw InitMutexException();
 	}
 
-	memcpy(((char *)address) + sizeof(&commands), RWlistMutex, sizeof(RWlistMutex));
+	//memcpy(((char *)address) + sizeof(&commands), RWlistMutex, sizeof(RWlistMutex));
 }
 
 CoffeeMachineController::~CoffeeMachineController()
@@ -305,6 +317,11 @@ CoffeeMachineController::~CoffeeMachineController()
 	{
 		std::cout << "Ошибка удаления mutex-а" << std::endl;
 	}
+
+    if (pthread_mutexattr_destroy(&attrmutex) != 0)
+    {
+        std::cout << "Ошибка удаления атрибута mutex-а" << std::endl;
+    }
 
 	delete RWlistMutex;
 
@@ -325,6 +342,11 @@ void CoffeeMachineController::run()
 
 	while (true)
 	{
+        if (isMachineClose)
+        {
+            break;
+        }
+
 		if (!isWorkWithUserNow)
 		{
 			currPID = StartWorkingWithNewUser();

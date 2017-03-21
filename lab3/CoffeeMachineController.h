@@ -22,6 +22,7 @@ class CoffeeMachineController
 
 	pid_t currPID;
 	int shmPersonNameID;
+    pthread_mutexattr_t attrmutex;
 	pthread_mutex_t* RWlistMutex;
 
 	void writePID();
