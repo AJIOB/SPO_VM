@@ -202,7 +202,7 @@ PersonController::PersonController(std::string name) : person(name)
 	{
 		throw NoRunningMachineException();
 	}
-
+/*
 	shmPersonNameID = shm_open(shmPersonName, O_RDONLY, S_IRUSR);
 	if (shmPersonNameID < 0)
 	{
@@ -218,7 +218,26 @@ PersonController::PersonController(std::string name) : person(name)
 	//read shm adress
 	memcpy(commands, address, sizeof(commands));
 
-	memcpy(RWlistMutex, (char *)address + sizeof(commands), sizeof(RWlistMutex));
+	memcpy(RWlistMutex, (char *)address + sizeof(commands), sizeof(RWlistMutex));*/
+
+    //TODO: rewrite example
+    pthread_cond_t * pcond = NULL;
+    pthread_condattr_t attrcond;
+
+    /* Initialise attribute to condition. */
+    pthread_condattr_init(&attrcond);
+    pthread_condattr_setpshared(&attrcond, PTHREAD_PROCESS_SHARED);
+
+    /* Allocate memory to pcond here. */
+
+    /* Initialise condition. */
+    pthread_cond_init(pcond, &attrcond);
+
+    /* Use the condition. */
+
+    /* Clean up. */
+    pthread_cond_destroy(pcond);
+    pthread_condattr_destroy(&attrcond);
 }
 
 void PersonController::run()
@@ -226,7 +245,7 @@ void PersonController::run()
 	std::cout << "Ждем совей очереди..." << std::endl;
 
 	//todo: add mutex
-	commands->push_back(Command(true, person.getName()));
+	//commands->push_back(Command(true, person.getName()));
 
 	kill(serverPID, SIGF0);
 
@@ -254,7 +273,7 @@ void PersonController::run()
 }
 
 PersonController::~PersonController()
-{
+{/*
 	if (munmap(NULL, sizeof(&commands)) != 0)
 	{
 		std::cout << "Ошибка удаления разбиения shared memory" << std::endl;
@@ -263,7 +282,7 @@ PersonController::~PersonController()
 	if (shm_unlink(shmPersonName) != 0)
 	{
 		std::cout << "Ошибка отключения от shared memory" << std::endl;
-	}
+	}*/
 
 	kill(serverPID, SIGF2);
 }

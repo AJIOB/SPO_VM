@@ -181,6 +181,7 @@ namespace
 	std::queue<pid_t> PIDq;
 	bool signalIsHere[] = {false, false, false};
     bool isMachineClose = false;
+    std::list<Command> commands;
 }
 
 pid_t StartWorkingWithNewUser()
@@ -227,6 +228,17 @@ void hdlF2Machine(int sig, siginfo_t* sigptr, void*)
 	signalIsHere[2] = true;
 }
 
+//предыдущий пользователь закончил работу
+void hdlSENDNAME(int sig, siginfo_t* sigptr, void*)
+{
+    Command c;
+    //todo: get command
+    commands.push_back(c);
+
+    //закончили читать
+    kill(sigptr->si_pid, SIGSENDNAME);
+}
+
 //set exit flag
 void hdlTERMMachine(int sig, siginfo_t* sigptr, void*)
 {
@@ -261,12 +273,50 @@ void CoffeeMachineController::writePID()
 	f.close();
 }
 
+void* OutputThread(void* ptr)
+{
+    CoffeeMachineController* cmController = reinterpret_cast<CoffeeMachineController*> (ptr);
+
+    while (true) {
+        if (isMachineClose)
+        {
+            break;
+        }
+
+        //do operations
+        while (!commands.empty()) {
+            Command c = commands.front();
+            commands.pop_front();
+            if (c.isAdd) {
+                cmController->names.push_back(c.name);
+            } else {
+                auto res = std::find(cmController->names.begin(), cmController->names.end(), c.name);
+                if (res == cmController->names.end()) {
+                    std::cout << std::endl << "User try to remove name that not exist" << std::endl;
+                }
+            }
+        }
+
+        //show all elements
+        std::for_each(cmController->names.begin(), cmController->names.end(),
+            [](const std::string& s) {
+                std::cout << s << " ";
+            }
+        );
+    }
+
+    pthread_exit(NULL);
+}
+
+//-------------------CoffeeMachineController-------------------------------
+
 CoffeeMachineController::CoffeeMachineController()
 {
 	setSigAction(SIGF0, hdlF0Machine);
 	setSigAction(SIGF1, hdlF1Machine);
 	setSigAction(SIGF2, hdlF2Machine);
     setSigAction(SIGTERM, hdlTERMMachine);
+    setSigAction(SIGSENDNAME, hdlSENDNAME);
 
 	writePID();
 
@@ -292,16 +342,9 @@ CoffeeMachineController::CoffeeMachineController()
 	//write adress to shm
 	memcpy(address, &commands, sizeof(&commands));
 */
-    //mutex attribute (make mutex global)
-    pthread_mutexattr_init(&attrmutex);
-    pthread_mutexattr_setpshared(&attrmutex, PTHREAD_PROCESS_SHARED);
 
-    //make mutex
-    RWlistMutex = new pthread_mutex_t();
-	if (pthread_mutex_init(RWlistMutex, &attrmutex) != 0)
-	{
-		throw InitMutexException();
-	}
+    createRWMutex();
+    pthread_create(&outputThread, NULL, OutputThread, this);
 
 	//memcpy(((char *)address) + sizeof(&commands), RWlistMutex, sizeof(RWlistMutex));
 }
@@ -325,6 +368,8 @@ CoffeeMachineController::~CoffeeMachineController()
 
 	delete RWlistMutex;
 
+    pthread_join(outputThread, NULL);
+/*
 	if (munmap(NULL, sizeof(&commands)) != 0)
 	{
 		std::cout << "Ошибка удаления разбиения shared memory" << std::endl;
@@ -333,7 +378,7 @@ CoffeeMachineController::~CoffeeMachineController()
 	if (shm_unlink(shmPersonName) != 0)
 	{
 		std::cout << "Ошибка отключения от shared memory" << std::endl;
-	}
+	}*/
 }
 
 void CoffeeMachineController::run()
@@ -375,6 +420,20 @@ void CoffeeMachineController::run()
 			continue;
 		}
 	}
+}
+
+void CoffeeMachineController::createRWMutex()
+{
+    //mutex attribute (make mutex global)
+    pthread_mutexattr_init(&attrmutex);
+    pthread_mutexattr_setpshared(&attrmutex, PTHREAD_PROCESS_SHARED);
+
+    //make mutex
+    RWlistMutex = new pthread_mutex_t();
+    if (pthread_mutex_init(RWlistMutex, &attrmutex) != 0)
+    {
+        throw InitMutexException();
+    }
 }
 
 #endif

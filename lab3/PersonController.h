@@ -14,8 +14,8 @@ class PersonController
 	HANDLE listMutex;
 #elif (defined(__linux__) || defined(__unix__))
 	pid_t serverPID;
-	int shmPersonNameID;
-	pthread_mutex_t* RWlistMutex;
+	//int shmPersonNameID;
+	//pthread_mutex_t* RWlistMutex;
 
 	pid_t getServerPID();
 #endif
@@ -25,7 +25,7 @@ class PersonController
 public:
 	PersonController(std::string name);
 	~PersonController();
-	std::list<Command> *commands;
+	//std::list<Command> *commands;
 
 	void run();
 };

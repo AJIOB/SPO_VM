@@ -1,6 +1,7 @@
 objects = main.o Controller.o CoffeeMachine.o Person.o Drink.o PersonController.o CoffeeMachineController.o
 CFLAGS = -std=c++11
 CXXFLAGS = $(CFLAGS)
+linkFlags = -lrt -lpthread
 sourceWay =
 deps = $(sourceWay)info.db
 destinationWay = bin/unix/
@@ -22,7 +23,7 @@ COPY = cp
 
 
 $(destinationName) : baseInit $(objects) copyDeps
-	$(compilerPrefix) -o $(objBackHome)$(destinationWay)$(destinationName) $(objects) -lrt -lpthread
+	$(compilerPrefix) -o $(objBackHome)$(destinationWay)$(destinationName) $(objects) $(linkFlags)
 
 main.o : $(sourceWay)main.cpp $(sourceWay)Controller.h
 	$(prefix)main.cpp
