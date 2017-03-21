@@ -285,3 +285,4 @@ __pycache__/
 *.stackdump
 transfer.db
 serverPID.db
+[Cc]make*

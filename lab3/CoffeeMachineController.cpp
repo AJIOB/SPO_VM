@@ -270,7 +270,7 @@ CoffeeMachineController::CoffeeMachineController()
 		throw CreateSharedMemoryException();
 	}
 
-	if (ftruncate(shmPersonNameID, sizeof(&commands)) != 0)
+	if (ftruncate(shmPersonNameID, sizeof(&commands) + sizeof(RWlistMutex)) != 0)
 	{
 		throw ReallocSharedMemoryException();
 	}
