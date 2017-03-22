@@ -17,7 +17,11 @@ class PersonController
 	//int shmPersonNameID;
 	//pthread_mutex_t* RWlistMutex;
 
-	pid_t getServerPID();
+    pthread_cond_t * pcond;
+    pthread_condattr_t attrcond;
+
+    pid_t getServerPID();
+    void sendName();
 #endif
 
 	Person person;

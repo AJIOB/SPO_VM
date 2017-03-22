@@ -31,6 +31,7 @@ namespace VA
 		static const int SIGSENDNAME = 14;
 
 		static const char shmPersonName[] = "//shmPersonName";
+        static const char testFileName[] = "test.txt";
 #endif
 	}
 }

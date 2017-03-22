@@ -5,7 +5,7 @@ linkFlags = -lrt -lpthread
 sourceWay =
 deps = $(sourceWay)info.db
 destinationWay = bin/unix/
-destinationName = lab2
+destinationName = lab3
 
 objWay = $(destinationWay)obj/
 objBackHome = ../../../

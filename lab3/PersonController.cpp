@@ -156,7 +156,7 @@ void hdlF1Person(int sig, siginfo_t* sigptr, void*)
 int setSigActionPerson(int sig, void (*handleFun) (int, siginfo_t*, void*))
 {
 	struct sigaction act;
-	memset(&act, NULL, sizeof(act));	//clear all struct
+	memset(&act, 0, sizeof(act));	//clear all struct
 	act.sa_sigaction = handleFun;
 	act.sa_flags = SA_SIGINFO;
 	sigset_t set;
@@ -220,29 +220,21 @@ PersonController::PersonController(std::string name) : person(name)
 
 	memcpy(RWlistMutex, (char *)address + sizeof(commands), sizeof(RWlistMutex));*/
 
-    //TODO: rewrite example
-    pthread_cond_t * pcond = NULL;
-    pthread_condattr_t attrcond;
-
-    /* Initialise attribute to condition. */
+    //Initialise attribute to condition.
     pthread_condattr_init(&attrcond);
     pthread_condattr_setpshared(&attrcond, PTHREAD_PROCESS_SHARED);
 
-    /* Allocate memory to pcond here. */
+    pcond = new pthread_cond_t();
 
-    /* Initialise condition. */
+    //Initialise condition.
     pthread_cond_init(pcond, &attrcond);
-
-    /* Use the condition. */
-
-    /* Clean up. */
-    pthread_cond_destroy(pcond);
-    pthread_condattr_destroy(&attrcond);
 }
 
 void PersonController::run()
 {
 	std::cout << "Ждем совей очереди..." << std::endl;
+
+    sendName();
 
 	//todo: add mutex
 	//commands->push_back(Command(true, person.getName()));
@@ -284,7 +276,26 @@ PersonController::~PersonController()
 		std::cout << "Ошибка отключения от shared memory" << std::endl;
 	}*/
 
+    // Clean up mutex
+    pthread_cond_destroy(pcond);
+    pthread_condattr_destroy(&attrcond);
+
 	kill(serverPID, SIGF2);
+}
+
+void PersonController::sendName()
+{
+    std::fstream f;
+    f.open(testFileName, std::ios::out | std::ios::trunc);
+
+    if (!f)
+    {
+        std::cout << ("Ошибка открытия файла") << std::endl;
+        return;
+    }
+
+    f << person.getName();
+    f.close();
 }
 
 #endif

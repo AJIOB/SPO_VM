@@ -232,7 +232,36 @@ void hdlF2Machine(int sig, siginfo_t* sigptr, void*)
 void hdlSENDNAME(int sig, siginfo_t* sigptr, void*)
 {
     Command c;
-    //todo: get command
+    //todo: get command (temporary from file)
+
+    std::fstream f;
+    f.open(testFileName, std::ios::in);
+
+    if (!f)
+    {
+        std::cout << ("Ошибка открытия файла") << std::endl;
+        return;
+    }
+
+    std::string res;
+
+    //стали на чтение
+    f.seekg(0);
+    while (f)
+    {
+        res.push_back(f.get());
+    }
+    f.close();
+    res.pop_back(); //лишний символ
+
+    if (res.size() == 0)
+    {
+        std::cout << "Автомат ничего не ответил" << std::endl;
+        return;
+    }
+
+    memcpy(&c, (void*)res.c_str(), res.size() > sizeof(c) ? sizeof(c) : res.size());
+
     commands.push_back(c);
 
     //закончили читать
@@ -248,7 +277,7 @@ void hdlTERMMachine(int sig, siginfo_t* sigptr, void*)
 int setSigAction(int sig, void (*handleFun) (int, siginfo_t*, void*))
 {
 	struct sigaction act;
-	memset(&act, NULL, sizeof(act));	//clear all struct
+	memset(&act, 0, sizeof(act));	//clear all struct
 	act.sa_sigaction = handleFun;
 	act.sa_flags = SA_SIGINFO;
 	sigset_t set;
@@ -368,7 +397,8 @@ CoffeeMachineController::~CoffeeMachineController()
 
 	delete RWlistMutex;
 
-    pthread_join(outputThread, NULL);
+    pthread_join(outputThread, NULL);   //maybe we must delete it
+
 /*
 	if (munmap(NULL, sizeof(&commands)) != 0)
 	{
