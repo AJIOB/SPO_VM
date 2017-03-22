@@ -238,7 +238,7 @@ void CoffeeMachineController::run()
 		{
 			signalIsHere[1] = false;
 			machine.proceed();
-			machine.writeToFile();
+            machine.saveCondition();
 
 			kill(currPID, SIGF1);
 

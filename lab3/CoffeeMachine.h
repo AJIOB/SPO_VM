@@ -27,7 +27,7 @@ public:
 	CoffeeMachine();
 	~CoffeeMachine();
 	void proceed();
-	void writeToFile();
+	void saveCondition();
 };
 
 #endif
