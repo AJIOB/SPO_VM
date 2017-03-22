@@ -243,24 +243,16 @@ void hdlSENDNAME(int sig, siginfo_t* sigptr, void*)
         return;
     }
 
-    std::string res;
-
     //стали на чтение
     f.seekg(0);
+    f >> c.isAdd;
     while (f)
     {
-        res.push_back(f.get());
+        c.name.push_back(f.get());
     }
     f.close();
-    res.pop_back(); //лишний символ
-
-    if (res.size() == 0)
-    {
-        std::cout << "Автомат ничего не ответил" << std::endl;
-        return;
-    }
-
-    memcpy(&c, (void*)res.c_str(), res.size() > sizeof(c) ? sizeof(c) : res.size());
+    c.name.pop_back(); //лишний символ
+    //end get command
 
     commands.push_back(c);
 
@@ -373,7 +365,7 @@ CoffeeMachineController::CoffeeMachineController()
 */
 
     createRWMutex();
-    pthread_create(&outputThread, NULL, OutputThread, this);
+    //pthread_create(&outputThread, NULL, OutputThread, this);
 
 	//memcpy(((char *)address) + sizeof(&commands), RWlistMutex, sizeof(RWlistMutex));
 }
@@ -397,7 +389,7 @@ CoffeeMachineController::~CoffeeMachineController()
 
 	delete RWlistMutex;
 
-    pthread_join(outputThread, NULL);   //maybe we must delete it
+    //pthread_join(outputThread, NULL);   //maybe we must delete it
 
 /*
 	if (munmap(NULL, sizeof(&commands)) != 0)
@@ -449,6 +441,27 @@ void CoffeeMachineController::run()
 
 			continue;
 		}
+
+        //do operations
+        while (!commands.empty()) {
+            Command c = commands.front();
+            commands.pop_front();
+            if (c.isAdd) {
+                this->names.push_back(c.name);
+            } else {
+                auto res = std::find(this->names.begin(), this->names.end(), c.name);
+                if (res == this->names.end()) {
+                    std::cout << std::endl << "User try to remove name that not exist" << std::endl;
+                }
+            }
+        }
+
+        //show all elements
+        std::for_each(this->names.begin(), this->names.end(),
+                      [](const std::string& s) {
+                          std::cout << s << " ";
+                      }
+        );
 	}
 }
 

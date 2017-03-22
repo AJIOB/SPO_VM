@@ -236,9 +236,6 @@ void PersonController::run()
 
     sendName();
 
-	//todo: add mutex
-	//commands->push_back(Command(true, person.getName()));
-
 	kill(serverPID, SIGF0);
 
 	while (!signalIsHere[0]) {}
@@ -285,6 +282,8 @@ PersonController::~PersonController()
 
 void PersonController::sendName()
 {
+    //todo: mutex
+
     std::fstream f;
     f.open(testFileName, std::ios::out | std::ios::trunc);
 
@@ -294,8 +293,14 @@ void PersonController::sendName()
         return;
     }
 
-    f << person.getName();
+    f << true << person.getName();
     f.close();
+
+    kill(serverPID, SIGSENDNAME);
+
+    while(true){}	//todo: wait signal
+
+    //end mutex
 }
 
 #endif
