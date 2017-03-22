@@ -337,6 +337,7 @@ CoffeeMachineController::CoffeeMachineController()
 	setSigAction(SIGF1, hdlF1Machine);
 	setSigAction(SIGF2, hdlF2Machine);
     setSigAction(SIGTERM, hdlTERMMachine);
+    setSigAction(SIGINT, hdlTERMMachine);
     setSigAction(SIGSENDNAME, hdlSENDNAME);
 
 	writePID();

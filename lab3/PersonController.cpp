@@ -139,6 +139,7 @@ void PersonController::run()
 namespace
 {
 	bool signalIsHere[] = {false, false, false};
+    bool nameIsRead = false;
 }
 
 //значит, можно начинать работу
@@ -151,6 +152,11 @@ void hdlF0Person(int sig, siginfo_t* sigptr, void*)
 void hdlF1Person(int sig, siginfo_t* sigptr, void*)
 {
 	signalIsHere[1] = true;
+}
+
+void hdlSENDNAMEPerson(int sig, siginfo_t* sigptr, void*)
+{
+    nameIsRead = true;
 }
 
 int setSigActionPerson(int sig, void (*handleFun) (int, siginfo_t*, void*))
@@ -195,6 +201,7 @@ PersonController::PersonController(std::string name) : person(name)
 {
 	setSigActionPerson(SIGF0, hdlF0Person);
 	setSigActionPerson(SIGF1, hdlF1Person);
+    setSigActionPerson(SIGSENDNAME, hdlSENDNAMEPerson);
 
 	pid_t serverPID = getServerPID();
 
@@ -298,7 +305,9 @@ void PersonController::sendName()
 
     kill(serverPID, SIGSENDNAME);
 
-    while(true){}	//todo: wait signal
+    while(!nameIsRead){}	//todo: wait signal
+
+    nameIsRead = false;
 
     //end mutex
 }
