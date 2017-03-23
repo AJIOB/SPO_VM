@@ -1,65 +1,21 @@
-objects = main.o Controller.o CoffeeMachine.o Person.o Drink.o PersonController.o CoffeeMachineController.o AJIOBlib.o
-CFLAGS = -std=c++11
-CXXFLAGS = $(CFLAGS)
-sourceWay =
-deps = $(sourceWay)info.db
-destinationWay = bin/unix/
-destinationName = lab3
+objects = main.o Client.o Server.o AJIOBlib.o
+CXXFLAGS = -std=c++11
+destWay = bin/
+back = ../
 
-objWay = $(destinationWay)obj/
-objBackHome = ../../../
+.PHONY: test
 
-goObject = cd $(objWay) &&
-compilerPrefix = $(goObject) $(CXX)
-prefix = $(compilerPrefix) $(CXXFLAGS) -c $(objBackHome)$(sourceWay)
+test: $(objects)
+	cd $(destWay) && $(CXX) -o test $(objects)
 
-MKDIR = mkdir -p
-RMDIR = -rm -r
-COPY = cp
-
-
-.PHONY: $(destinationName) clean max_clean baseInit copyDeps run runPerson runMachine
-
-
-$(destinationName) : baseInit $(objects) copyDeps
-	$(compilerPrefix) -o $(objBackHome)$(destinationWay)$(destinationName) $(objects)
-
-main.o : $(sourceWay)main.cpp $(sourceWay)Controller.h
-	$(prefix)main.cpp
-CoffeeMachine.o : $(sourceWay)CoffeeMachine.cpp $(sourceWay)CoffeeMachine.h
-	$(prefix)CoffeeMachine.cpp
-Person.o : $(sourceWay)Person.cpp $(sourceWay)Person.h
-	$(prefix)Person.cpp
-Drink.o : $(sourceWay)Drink.cpp $(sourceWay)Drink.h
-	$(prefix)Drink.cpp
-Controller.o : $(sourceWay)Controller.cpp $(sourceWay)Controller.h
-	$(prefix)Controller.cpp
-PersonController.o : $(sourceWay)PersonController.cpp $(sourceWay)PersonController.h
-	$(prefix)PersonController.cpp
-CoffeeMachineController.o : $(sourceWay)CoffeeMachineController.cpp $(sourceWay)CoffeeMachineController.h
-	$(prefix)CoffeeMachineController.cpp
-AJIOBlib.o : $(sourceWay)AJIOBlib.cpp $(sourceWay)AJIOBlib.h
-	$(prefix)AJIOBlib.cpp
-
-max_clean :
-	$(MAKE) -i clean
-	$(RMDIR) $(destinationWay)
-
-clean :
-	$(RMDIR) $(objWay)
-
-baseInit :
-	$(MKDIR) $(destinationWay)
-	$(MKDIR) $(objWay)
-
-copyDeps : $(deps)
-	$(COPY) $(deps) $(destinationWay)
+main.o : main.cpp
+	cd $(destWay) && $(CXX) $(CXXFLAGS) -c $(back)main.cpp
+Client.o : Client.h Client.cpp
+	cd $(destWay) && $(CXX) $(CXXFLAGS) -c $(back)Client.cpp
+Server.o : Server.h Server.cpp
+	cd $(destWay) && $(CXX) $(CXXFLAGS) -c $(back)Server.cpp
+AJIOBlib.o : AJIOBlib.cpp AJIOBlib.h
+	cd $(destWay) && $(CXX) $(CXXFLAGS) -c $(back)AJIOBlib.cpp
 
 run :
-	cd $(destinationWay) && ./$(destinationName)
-
-runPerson :
-	cd $(destinationWay) && ./$(destinationName) -p
-
-runMachine :
-	cd $(destinationWay) && ./$(destinationName) -m
+	cd $(destWay) && ./test
