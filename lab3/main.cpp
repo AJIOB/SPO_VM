@@ -1,34 +1,49 @@
-#include <iostream>
-#include "Client.h"
-#include "Server.h"
+﻿#include <iostream>
+#include <string>
+#include <clocale>
 
-int main() {
-    std::cout << "Select mode:" << std::endl;
-    std::cout << "1) Client" << std::endl;
-    std::cout << "2) Server" << std::endl;
-    std::cout << "Please, select mode" << std::endl;
+#include "Controller.h"
+#include "exceptions/AllExceptions.h"
 
-    auto k = std::cin.get();
+int main(int argc, char* argv[])
+{
+    setlocale(LC_ALL, "");
 
-    switch (k)
+    try
     {
-        case '1':
+        if (argc <= 1)
         {
-            Client client;
-            client.run();
-            break;
+            SelectMode();
         }
-        case '2':
+        else if (argc == 2 && std::string("-p") == argv[1])
         {
-            Server server;
-            server.run();
-            break;
+            //new Person
+            WorkAsPerson();
         }
-        default:
+        else if (argc == 2 && std::string("-m") == argv[1])
         {
-            std::cout << "Извините, такого варианта не существует. Выходим..." << std::endl;
-            break;
+            //new Machine
+            WorkAsCoffeeMachine();
+        }
+        else
+        {
+            throw BadCommandLineArgumentsException();
         }
     }
+    catch (const int& eCode)
+    {
+        return eCode;
+    }
+    catch (VA_Exception& e)
+    {
+        std::cout << "Ошибка. " << e.what() << ". Для выхода введите любой символ" << std::endl;
+        std::cin.get();
+        return 2;
+    }
+    catch (...)
+    {
+        return 1;
+    }
+
     return 0;
 }

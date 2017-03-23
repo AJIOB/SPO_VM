@@ -1,21 +1,59 @@
-objects = main.o Client.o Server.o AJIOBlib.o
-CXXFLAGS = -std=c++11
-destWay = bin/
-back = ../
+objects = main.o Controller.o Server.o Client.o AJIOBlib.o
+CFLAGS = -std=c++11
+CXXFLAGS = $(CFLAGS)
+sourceWay =
+deps = $(sourceWay)info.db
+destinationWay = bin/unix/
+destinationName = lab3
 
-.PHONY: test
+objWay = $(destinationWay)obj/
+objBackHome = ../../../
 
-test: $(objects)
-	cd $(destWay) && $(CXX) -o test $(objects)
+goObject = cd $(objWay) &&
+compilerPrefix = $(goObject) $(CXX)
+prefix = $(compilerPrefix) $(CXXFLAGS) -c $(objBackHome)$(sourceWay)
 
-main.o : main.cpp
-	cd $(destWay) && $(CXX) $(CXXFLAGS) -c $(back)main.cpp
-Client.o : Client.h Client.cpp
-	cd $(destWay) && $(CXX) $(CXXFLAGS) -c $(back)Client.cpp
-Server.o : Server.h Server.cpp
-	cd $(destWay) && $(CXX) $(CXXFLAGS) -c $(back)Server.cpp
-AJIOBlib.o : AJIOBlib.cpp AJIOBlib.h
-	cd $(destWay) && $(CXX) $(CXXFLAGS) -c $(back)AJIOBlib.cpp
+MKDIR = mkdir -p
+RMDIR = -rm -r
+COPY = cp
+
+
+.PHONY: $(destinationName) clean max_clean baseInit copyDeps run runPerson runMachine
+
+
+$(destinationName) : baseInit $(objects) copyDeps
+	$(compilerPrefix) -lrt -lpthread -o $(objBackHome)$(destinationWay)$(destinationName) $(objects)
+
+main.o : $(sourceWay)main.cpp $(sourceWay)Controller.h
+	$(prefix)main.cpp
+Server.o : $(sourceWay)Server.cpp $(sourceWay)Server.h
+	$(prefix)Server.cpp
+Client.o : $(sourceWay)Client.cpp $(sourceWay)Client.h
+	$(prefix)Client.cpp
+Controller.o : $(sourceWay)Controller.cpp $(sourceWay)Controller.h
+	$(prefix)Controller.cpp
+AJIOBlib.o : $(sourceWay)AJIOBlib.cpp $(sourceWay)AJIOBlib.h
+	$(prefix)AJIOBlib.cpp
+
+max_clean :
+	$(MAKE) -i clean
+	$(RMDIR) $(destinationWay)
+
+clean :
+	$(RMDIR) $(objWay)
+
+baseInit :
+	$(MKDIR) $(destinationWay)
+	$(MKDIR) $(objWay)
+
+copyDeps : $(deps)
+	$(COPY) $(deps) $(destinationWay)
 
 run :
-	cd $(destWay) && ./test
+	cd $(destinationWay) && ./$(destinationName)
+
+runPerson :
+	cd $(destinationWay) && ./$(destinationName) -p
+
+runMachine :
+	cd $(destinationWay) && ./$(destinationName) -m
