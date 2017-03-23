@@ -25,6 +25,7 @@ class PersonController
 
     pid_t getServerPID();
     void sendName();
+    void removeName();
 #endif
 
 	Person person;

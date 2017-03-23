@@ -269,6 +269,8 @@ PersonController::~PersonController()
     pthread_condattr_destroy(&attrcond);
 
 	kill(serverPID, SIGF2);
+
+	removeName();
 }
 
 void PersonController::sendName()
@@ -285,6 +287,31 @@ void PersonController::sendName()
     }
 
     f << true << person.getName();
+    f.close();
+
+    kill(serverPID, SIGSENDNAME);
+
+    while(!nameIsRead){}	//todo: wait signal
+
+    nameIsRead = false;
+
+//end mutex
+}
+
+void PersonController::removeName()
+{
+//todo: mutex
+
+    std::fstream f;
+    f.open(testFileName, std::ios::out | std::ios::trunc);
+
+    if (!f)
+    {
+        std::cout << ("Ошибка открытия файла") << std::endl;
+        return;
+    }
+
+    f << false << person.getName();
     f.close();
 
     kill(serverPID, SIGSENDNAME);

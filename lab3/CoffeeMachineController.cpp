@@ -304,6 +304,10 @@ void* OutputThread(void* ptr)
                 if (res == cmController->names.end()) {
                     std::cout << std::endl << "User try to remove name that not exist" << std::endl;
                 }
+                else
+                {
+                	cmController->names.erase(res);
+                }
             }
         }
 
@@ -353,7 +357,7 @@ CoffeeMachineController::CoffeeMachineController()
 	memcpy(address, &commands, sizeof(&commands));
 */
 
-    //createRWMutex();
+//createRWMutex();
 //pthread_create(&outputThread, NULL, OutputThread, this);
 
 //memcpy(((char *)address) + sizeof(&commands), RWlistMutex, sizeof(RWlistMutex));
@@ -440,6 +444,10 @@ void CoffeeMachineController::run()
                 auto res = std::find(this->names.begin(), this->names.end(), c.name);
                 if (res == this->names.end()) {
                     std::cout << std::endl << "User try to remove name that not exist" << std::endl;
+                }
+                else
+                {
+                	this->names.erase(res);
                 }
             }
         }
