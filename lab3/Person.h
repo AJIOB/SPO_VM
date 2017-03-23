@@ -20,7 +20,7 @@ public:
 	std::string getName() const;
 
 private:
-	std::string name; 
+	std::string name;
 
 	unsigned long long inputDrinkIndex() const;
 

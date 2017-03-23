@@ -18,7 +18,7 @@ class CoffeeMachineController
 	HANDLE hFile;
 	LPVOID fileBuf;
 	HANDLE outputThread;
-	static DWORD WINAPI threadOutputting( LPVOID lpParam);
+	static DWORD WINAPI threadOutputting(LPVOID lpParam);
 	std::list<Command> commands;
 
 #elif (defined(__linux__) || defined(__unix__))
@@ -39,7 +39,7 @@ class CoffeeMachineController
 
 	CoffeeMachine machine;
 	std::list<std::string> names;
-	
+
 public:
 	CoffeeMachineController();
 	~CoffeeMachineController();

@@ -34,18 +34,18 @@ namespace
 
 CoffeeMachineController::CoffeeMachineController()
 {
-	hFile = CreateFileMapping(INVALID_HANDLE_VALUE,NULL,PAGE_READWRITE,0,BUF_SIZE,shmPersonName);
-	fileBuf = MapViewOfFile(hFile,FILE_MAP_ALL_ACCESS,0,0,BUF_SIZE);
+	hFile = CreateFileMapping(INVALID_HANDLE_VALUE,NULL,PAGE_READWRITE, 0,BUF_SIZE, shmPersonName);
+	fileBuf = MapViewOfFile(hFile,FILE_MAP_ALL_ACCESS, 0, 0,BUF_SIZE);
 	if (fileBuf == NULL)
 	{
-		std::cout<<"Ошибка работы с общей памятью";
-		return ;
+		std::cout << "Ошибка работы с общей памятью";
+		return;
 	}
 
 	CopyMemory(fileBuf,&commands,sizeof(&commands));
-	listMutex = CreateMutex(NULL,FALSE,mutex);
+	listMutex = CreateMutex(NULL,FALSE, mutex);
 
-	outputThread = CreateThread(NULL,0,CoffeeMachineController::threadOutputting,this,0,NULL);   // returns the thread identifier 
+	outputThread = CreateThread(NULL, 0, CoffeeMachineController::threadOutputting, this, 0,NULL); // returns the thread identifier 
 
 	//check existing
 	EVENT[0] = OpenEvent(EVENT_ALL_ACCESS, NULL, isMachineFree);
@@ -140,39 +140,39 @@ void CoffeeMachineController::run()
 	while (true);
 }
 
-DWORD WINAPI CoffeeMachineController::threadOutputting( LPVOID lpParam)
-{	
+DWORD WINAPI CoffeeMachineController::threadOutputting(LPVOID lpParam)
+{
 	CoffeeMachineController* p = reinterpret_cast<CoffeeMachineController*>(lpParam);
 	WaitForSingleObject(p->listMutex, INFINITE);
-		
-	while(!p->commands.empty())
-		{
-			if(p->commands.front().isAdd)
-			{
-				p->names.push_back(p->commands.front().name);
-			}
-			else
-			{
-				auto res = std::find(p->names.begin(), p->names.end(), p->commands.front().name);
-				if (res != p->names.end())
-				{
-					p->names.erase(res);
-				}
-			}
-			p->commands.pop_front();
-		}
-		ReleaseMutex(p->listMutex);
 
-		if(!(p->names.empty()))
+	while (!p->commands.empty())
+	{
+		if (p->commands.front().isAdd)
 		{
-			WaitForSingleObject(p->listMutex, INFINITE);
-			for(auto i = p->names.begin(); i != p->names.end(); i++)
-			{
-				std::cout<<*i << " ";
-			}
-	
-			ReleaseMutex(p->listMutex);
+			p->names.push_back(p->commands.front().name);
 		}
+		else
+		{
+			auto res = std::find(p->names.begin(), p->names.end(), p->commands.front().name);
+			if (res != p->names.end())
+			{
+				p->names.erase(res);
+			}
+		}
+		p->commands.pop_front();
+	}
+	ReleaseMutex(p->listMutex);
+
+	if (!(p->names.empty()))
+	{
+		WaitForSingleObject(p->listMutex, INFINITE);
+		for (auto i = p->names.begin(); i != p->names.end(); i++)
+		{
+			std::cout << *i << " ";
+		}
+
+		ReleaseMutex(p->listMutex);
+	}
 	return 0;
 }
 
@@ -234,7 +234,7 @@ void hdlF2Machine(int sig, siginfo_t* sigptr, void*)
 void hdlSENDNAME(int sig, siginfo_t* sigptr, void*)
 {
     Command c;
-    //todo: get command (temporary from file)
+//todo: get command (temporary from file)
 
     std::fstream f;
     f.open(testFileName, std::ios::in);
@@ -245,7 +245,7 @@ void hdlSENDNAME(int sig, siginfo_t* sigptr, void*)
         return;
     }
 
-    //стали на чтение
+//стали на чтение
     f.seekg(0);
     f >> c.isAdd;
     while (f)
@@ -254,11 +254,11 @@ void hdlSENDNAME(int sig, siginfo_t* sigptr, void*)
     }
     f.close();
     c.name.pop_back(); //лишний символ
-    //end get command
+//end get command
 
     commands.push_back(c);
 
-    //закончили читать
+//закончили читать
     kill(sigptr->si_pid, SIGSENDNAME);
 }
 
@@ -307,7 +307,7 @@ void* OutputThread(void* ptr)
             break;
         }
 
-        //do operations
+//do operations
         while (!commands.empty()) {
             Command c = commands.front();
             commands.pop_front();
@@ -321,7 +321,7 @@ void* OutputThread(void* ptr)
             }
         }
 
-        //show all elements
+//show all elements
         std::for_each(cmController->names.begin(), cmController->names.end(),
             [](const std::string& s) {
                 std::cout << s << " ";
@@ -368,9 +368,9 @@ CoffeeMachineController::CoffeeMachineController()
 */
 
     createRWMutex();
-    //pthread_create(&outputThread, NULL, OutputThread, this);
+//pthread_create(&outputThread, NULL, OutputThread, this);
 
-	//memcpy(((char *)address) + sizeof(&commands), RWlistMutex, sizeof(RWlistMutex));
+//memcpy(((char *)address) + sizeof(&commands), RWlistMutex, sizeof(RWlistMutex));
 }
 
 CoffeeMachineController::~CoffeeMachineController()
@@ -392,7 +392,7 @@ CoffeeMachineController::~CoffeeMachineController()
 
 	delete RWlistMutex;
 
-    //pthread_join(outputThread, NULL);   //maybe we must delete it
+//pthread_join(outputThread, NULL);   //maybe we must delete it
 
 /*
 	if (munmap(NULL, sizeof(&commands)) != 0)
@@ -444,7 +444,7 @@ void CoffeeMachineController::run()
 			continue;
 		}
 //TODO: test only
-        //do operations
+//do operations
         while (!commands.empty()) {
             Command c = commands.front();
             commands.pop_front();
@@ -458,7 +458,7 @@ void CoffeeMachineController::run()
             }
         }
 
-        //show all elements
+//show all elements
         std::for_each(this->names.begin(), this->names.end(),
                       [](const std::string& s) {
                           std::cout << s << " ";
@@ -469,11 +469,11 @@ void CoffeeMachineController::run()
 
 void CoffeeMachineController::createRWMutex()
 {
-    //mutex attribute (make mutex global)
+//mutex attribute (make mutex global)
     pthread_mutexattr_init(&attrmutex);
     pthread_mutexattr_setpshared(&attrmutex, PTHREAD_PROCESS_SHARED);
 
-    //make mutex
+//make mutex
     RWlistMutex = new pthread_mutex_t();
     if (pthread_mutex_init(RWlistMutex, &attrmutex) != 0)
     {

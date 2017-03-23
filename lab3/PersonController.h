@@ -13,6 +13,8 @@ class PersonController
 #ifdef _WIN32
 	HANDLE EVENT[4];
 	HANDLE listMutex;
+
+	std::list<Command>* commands;
 #elif (defined(__linux__) || defined(__unix__))
 	pid_t serverPID;
 	//int shmPersonNameID;

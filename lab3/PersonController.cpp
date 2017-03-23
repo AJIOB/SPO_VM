@@ -78,27 +78,27 @@ PersonController::~PersonController()
 void PersonController::run()
 {
 	std::cout << "Ждем совей очереди..." << std::endl;
-	
+
 	HANDLE hFile;
 	//открытие shared memory
-	hFile = OpenFileMapping(FILE_MAP_ALL_ACCESS,FALSE,shmPersonName);
+	hFile = OpenFileMapping(FILE_MAP_ALL_ACCESS,FALSE, shmPersonName);
 
 	if (hFile == NULL)
 	{
-		std::cout<<"Ошибка при работе с общей памятью";
+		std::cout << "Ошибка при работе с общей памятью";
 		return;
 	}
 
-	commands =reinterpret_cast<std::list<Command>*>( MapViewOfFile(hFile,FILE_MAP_ALL_ACCESS,0,0,BUF_SIZE));
-	if(commands == NULL)
+	commands = reinterpret_cast<std::list<Command>*>(MapViewOfFile(hFile,FILE_MAP_ALL_ACCESS, 0, 0,BUF_SIZE));
+	if (commands == NULL)
 	{
-		std::cout<<"Ошибка при работе с общей памятью";
+		std::cout << "Ошибка при работе с общей памятью";
 		CloseHandle(hFile);
 		return;
 	}
 
 	WaitForSingleObject(listMutex, INFINITE);
-	
+
 	commands->push_back(Command());
 	commands->back().isAdd = true;
 	commands->back().name = person.getName();
@@ -122,7 +122,7 @@ void PersonController::run()
 		//wait flag3
 		WaitForSingleObject(EVENT[2],INFINITE);
 
-		person.getResponse();
+		person.getResponce();
 		//raise flag2
 
 		if (!SetEvent(EVENT[1]))
@@ -213,13 +213,13 @@ PersonController::PersonController(std::string name) : person(name)
 
 	memcpy(RWlistMutex, (char *)address + sizeof(commands), sizeof(RWlistMutex));*/
 
-    //Initialise attribute to condition.
+//Initialise attribute to condition.
     pthread_condattr_init(&attrcond);
     pthread_condattr_setpshared(&attrcond, PTHREAD_PROCESS_SHARED);
 
     pcond = new pthread_cond_t();
 
-    //Initialise condition.
+//Initialise condition.
     pthread_cond_init(pcond, &attrcond);
 }
 
@@ -237,7 +237,7 @@ void PersonController::run() {
 
     while (true)
     {
-		//may throw exception
+//may throw exception
         person.runConsole();
 
         person.sendRequest();
@@ -264,7 +264,7 @@ PersonController::~PersonController()
 		std::cout << "Ошибка отключения от shared memory" << std::endl;
 	}*/
 
-    // Clean up mutex
+// Clean up mutex
     pthread_cond_destroy(pcond);
     pthread_condattr_destroy(&attrcond);
 
@@ -273,7 +273,7 @@ PersonController::~PersonController()
 
 void PersonController::sendName()
 {
-    //todo: mutex
+//todo: mutex
 
     std::fstream f;
     f.open(testFileName, std::ios::out | std::ios::trunc);
@@ -293,7 +293,7 @@ void PersonController::sendName()
 
     nameIsRead = false;
 
-    //end mutex
+//end mutex
 }
 
 #endif

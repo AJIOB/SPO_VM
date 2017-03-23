@@ -5,7 +5,7 @@
 
 struct Command
 {
-	bool isAdd;	//true = add;  fasle == delete
+	bool isAdd; //true = add;  fasle == delete
 	std::string name;
 
 	Command()
