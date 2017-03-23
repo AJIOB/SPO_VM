@@ -54,6 +54,58 @@ PersonController::PersonController(std::string name) : person(name)
 		CloseHandle(EVENT[2]);
 		throw NoRunningMachineException();
 	}
+	newCommand[0] = OpenEvent(EVENT_ALL_ACCESS, NULL, addNewCommand);
+	if (newCommand[0] == NULL)
+	{
+		CloseHandle(EVENT[0]);
+		CloseHandle(EVENT[1]);
+		CloseHandle(EVENT[2]);
+		CloseHandle(EVENT[3]);
+		throw NoRunningMachineException();
+	}
+	newCommand[1] = OpenEvent(EVENT_ALL_ACCESS, NULL, acceptNewCommand);
+	if (newCommand[1] == NULL)
+	{
+		CloseHandle(EVENT[0]);
+		CloseHandle(EVENT[1]);
+		CloseHandle(EVENT[2]);
+		CloseHandle(EVENT[3]);
+		CloseHandle(newCommand[0]);
+		throw NoRunningMachineException();
+	}
+
+	//открытие мютекса
+	listMutex = OpenMutex(MUTEX_ALL_ACCESS,FALSE,mutex);
+
+
+	//открытие shared memory
+	hFile = OpenFileMapping(FILE_MAP_ALL_ACCESS,FALSE,shmPersonName);
+
+	if (hFile == NULL)
+	{
+		std::cout<<"Ошибка при работе с общей памятью";
+		return;
+	}
+
+	// извлечение очереди из shared memory
+	fileBuf = MapViewOfFile(hFile,FILE_MAP_ALL_ACCESS,0,0,BUF_SIZE);
+	if(fileBuf == NULL)
+	{
+		std::cout<<"Ошибка при работе с общей памятью";
+		CloseHandle(hFile);
+		return;
+	}
+
+	WaitForSingleObject(listMutex, INFINITE);
+		command[0]='a';
+		strcpy(command+1,person.getName().c_str());
+		CopyMemory(fileBuf,&command,sizeof(command));
+		if (!SetEvent(newCommand[0]))
+		{
+			std::cout << "Ошибка! Не удалось провзаимодействовать с автоматом  newCommand[0]"; //error. Event is not pulsed
+		}
+		WaitForSingleObject(newCommand[1],INFINITE);
+	ReleaseMutex(listMutex);
 }
 
 PersonController::~PersonController()
@@ -67,35 +119,34 @@ PersonController::~PersonController()
 	{
 		CloseHandle(EVENT[i]);
 	}
+
+
+	WaitForSingleObject(listMutex, INFINITE);
+	
+		command[0]='d';
+		strcpy(command+1,person.getName().c_str());
+		CopyMemory(fileBuf,&command,sizeof(command));
+		if (!SetEvent(newCommand[0]))
+		{
+			std::cout << "Ошибка! Не удалось провзаимодействовать с автоматом  newCommand[0]"; //error. Event is not pulsed
+		}
+		WaitForSingleObject(newCommand[1],INFINITE);
+	
+	ReleaseMutex(listMutex);
+
+	for (int i = 0; i < 2; i ++)
+	{
+		CloseHandle(newCommand[i]);
+	}
 }
 
 void PersonController::run()
 {
 	std::cout << "Ждем совей очереди..." << std::endl;
 	
-	HANDLE hFile;
-	//открытие shared memory
-	hFile = OpenFileMapping(FILE_MAP_ALL_ACCESS,FALSE,shmPersonName);
-
-	if (hFile == NULL)
-	{
-		std::cout<<"Ошибка при работе с общей памятью";
-		return;
-	}
-
-	commands =reinterpret_cast<std::list<Command>*>( MapViewOfFile(hFile,FILE_MAP_ALL_ACCESS,0,0,BUF_SIZE));
-	if(commands == NULL)
-	{
-		std::cout<<"Ошибка при работе с общей памятью";
-		CloseHandle(hFile);
-		return;
-	}
-
-	WaitForSingleObject(listMutex, INFINITE);
 	
-	commands->push_back(Command());
-	commands->back().isAdd = true;
-	commands->back().name = person.getName();
+	WaitForSingleObject(listMutex, INFINITE);
+
 	ReleaseMutex(listMutex);
 
 	//wait 1

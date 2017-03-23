@@ -18,6 +18,9 @@ namespace VA
 		static const LPCTSTR fromMachine = TEXT("fromMachine");
 		static const LPCTSTR disconnectUser = TEXT("disconnectUser");
 
+		static const LPCTSTR addNewCommand = TEXT("addNewCommand");
+		static const LPCTSTR acceptNewCommand = TEXT("acceptNewCommand");
+
 		static const LPCTSTR shmPersonName = TEXT("shmPersonName");
 		static const LPCTSTR mutex = TEXT("mutex");
 

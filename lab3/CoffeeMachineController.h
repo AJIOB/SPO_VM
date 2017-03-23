@@ -17,6 +17,7 @@ class CoffeeMachineController
 	LPVOID fileBuf;
 	HANDLE outputThread;
 	static DWORD WINAPI threadOutputting( LPVOID lpParam);
+	HANDLE newCommand[2]; 
 
 #elif (defined(__linux__) || defined(__unix__))
 	pid_t currPID;
@@ -25,10 +26,10 @@ class CoffeeMachineController
 #endif
 
 	CoffeeMachine machine;
-	std::list<Command> commands;
 	std::list<std::string> names;
 	
 public:
+	std::list<Command> *commands;
 	CoffeeMachineController();
 	~CoffeeMachineController();
 	void run();

@@ -2,7 +2,7 @@
 
 #include <windows.h>
 #include<algorithm>
-
+#include<string>
 #define BUF_SIZE 256
 
 #elif (defined(__linux__) || defined(__unix__))
@@ -22,25 +22,13 @@
 namespace
 {
 	using namespace VA::constants;
+
 }
 
 #ifdef _WIN32
 
 CoffeeMachineController::CoffeeMachineController()
 {
-	hFile = CreateFileMapping(INVALID_HANDLE_VALUE,NULL,PAGE_READWRITE,0,BUF_SIZE,shmPersonName);
-	fileBuf = MapViewOfFile(hFile,FILE_MAP_ALL_ACCESS,0,0,BUF_SIZE);
-	if (fileBuf == NULL)
-	{
-		std::cout<<"Ошибка работы с общей памятью";
-		return ;
-	}
-
-	CopyMemory(fileBuf,&commands,sizeof(&commands));
-	listMutex = CreateMutex(NULL,FALSE,mutex);
-
-	outputThread = CreateThread(NULL,0,CoffeeMachineController::threadOutputting,this,0,NULL);   // returns the thread identifier 
-
 	//check existing
 	EVENT[0] = OpenEvent(EVENT_ALL_ACCESS, NULL, isMachineFree);
 	if (EVENT[0] != NULL)
@@ -74,6 +62,24 @@ CoffeeMachineController::CoffeeMachineController()
 	EVENT[1] = CreateEvent(NULL, false, false, fromUser);
 	EVENT[2] = CreateEvent(NULL, false, false, fromMachine);
 	EVENT[3] = CreateEvent(NULL, false, false, disconnectUser);
+	newCommand[0] = CreateEvent(NULL, false, false, addNewCommand);
+	newCommand[1] = CreateEvent(NULL, false, false, acceptNewCommand);
+
+	commands = new std::list<Command>();
+
+	hFile = CreateFileMapping(INVALID_HANDLE_VALUE,NULL,PAGE_READWRITE,0,BUF_SIZE,shmPersonName);
+
+	fileBuf = MapViewOfFile(hFile,FILE_MAP_ALL_ACCESS,0,0,BUF_SIZE);
+
+	if (fileBuf == NULL)
+	{
+		std::cout<<"Ошибка работы с общей памятью";
+		return ;
+	}
+
+	listMutex = CreateMutex(NULL,FALSE,mutex);
+
+	outputThread = CreateThread(NULL,0,CoffeeMachineController::threadOutputting,this,0,NULL);   // returns the thread identifier 
 }
 
 CoffeeMachineController::~CoffeeMachineController()
@@ -107,6 +113,7 @@ void CoffeeMachineController::run()
 		case WAIT_FAILED:
 			std::cout << "Ошибка! Не уделось провзаимодействовать с пользователем";
 			break;
+
 		case WAIT_OBJECT_0 + 0:
 			machine.proceed();
 			machine.writeToFile();
@@ -120,6 +127,7 @@ void CoffeeMachineController::run()
 			WaitForSingleObject(EVENT[1],INFINITE);
 
 			break;
+
 		case WAIT_OBJECT_0 + 1:
 			//raise flag1
 			if (!SetEvent(EVENT[0]))
@@ -127,6 +135,7 @@ void CoffeeMachineController::run()
 				throw CannotWorkWithPersonException();
 			}
 			break;
+
 		default:
 			std::cout << "Ошибка! Что-то пошло не так. Вы не должны видеть это.";
 		}
@@ -136,37 +145,55 @@ void CoffeeMachineController::run()
 
 DWORD WINAPI CoffeeMachineController::threadOutputting( LPVOID lpParam)
 {	
+
+	char command[50];
+	std::string name;
 	CoffeeMachineController* p = reinterpret_cast<CoffeeMachineController*>(lpParam);
-	WaitForSingleObject(p->listMutex, INFINITE);
-		
-	while(!p->commands.empty())
+	DWORD dw;
+	do
+	{
+		dw = WaitForSingleObject(p->newCommand[0],3000);
+		switch(dw)
 		{
-			if(p->commands.front().isAdd)
+		case WAIT_TIMEOUT:
+			break;
+		case WAIT_OBJECT_0:
+			CopyMemory(&command,p->fileBuf,sizeof (command));
+			name = (const char*) command + 1;
+			if(command[0] == 'a')
 			{
-				p->names.push_back(p->commands.front().name);
+				p->names.push_back(name);
 			}
-			else
+			else 
 			{
-				auto res = std::find(p->names.begin(), p->names.end(), p->commands.front().name);
+				auto res = std::find(p->names.begin(), p->names.end(), name);
 				if (res != p->names.end())
 				{
 					p->names.erase(res);
 				}
 			}
-			p->commands.pop_front();
+			if (!SetEvent(p->newCommand[1]))
+			{
+				std::cout << "Ошибка! Не уделось провзаимодействовать с пользователем."; //error. Event is not pulsed
+				return 1;
+			}
+			break;
+		
+		default:
+			break;
 		}
-		ReleaseMutex(p->listMutex);
-
+		
 		if(!(p->names.empty()))
 		{
-			WaitForSingleObject(p->listMutex, INFINITE);
 			for(auto i = p->names.begin(); i != p->names.end(); i++)
 			{
 				std::cout<<*i << " ";
 			}
-	
-			ReleaseMutex(p->listMutex);
+			std::cout<<std::endl;
 		}
+
+	}while(true);
+
 	return 0;
 }
 

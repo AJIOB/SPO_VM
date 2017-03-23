@@ -12,6 +12,9 @@ class PersonController
 #ifdef _WIN32
 	HANDLE EVENT[4];
 	HANDLE listMutex;
+	HANDLE hFile;
+	LPVOID fileBuf;
+	HANDLE newCommand[2]; 
 #elif (defined(__linux__) || defined(__unix__))
 	pid_t serverPID;
 
@@ -23,7 +26,7 @@ class PersonController
 public:
 	PersonController(std::string name);
 	~PersonController();
-	std::list<Command> *commands;
+	char command[50];
 
 	void run();
 };
