@@ -268,20 +268,6 @@ void hdlINTMachine(int sig, siginfo_t *sigptr, void *)
     isMachineClose = true;
 }
 
-int setSigAction(int sig, void (*handleFun) (int, siginfo_t*, void*))
-{
-	struct sigaction act;
-	memset(&act, 0, sizeof(act));	//clear all struct
-	act.sa_sigaction = handleFun;
-	act.sa_flags = SA_SIGINFO;
-	sigset_t set;
-	sigemptyset(&set);
-	sigaddset(&set, sig);
-	act.sa_mask = set;
-	return sigaction(sig, &act, NULL);
-}
-
-
 void CoffeeMachineController::writePID()
 {
     std::fstream f;
@@ -367,7 +353,7 @@ CoffeeMachineController::CoffeeMachineController()
 	memcpy(address, &commands, sizeof(&commands));
 */
 
-    createRWMutex();
+    //createRWMutex();
 //pthread_create(&outputThread, NULL, OutputThread, this);
 
 //memcpy(((char *)address) + sizeof(&commands), RWlistMutex, sizeof(RWlistMutex));
@@ -379,7 +365,7 @@ CoffeeMachineController::~CoffeeMachineController()
 	{
 		std::cout << "Ошибка удаления PID автомата" << std::endl;
 	}
-
+/*
 	if (pthread_mutex_destroy(RWlistMutex) != 0)
 	{
 		std::cout << "Ошибка удаления mutex-а" << std::endl;
@@ -437,7 +423,7 @@ void CoffeeMachineController::run()
 		{
 			signalIsHere[1] = false;
 			machine.proceed();
-			machine.writeToFile();
+			machine.saveCondition();
 
 			kill(currPID, SIGF1);
 
@@ -466,7 +452,7 @@ void CoffeeMachineController::run()
         );
 	}
 }
-
+/*
 void CoffeeMachineController::createRWMutex()
 {
 //mutex attribute (make mutex global)
@@ -480,5 +466,5 @@ void CoffeeMachineController::createRWMutex()
         throw InitMutexException();
     }
 }
-
+*/
 #endif
