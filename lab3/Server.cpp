@@ -10,6 +10,7 @@ namespace
     using namespace VA::constants;
     std::queue<pid_t> PIDq;
     bool signalIsHere[] = {false, false};
+    bool isStopServer = false;
 }
 
 //save pid to queue
@@ -40,6 +41,22 @@ void hdlF1Server(int sig, siginfo_t *sigptr, void *)
     std::cout << sigptr -> si_pid << std::endl;
 
     signalIsHere[1] = true;
+}
+
+//нужно выключить сервер
+void hdlINTServer(int sig)
+{
+    std::cout << "Close server..." << std::endl;
+
+    isStopServer = true;
+}
+
+//нужно выключить сервер
+void hdlINTServer2(int sig, siginfo_t *sigptr, void *)
+{
+    std::cout << "Close server..." << std::endl;
+
+    isStopServer = true;
 }
 
 
@@ -74,25 +91,38 @@ void Server::run() {
 
     writeFile();
 
-    while (PIDq.empty());
+    while (true) {
+        if (isStopServer)
+        {
+            break;
+        }
 
-    pid_t pid = PIDq.front();
-    PIDq.pop();
+        while (PIDq.empty());
 
-    kill(pid, SIGF0);
+        pid_t pid = PIDq.front();
+        PIDq.pop();
 
-    while (!signalIsHere[1]);
+        kill(pid, SIGF0);
 
-    signalIsHere[1] = false;
+        while (!signalIsHere[1]);
 
-    std::cout << "All is good" << std::endl;
+        signalIsHere[1] = false;
+
+        std::cout << "All is good" << std::endl;
+        std::cout << "isStopServer = " << isStopServer << std::endl;
+    }
 }
 
 Server::Server() {
     setSigAction(SIGF0, hdlF0Server);
     setSigAction(SIGF1, hdlF1Server);
+    setSigAction(SIGINT, hdlINTServer2);
 
     writePID();
 
     currPID = 0;
+}
+
+Server::~Server() {
+    unlink(serverPIDfilename);
 }
