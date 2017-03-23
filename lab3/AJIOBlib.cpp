@@ -5,7 +5,7 @@
 int setSigAction(int sig, void (*handleFun) (int, siginfo_t*, void*))
 {
 	struct sigaction act;
-	memset(&act, NULL, sizeof(act));	//clear all struct
+	memset(&act, 0, sizeof(act));	//clear all struct
 	act.sa_sigaction = handleFun;
 	act.sa_flags = SA_SIGINFO;
 	sigset_t set;
