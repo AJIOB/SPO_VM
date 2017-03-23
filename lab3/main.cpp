@@ -3,7 +3,7 @@
 #include <clocale>
 
 #include "Controller.h"
-#include "VA_Exception.h"
+#include "exceptions/VA_Exception.h"
 
 int main(int argc, char* argv[])
 {

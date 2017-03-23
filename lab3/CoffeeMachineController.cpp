@@ -1,7 +1,7 @@
-﻿#ifdef _WIN32
+#ifdef _WIN32
 
 #include <windows.h>
-#include<algorithm>
+#include <algorithm>
 
 #define BUF_SIZE 256
 
@@ -16,6 +16,8 @@
 #include <sys/stat.h>        /* For mode constants */
 #include <fcntl.h>           /* For O_* constants */
 #include <pthread.h>		//for mutex
+
+#include "AJIOBlib.h"
 
 #else
 #error Bad operation system. Please, recompile me to Linux, Unix or Windows
@@ -113,7 +115,7 @@ void CoffeeMachineController::run()
 			break;
 		case WAIT_OBJECT_0 + 0:
 			machine.proceed();
-			machine.writeToFile();
+			machine.saveCondition();
 
 			//raise flag3
 			if (!SetEvent(EVENT[2]))
@@ -186,46 +188,46 @@ namespace
 
 pid_t StartWorkingWithNewUser()
 {
-	if (PIDq.empty())
-	{
-		return 0;
-	}
+    if (PIDq.empty())
+    {
+        return 0;
+    }
 
-	pid_t currPID = PIDq.front();
-	PIDq.pop();
-	if (currPID == 0)
-	{
-		return 0;
-	}
+    pid_t currPID = PIDq.front();
+    PIDq.pop();
+    if (currPID == 0)
+    {
+        return 0;
+    }
 
-	kill(currPID, SIGF0);
+    kill(currPID, SIGF0);
 
-	return currPID;
+    return currPID;
 }
 
 //save pid to queue
 void hdlF0Machine(int sig, siginfo_t* sigptr, void*)
 {
-	if (!sigptr)
-	{
-		return;
-	}
+    if (!sigptr)
+    {
+        return;
+    }
 
-	PIDq.push(sigptr -> si_pid);
+    PIDq.push(sigptr -> si_pid);
 
-	signalIsHere[0] = true;
+    signalIsHere[0] = true;
 }
 
 //нужно обработать результаты
 void hdlF1Machine(int sig, siginfo_t* sigptr, void*)
 {
-	signalIsHere[1] = true;
+    signalIsHere[1] = true;
 }
 
 //предыдущий пользователь закончил работу
 void hdlF2Machine(int sig, siginfo_t* sigptr, void*)
 {
-	signalIsHere[2] = true;
+    signalIsHere[2] = true;
 }
 
 //предыдущий пользователь закончил работу
@@ -260,8 +262,8 @@ void hdlSENDNAME(int sig, siginfo_t* sigptr, void*)
     kill(sigptr->si_pid, SIGSENDNAME);
 }
 
-//set exit flag
-void hdlTERMMachine(int sig, siginfo_t* sigptr, void*)
+//нужно выключить сервер
+void hdlINTMachine(int sig, siginfo_t *sigptr, void *)
 {
     isMachineClose = true;
 }
@@ -279,19 +281,20 @@ int setSigAction(int sig, void (*handleFun) (int, siginfo_t*, void*))
 	return sigaction(sig, &act, NULL);
 }
 
+
 void CoffeeMachineController::writePID()
 {
-	std::fstream f;
-	f.open(serverPIDfilename, std::ios::out | std::ios::trunc);
+    std::fstream f;
+    f.open(serverPIDfilename, std::ios::out | std::ios::trunc);
 
-	if (!f)
-	{
-		std::cout << ("Ошибка открытия файла") << std::endl;
-		return;
-	}
+    if (!f)
+    {
+        std::cout << "Ошибка открытия файла" << std::endl;
+        return;
+    }
 
-	f << (int)getpid();
-	f.close();
+    f << (int)getpid();
+    f.close();
 }
 
 void* OutputThread(void* ptr)
@@ -336,8 +339,7 @@ CoffeeMachineController::CoffeeMachineController()
 	setSigAction(SIGF0, hdlF0Machine);
 	setSigAction(SIGF1, hdlF1Machine);
 	setSigAction(SIGF2, hdlF2Machine);
-    setSigAction(SIGTERM, hdlTERMMachine);
-    setSigAction(SIGINT, hdlTERMMachine);
+    setSigAction(SIGINT, hdlINTMachine);
     setSigAction(SIGSENDNAME, hdlSENDNAME);
 
 	writePID();
@@ -414,7 +416,6 @@ void CoffeeMachineController::run()
         {
             break;
         }
-
 		if (!isWorkWithUserNow)
 		{
 			currPID = StartWorkingWithNewUser();
@@ -442,7 +443,7 @@ void CoffeeMachineController::run()
 
 			continue;
 		}
-
+//TODO: test only
         //do operations
         while (!commands.empty()) {
             Command c = commands.front();

@@ -4,8 +4,9 @@
 #include <iostream>
 #include <list>
 #include <algorithm>
+
 #include "CoffeeMachine.h"
-#include "AllExceptions.h"
+#include "exceptions/AllExceptions.h"
 #include "Structs.h"
 
 class CoffeeMachineController

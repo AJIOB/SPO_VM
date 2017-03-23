@@ -64,7 +64,7 @@ CoffeeMachine::CoffeeMachine()
 
 CoffeeMachine::~CoffeeMachine()
 {
-	writeToFile();
+	saveCondition();
 }
 
 void CoffeeMachine::addMoney(int money)
@@ -204,7 +204,7 @@ void CoffeeMachine::proceed()
 	setCommand();
 }
 
-void CoffeeMachine::writeToFile()
+void CoffeeMachine::saveCondition()
 {
 	std::ofstream f(fName);
 
@@ -220,4 +220,6 @@ void CoffeeMachine::writeToFile()
 	{
 		f << it->getName() << " " << it->getPrice() << " " << it->getAmount() << std::endl;
 	}
+
+	f.close();
 }

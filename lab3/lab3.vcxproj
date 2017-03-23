@@ -74,21 +74,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AllExceptions.h" />
-    <ClInclude Include="BadCommandLineArgumentsException.h" />
-    <ClInclude Include="WorkWithMachineException.h" />
-    <ClInclude Include="WorkWithPersonException.h" />
+    <ClInclude Include="exceptions\AllExceptions.h" />
+    <ClInclude Include="exceptions\BadCommandLineArgumentsException.h" />
+    <ClInclude Include="exceptions\WorkWithMachineException.h" />
+    <ClInclude Include="exceptions\WorkWithPersonException.h" />
     <ClInclude Include="CoffeeMachine.h" />
     <ClInclude Include="CoffeeMachineController.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="Drink.h" />
-    <ClInclude Include="MachineAlreadyRunningException.h" />
-    <ClInclude Include="NoRunningMachineException.h" />
+    <ClInclude Include="exceptions\MachineAlreadyRunningException.h" />
+    <ClInclude Include="exceptions\NoRunningMachineException.h" />
     <ClInclude Include="Person.h" />
     <ClInclude Include="PersonController.h" />
     <ClInclude Include="Structs.h" />
-    <ClInclude Include="VA_Exception.h" />
+    <ClInclude Include="exceptions\VA_Exception.h" />
     <ClInclude Include="view\StreamInput.h" />
   </ItemGroup>
   <ItemGroup>

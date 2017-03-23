@@ -14,6 +14,8 @@
 #include <fcntl.h>           /* For O_* constants */
 #include <pthread.h>		//for mutex
 
+#include "AJIOBlib.h"
+
 #else
 #error Bad operation system. Please, recompile me to Linux, Unix or Windows
 #endif
@@ -108,10 +110,7 @@ void PersonController::run()
 	//start loop
 	do
 	{
-		if (!person.runConsole())
-		{
-			break;
-		}
+		person.runConsole();
 
 		person.sendRequest();
 		//raise flag2
@@ -123,7 +122,7 @@ void PersonController::run()
 		//wait flag3
 		WaitForSingleObject(EVENT[2],INFINITE);
 
-		person.getResponce();
+		person.getResponse();
 		//raise flag2
 
 		if (!SetEvent(EVENT[1]))
@@ -138,14 +137,14 @@ void PersonController::run()
 
 namespace
 {
-	bool signalIsHere[] = {false, false, false};
+	bool signalIsHere[] = {false, false};
     bool nameIsRead = false;
 }
 
 //значит, можно начинать работу
 void hdlF0Person(int sig, siginfo_t* sigptr, void*)
 {
-	signalIsHere[0] = true;
+    signalIsHere[0] = true;
 }
 
 //можем читать результат
@@ -159,51 +158,38 @@ void hdlSENDNAMEPerson(int sig, siginfo_t* sigptr, void*)
     nameIsRead = true;
 }
 
-int setSigActionPerson(int sig, void (*handleFun) (int, siginfo_t*, void*))
-{
-	struct sigaction act;
-	memset(&act, 0, sizeof(act));	//clear all struct
-	act.sa_sigaction = handleFun;
-	act.sa_flags = SA_SIGINFO;
-	sigset_t set;
-	sigemptyset(&set);
-	sigaddset(&set, sig);
-	act.sa_mask = set;
-	return sigaction(sig, &act, NULL);
-}
-
 pid_t PersonController::getServerPID()
 {
-	std::fstream f;
-	f.open(serverPIDfilename, std::ios::in);
+    std::fstream f;
+    f.open(serverPIDfilename, std::ios::in);
 
-	if (!f)
-	{
-		throw NoRunningMachineException();
-	}
+    if (!f)
+    {
+        return 0;
+    }
 
-	int buffer;
+    int buffer;
 
 //стали на чтение
-	f.seekg(0);
-	f >> buffer;
-	if (!f)
-	{
-		f.close();
-		throw NoRunningMachineException();
-	}
-	f.close();
+    f.seekg(0);
+    f >> buffer;
+    if (!f)
+    {
+        f.close();
+        return 0;
+    }
+    f.close();
 
-	return buffer;
+    return buffer;
 }
 
 PersonController::PersonController(std::string name) : person(name)
 {
-	setSigActionPerson(SIGF0, hdlF0Person);
-	setSigActionPerson(SIGF1, hdlF1Person);
-    setSigActionPerson(SIGSENDNAME, hdlSENDNAMEPerson);
+	setSigAction(SIGF0, hdlF0Person);
+	setSigAction(SIGF1, hdlF1Person);
+    setSigAction(SIGSENDNAME, hdlSENDNAMEPerson);
 
-	pid_t serverPID = getServerPID();
+    serverPID = getServerPID();
 
 	if (serverPID == 0)
 	{
@@ -237,35 +223,33 @@ PersonController::PersonController(std::string name) : person(name)
     pthread_cond_init(pcond, &attrcond);
 }
 
-void PersonController::run()
-{
-	std::cout << "Ждем совей очереди..." << std::endl;
+void PersonController::run() {
+    std::cout << "Ждем совей очереди..." << std::endl;
 
     sendName();
 
 	kill(serverPID, SIGF0);
+    kill(serverPID, SIGF0);
 
-	while (!signalIsHere[0]) {}
+    while (!signalIsHere[0]) {}
 
-	signalIsHere[0] = false;
+    signalIsHere[0] = false;
 
-	while (true)
-	{
-		if (!person.runConsole())
-		{
-			break;
-		}
+    while (true)
+    {
+		//may throw exception
+        person.runConsole();
 
-		person.sendRequest();
-		
-		kill(serverPID, SIGF1);
+        person.sendRequest();
 
-		while (!signalIsHere[1]) {}
+        kill(serverPID, SIGF1);
 
-		signalIsHere[1] = false;
+        while (!signalIsHere[1]) {}
 
-		person.getResponce();
-	}
+        signalIsHere[1] = false;
+
+        person.getResponse();
+    }
 }
 
 PersonController::~PersonController()

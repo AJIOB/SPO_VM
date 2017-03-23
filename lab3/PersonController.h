@@ -2,10 +2,11 @@
 #define PERSON_CONTROLLER
 
 #include <iostream>
-#include "Person.h"
-#include "AllExceptions.h"
 #include <list>
+
+#include "Person.h"
 #include "Structs.h"
+#include "exceptions/AllExceptions.h"
 
 class PersonController
 {
@@ -29,7 +30,6 @@ class PersonController
 public:
 	PersonController(std::string name);
 	~PersonController();
-	//std::list<Command> *commands;
 
 	void run();
 };
