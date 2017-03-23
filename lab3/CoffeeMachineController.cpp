@@ -20,7 +20,7 @@
 
 namespace
 {
-    using namespace VA::constants;
+	using namespace VA::constants;
 }
 
 #ifdef _WIN32
@@ -97,7 +97,7 @@ void CoffeeMachineController::run()
 			//raise flag3
 			if (!SetEvent(EVENT[2]))
 			{
-				throw CannotWorkWithPersonException();
+				throw WorkWithPersonException();
 			}
 
 			WaitForSingleObject(EVENT[1],INFINITE);
@@ -107,7 +107,7 @@ void CoffeeMachineController::run()
 			//raise flag1
 			if (!SetEvent(EVENT[0]))
 			{
-				throw CannotWorkWithPersonException();
+				throw WorkWithPersonException();
 			}
 			break;
 		default:

@@ -20,7 +20,7 @@
 
 namespace
 {
-    using namespace VA::constants;
+	using namespace VA::constants;
 }
 
 #ifdef _WIN32
@@ -81,27 +81,24 @@ void PersonController::run()
 	//start loop
 	do
 	{
-		if (!person.runConsole())
-		{
-			break;
-		}
+		person.runConsole();
 
 		person.sendRequest();
 		//raise flag2
 		if (!SetEvent(EVENT[1]))
 		{
-			throw CannotWorkWithMachineException();
+			throw WorkWithMachineException();
 		}
 
 		//wait flag3
 		WaitForSingleObject(EVENT[2],INFINITE);
 
-		person.getResponce();
+		person.getResponse();
 		//raise flag2
 
 		if (!SetEvent(EVENT[1]))
 		{
-			throw CannotWorkWithMachineException();
+			throw WorkWithMachineException();
 		}
 	}
 	while (true);
@@ -138,7 +135,7 @@ pid_t PersonController::getServerPID()
 
     int buffer;
 
-    //стали на чтение
+//стали на чтение
     f.seekg(0);
     f >> buffer;
     if (!f)
@@ -174,7 +171,7 @@ void PersonController::run() {
 
     while (true)
     {
-        //may throw exception
+		//may throw exception
         person.runConsole();
 
         person.sendRequest();
