@@ -8,13 +8,17 @@
 #include <iostream>
 #include <fstream>
 
+#include "Person.h"
 #include "AJIOBlib.h"
 #include "Constants.h"
 
 class Client {
+    Person person;
 
     void readFile();
 public:
+    Client();
+
     void run();
 };
 

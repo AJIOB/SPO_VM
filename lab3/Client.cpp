@@ -22,7 +22,7 @@ pid_t getServerPID()
 
     int buffer;
 
-//стали на чтение
+    //стали на чтение
     f.seekg(0);
     f >> buffer;
     if (!f)
@@ -42,9 +42,11 @@ void hdlF0Client(int sig, siginfo_t* sigptr, void*)
     signalIsHere[0] = true;
 }
 
-void Client::run() {
+Client::Client() {
     setSigAction(SIGF0, hdlF0Client);
+}
 
+void Client::run() {
     std::cout << "Client" << std::endl;
 
     pid_t pid = getServerPID();

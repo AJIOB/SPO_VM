@@ -1,4 +1,4 @@
-objects = main.o Controller.o Server.o Client.o AJIOBlib.o
+objects = main.o CoffeeMachine.o Person.o Drink.o Server.o Client.o Controller.o AJIOBlib.o
 CFLAGS = -std=c++11
 CXXFLAGS = $(CFLAGS)
 sourceWay =
@@ -26,6 +26,12 @@ $(destinationName) : baseInit $(objects) copyDeps
 
 main.o : $(sourceWay)main.cpp $(sourceWay)Controller.h
 	$(prefix)main.cpp
+CoffeeMachine.o : $(sourceWay)CoffeeMachine.cpp $(sourceWay)CoffeeMachine.h
+	$(prefix)CoffeeMachine.cpp
+Person.o : $(sourceWay)Person.cpp $(sourceWay)Person.h
+	$(prefix)Person.cpp
+Drink.o : $(sourceWay)Drink.cpp $(sourceWay)Drink.h
+	$(prefix)Drink.cpp
 Server.o : $(sourceWay)Server.cpp $(sourceWay)Server.h
 	$(prefix)Server.cpp
 Client.o : $(sourceWay)Client.cpp $(sourceWay)Client.h

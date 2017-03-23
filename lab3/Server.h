@@ -11,11 +11,13 @@
 #include <signal.h>
 #include <unistd.h>
 
+#include "CoffeeMachine.h"
 #include "AJIOBlib.h"
 #include "Constants.h"
 
 
 class Server {
+    CoffeeMachine machine;
 
     pid_t currPID;
     void writePID();
