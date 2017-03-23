@@ -156,7 +156,7 @@ PersonController::PersonController()
 	setSigAction(SIGF0, hdlF0Person);
 	setSigAction(SIGF1, hdlF1Person);
 
-	pid_t serverPID = getServerPID();
+	serverPID = getServerPID();
 
 	if (serverPID == 0)
 	{
