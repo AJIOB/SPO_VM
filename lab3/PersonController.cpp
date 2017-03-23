@@ -1,4 +1,4 @@
-﻿#ifdef _WIN32
+#ifdef _WIN32
 
 #include <windows.h>
 
@@ -20,7 +20,7 @@
 
 namespace
 {
-	using namespace VA::constants;
+    using namespace VA::constants;
 }
 
 #ifdef _WIN32
@@ -111,91 +111,87 @@ void PersonController::run()
 
 namespace
 {
-	bool signalIsHere[] = {false, false, false};
+    bool signalIsHere[] = {false, false};
 }
 
 //значит, можно начинать работу
 void hdlF0Person(int sig, siginfo_t* sigptr, void*)
 {
-	signalIsHere[0] = true;
+    signalIsHere[0] = true;
 }
 
 //можем читать результат
 void hdlF1Person(int sig, siginfo_t* sigptr, void*)
 {
-	signalIsHere[1] = true;
+    signalIsHere[1] = true;
 }
 
 pid_t PersonController::getServerPID()
 {
-	std::fstream f;
-	f.open(serverPIDfilename, std::ios::in);
+    std::fstream f;
+    f.open(serverPIDfilename, std::ios::in);
 
-	if (!f)
-	{
-		throw NoRunningMachineException();
-	}
+    if (!f)
+    {
+        return 0;
+    }
 
-	int buffer;
+    int buffer;
 
-//стали на чтение
-	f.seekg(0);
-	f >> buffer;
-	if (!f)
-	{
-		f.close();
-		throw NoRunningMachineException();
-	}
-	f.close();
+    //стали на чтение
+    f.seekg(0);
+    f >> buffer;
+    if (!f)
+    {
+        f.close();
+        return 0;
+    }
+    f.close();
 
-	return buffer;
+    return buffer;
 }
 
-PersonController::PersonController()
-{
-	setSigAction(SIGF0, hdlF0Person);
-	setSigAction(SIGF1, hdlF1Person);
+PersonController::PersonController() {
+    setSigAction(SIGF0, hdlF0Person);
+    setSigAction(SIGF1, hdlF1Person);
 
-	serverPID = getServerPID();
+    serverPID = getServerPID();
 
-	if (serverPID == 0)
-	{
-		throw NoRunningMachineException();
-	}
+    if (serverPID == 0)
+    {
+        throw NoRunningMachineException();
+    }
 }
 
-void PersonController::run()
-{
-	std::cout << "Ждем совей очереди..." << std::endl;
+void PersonController::run() {
+    std::cout << "Ждем совей очереди..." << std::endl;
 
-	kill(serverPID, SIGF0);
+    kill(serverPID, SIGF0);
 
-	while (!signalIsHere[0]) {}
+    while (!signalIsHere[0]) {}
 
-	signalIsHere[0] = false;
+    signalIsHere[0] = false;
 
-	while (true)
-	{
-		if (!person.runConsole())
-		{
-			break;
-		}
+    while (true)
+    {
+        //may throw exception
+        person.runConsole();
 
-		person.sendRequest();
-		
-		kill(serverPID, SIGF1);
+        person.sendRequest();
 
-		while (!signalIsHere[1]) {}
+        kill(serverPID, SIGF1);
 
-		signalIsHere[1] = false;
+        while (!signalIsHere[1]) {}
 
-		person.getResponce();
-	}
+        signalIsHere[1] = false;
+
+        person.getResponse();
+    }
 }
 
 PersonController::~PersonController()
 {
-	kill(serverPID, SIGF2);
+    kill(serverPID, SIGF2);
 }
 
 #endif

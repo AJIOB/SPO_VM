@@ -1,4 +1,4 @@
-﻿#ifdef _WIN32
+#ifdef _WIN32
 
 #include <windows.h>
 
@@ -20,7 +20,7 @@
 
 namespace
 {
-	using namespace VA::constants;
+    using namespace VA::constants;
 }
 
 #ifdef _WIN32
@@ -121,119 +121,132 @@ void CoffeeMachineController::run()
 
 namespace
 {
-	std::queue<pid_t> PIDq;
-	bool signalIsHere[] = {false, false, false};
+    using namespace VA::constants;
+    std::queue<pid_t> PIDq;
+    bool signalIsHere[] = {false, false, false};
+    bool isStopServer = false;
 }
 
 pid_t StartWorkingWithNewUser()
 {
-	if (PIDq.empty())
-	{
-		return 0;
-	}
+    if (PIDq.empty())
+    {
+        return 0;
+    }
 
-	pid_t currPID = PIDq.front();
-	PIDq.pop();
-	if (currPID == 0)
-	{
-		return 0;
-	}
+    pid_t currPID = PIDq.front();
+    PIDq.pop();
+    if (currPID == 0)
+    {
+        return 0;
+    }
 
-	kill(currPID, SIGF0);
+    kill(currPID, SIGF0);
 
-	return currPID;
+    return currPID;
 }
 
 //save pid to queue
 void hdlF0Machine(int sig, siginfo_t* sigptr, void*)
 {
-	if (!sigptr)
-	{
-		return;
-	}
+    if (!sigptr)
+    {
+        return;
+    }
 
-	PIDq.push(sigptr -> si_pid);
+    PIDq.push(sigptr -> si_pid);
 
-	signalIsHere[0] = true;
+    signalIsHere[0] = true;
 }
 
 //нужно обработать результаты
 void hdlF1Machine(int sig, siginfo_t* sigptr, void*)
 {
-	signalIsHere[1] = true;
+    signalIsHere[1] = true;
 }
 
 //предыдущий пользователь закончил работу
 void hdlF2Machine(int sig, siginfo_t* sigptr, void*)
 {
-	signalIsHere[2] = true;
+    signalIsHere[2] = true;
 }
+
+//нужно выключить сервер
+void hdlINTServer(int sig, siginfo_t *sigptr, void *)
+{
+    isStopServer = true;
+}
+
 
 void CoffeeMachineController::writePID()
 {
-	std::fstream f;
-	f.open(serverPIDfilename, std::ios::out | std::ios::trunc);
+    std::fstream f;
+    f.open(serverPIDfilename, std::ios::out | std::ios::trunc);
 
-	if (!f)
-	{
-		std::cout << ("Ошибка открытия файла") << std::endl;
-		return;
-	}
+    if (!f)
+    {
+        std::cout << "Ошибка открытия файла" << std::endl;
+        return;
+    }
 
-	f << (int)getpid();
-	f.close();
+    f << (int)getpid();
+    f.close();
 }
 
-CoffeeMachineController::CoffeeMachineController()
-{
-	setSigAction(SIGF0, hdlF0Machine);
-	setSigAction(SIGF1, hdlF1Machine);
-	setSigAction(SIGF2, hdlF2Machine);
+CoffeeMachineController::CoffeeMachineController() {
+    setSigAction(SIGF0, hdlF0Machine);
+    setSigAction(SIGF1, hdlF1Machine);
+    setSigAction(SIGF2, hdlF2Machine);
+    setSigAction(SIGINT, hdlINTServer);
 
-	writePID();
+    writePID();
 
-	currPID = 0;
-}
-
-CoffeeMachineController::~CoffeeMachineController()
-{
-	unlink(serverPIDfilename);
+    currPID = 0;
 }
 
 void CoffeeMachineController::run()
 {
-	bool isWorkWithUserNow = false;
+    bool isWorkWithUserNow = false;
 
-	while (true)
-	{
-		if (!isWorkWithUserNow)
-		{
-			currPID = StartWorkingWithNewUser();
+    while (true)
+    {
+        if (isStopServer)
+        {
+            break;
+        }
 
-			if (currPID != 0)
-			{
-				isWorkWithUserNow = true;
-			}
-		}
+        if (!isWorkWithUserNow)
+        {
+            currPID = StartWorkingWithNewUser();
 
-		if (signalIsHere[2])
-		{
-			signalIsHere[2] = false;
-			isWorkWithUserNow = false;
-			continue;
-		}
+            if (currPID != 0)
+            {
+                isWorkWithUserNow = true;
+            }
+        }
 
-		if (signalIsHere[1])
-		{
-			signalIsHere[1] = false;
-			machine.proceed();
+        if (signalIsHere[2])
+        {
+            signalIsHere[2] = false;
+            isWorkWithUserNow = false;
+            continue;
+        }
+
+        if (signalIsHere[1])
+        {
+            signalIsHere[1] = false;
+            machine.proceed();
             machine.saveCondition();
 
-			kill(currPID, SIGF1);
+            kill(currPID, SIGF1);
 
-			continue;
-		}
-	}
+            continue;
+        }
+    }
+}
+
+CoffeeMachineController::~CoffeeMachineController() {
+    unlink(serverPIDfilename);
 }
 
 #endif

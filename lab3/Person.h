@@ -6,6 +6,7 @@
 #include <fstream>
 
 #include "view/StreamInput.h"
+#include "exceptions/AllExceptions.h"
 #include "Constants.h"
 
 class Person
@@ -14,9 +15,9 @@ class Person
 public:
 	Person();
 	~Person();
-	bool runConsole();
+	void runConsole();
 	void sendRequest() const;
-	void getResponce() const;
+	void getResponse() const;
 
 private:
 	unsigned long long inputDrinkIndex() const;

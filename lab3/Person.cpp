@@ -28,7 +28,7 @@ void Person::sendRequest() const
 	f.close();
 }
 
-void Person::getResponce() const
+void Person::getResponse() const
 {
 	std::fstream f;
 	f.open(transferFile, std::ios::in);
@@ -68,7 +68,7 @@ unsigned long long Person::inputDrinkIndex() const
 }
 
 
-bool Person::runConsole()
+void Person::runConsole()
 {
 	do
 	{
@@ -92,7 +92,7 @@ bool Person::runConsole()
 		{
 		case '0':
 			{
-				return false;
+				throw 0;
 			}
 		case '1':
 			{
@@ -132,7 +132,7 @@ bool Person::runConsole()
 		if (isSelectGood)
 		{
 			query.str(params);
-			return true;
+			return;
 		}
 	}
 	while (true);
