@@ -1,4 +1,4 @@
-objects = main.o Controller.o CoffeeMachine.o Person.o Drink.o PersonController.o CoffeeMachineController.o
+objects = main.o Controller.o CoffeeMachine.o Person.o Drink.o PersonController.o CoffeeMachineController.o AJIOBlib.o
 CFLAGS = -std=c++11
 CXXFLAGS = $(CFLAGS)
 sourceWay =
@@ -38,6 +38,8 @@ PersonController.o : $(sourceWay)PersonController.cpp $(sourceWay)PersonControll
 	$(prefix)PersonController.cpp
 CoffeeMachineController.o : $(sourceWay)CoffeeMachineController.cpp $(sourceWay)CoffeeMachineController.h
 	$(prefix)CoffeeMachineController.cpp
+AJIOBlib.o : $(sourceWay)AJIOBlib.cpp $(sourceWay)AJIOBlib.h
+	$(prefix)AJIOBlib.cpp
 
 max_clean :
 	$(MAKE) -i clean

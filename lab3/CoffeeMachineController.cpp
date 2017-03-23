@@ -10,6 +10,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "AJIOBlib.h"
+
 #else
 #error Bad operation system. Please, recompile me to Linux, Unix or Windows
 #endif
@@ -90,7 +92,7 @@ void CoffeeMachineController::run()
 			break;
 		case WAIT_OBJECT_0 + 0:
 			machine.proceed();
-			machine.writeToFile();
+			machine.saveCondition();
 
 			//raise flag3
 			if (!SetEvent(EVENT[2]))
@@ -165,19 +167,6 @@ void hdlF1Machine(int sig, siginfo_t* sigptr, void*)
 void hdlF2Machine(int sig, siginfo_t* sigptr, void*)
 {
 	signalIsHere[2] = true;
-}
-
-int setSigAction(int sig, void (*handleFun) (int, siginfo_t*, void*))
-{
-	struct sigaction act;
-	memset(&act, NULL, sizeof(act));	//clear all struct
-	act.sa_sigaction = handleFun;
-	act.sa_flags = SA_SIGINFO;
-	sigset_t set;
-	sigemptyset(&set);
-	sigaddset(&set, sig);
-	act.sa_mask = set;
-	return sigaction(sig, &act, NULL);
 }
 
 void CoffeeMachineController::writePID()

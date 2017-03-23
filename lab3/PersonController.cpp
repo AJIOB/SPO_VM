@@ -10,6 +10,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "AJIOBlib.h"
+
 #else
 #error Bad operation system. Please, recompile me to Linux, Unix or Windows
 #endif
@@ -124,19 +126,6 @@ void hdlF1Person(int sig, siginfo_t* sigptr, void*)
 	signalIsHere[1] = true;
 }
 
-int setSigActionPerson(int sig, void (*handleFun) (int, siginfo_t*, void*))
-{
-	struct sigaction act;
-	memset(&act, NULL, sizeof(act));	//clear all struct
-	act.sa_sigaction = handleFun;
-	act.sa_flags = SA_SIGINFO;
-	sigset_t set;
-	sigemptyset(&set);
-	sigaddset(&set, sig);
-	act.sa_mask = set;
-	return sigaction(sig, &act, NULL);
-}
-
 pid_t PersonController::getServerPID()
 {
 	std::fstream f;
@@ -164,8 +153,8 @@ pid_t PersonController::getServerPID()
 
 PersonController::PersonController()
 {
-	setSigActionPerson(SIGF0, hdlF0Person);
-	setSigActionPerson(SIGF1, hdlF1Person);
+	setSigAction(SIGF0, hdlF0Person);
+	setSigAction(SIGF1, hdlF1Person);
 
 	pid_t serverPID = getServerPID();
 
