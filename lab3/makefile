@@ -1,4 +1,4 @@
-objects = main.o CoffeeMachine.o Person.o Drink.o Server.o Client.o Controller.o AJIOBlib.o
+objects = main.o CoffeeMachine.o Person.o Drink.o CoffeeMachineController.o PersonController.o Controller.o AJIOBlib.o
 CFLAGS = -std=c++11
 CXXFLAGS = $(CFLAGS)
 sourceWay =
@@ -32,10 +32,10 @@ Person.o : $(sourceWay)Person.cpp $(sourceWay)Person.h
 	$(prefix)Person.cpp
 Drink.o : $(sourceWay)Drink.cpp $(sourceWay)Drink.h
 	$(prefix)Drink.cpp
-Server.o : $(sourceWay)Server.cpp $(sourceWay)Server.h
-	$(prefix)Server.cpp
-Client.o : $(sourceWay)Client.cpp $(sourceWay)Client.h
-	$(prefix)Client.cpp
+CoffeeMachineController.o : $(sourceWay)CoffeeMachineController.cpp $(sourceWay)CoffeeMachineController.h
+	$(prefix)CoffeeMachineController.cpp
+PersonController.o : $(sourceWay)PersonController.cpp $(sourceWay)PersonController.h
+	$(prefix)PersonController.cpp
 Controller.o : $(sourceWay)Controller.cpp $(sourceWay)Controller.h
 	$(prefix)Controller.cpp
 AJIOBlib.o : $(sourceWay)AJIOBlib.cpp $(sourceWay)AJIOBlib.h

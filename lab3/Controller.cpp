@@ -1,4 +1,4 @@
-#include "Controller.h"
+﻿#include "Controller.h"
 
 void SelectMode()
 {
@@ -32,12 +32,12 @@ void SelectMode()
 
 void WorkAsPerson()
 {
-    Client controller;
+    PersonController controller;
     controller.run();
 }
 
 void WorkAsCoffeeMachine()
 {
-    Server controller;
+    CoffeeMachineController controller;
     controller.run();
 }

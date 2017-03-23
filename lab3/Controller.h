@@ -3,8 +3,8 @@
 
 #include "view/StreamInput.h"
 
-#include "Client.h"
-#include "Server.h"
+#include "PersonController.h"
+#include "CoffeeMachineController.h"
 
 void SelectMode();
 void WorkAsPerson();
