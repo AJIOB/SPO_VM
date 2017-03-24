@@ -139,6 +139,7 @@ namespace
 {
 	bool signalIsHere[] = {false, false};
     bool nameIsRead = false;
+    bool isPersonClose = false;
 }
 
 //значит, можно начинать работу
@@ -156,6 +157,12 @@ void hdlF1Person(int sig, siginfo_t* sigptr, void*)
 void hdlSENDNAMEPerson(int sig, siginfo_t* sigptr, void*)
 {
     nameIsRead = true;
+}
+
+//нужно выключить сервер
+void hdlINTPerson(int sig, siginfo_t *sigptr, void *)
+{
+    isPersonClose = true;
 }
 
 pid_t PersonController::getServerPID()
@@ -188,6 +195,7 @@ PersonController::PersonController(std::string name) : person(name)
 	setSigAction(SIGF0, hdlF0Person);
 	setSigAction(SIGF1, hdlF1Person);
     setSigAction(SIGSENDNAME, hdlSENDNAMEPerson);
+    setSigAction(SIGINT, hdlINTPerson);
 
     serverPID = getServerPID();
 
@@ -226,17 +234,27 @@ PersonController::PersonController(std::string name) : person(name)
 void PersonController::run() {
     std::cout << "Ждем совей очереди..." << std::endl;
 
-    sendName();
+    sendName(true);
 
 	kill(serverPID, SIGF0);
     kill(serverPID, SIGF0);
 
-    while (!signalIsHere[0]) {}
+    while (!signalIsHere[0] && !isPersonClose) {}
+
+    if (isPersonClose)
+    {
+    	return;
+    }
 
     signalIsHere[0] = false;
 
     while (true)
     {
+    	if (isPersonClose)
+    	{
+    		break;
+    	}
+
 		//may throw exception
         person.runConsole();
 
@@ -270,10 +288,10 @@ PersonController::~PersonController()
 
 	kill(serverPID, SIGF2);
 
-	removeName();
+	sendName(false);
 }
 
-void PersonController::sendName()
+void PersonController::sendName(bool isAdd)
 {
 //todo: mutex
 
@@ -286,32 +304,7 @@ void PersonController::sendName()
         return;
     }
 
-    f << true << person.getName();
-    f.close();
-
-    kill(serverPID, SIGSENDNAME);
-
-    while(!nameIsRead){}	//todo: wait signal
-
-    nameIsRead = false;
-
-//end mutex
-}
-
-void PersonController::removeName()
-{
-//todo: mutex
-
-    std::fstream f;
-    f.open(testFileName, std::ios::out | std::ios::trunc);
-
-    if (!f)
-    {
-        std::cout << ("Ошибка открытия файла") << std::endl;
-        return;
-    }
-
-    f << false << person.getName();
+    f << isAdd << person.getName();
     f.close();
 
     kill(serverPID, SIGSENDNAME);

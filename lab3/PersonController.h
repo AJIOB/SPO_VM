@@ -18,14 +18,12 @@ class PersonController
 #elif (defined(__linux__) || defined(__unix__))
 	pid_t serverPID;
 	//int shmPersonNameID;
-	//pthread_mutex_t* RWlistMutex;
 
     pthread_cond_t * pcond;
     pthread_condattr_t attrcond;
 
     pid_t getServerPID();
-    void sendName();
-    void removeName();
+    void sendName(bool isAdd);
 #endif
 
 	Person person;

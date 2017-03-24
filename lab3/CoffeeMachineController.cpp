@@ -302,7 +302,7 @@ void* OutputThread(void* ptr)
             break;
         }
 
-//do operations
+		//do operations
         while (!commands.empty()) {
             Command c = commands.front();
             commands.pop_front();
@@ -320,7 +320,7 @@ void* OutputThread(void* ptr)
             }
         }
 
-//show all elements
+		//show all elements
         std::for_each(cmController->names.begin(), cmController->names.end(),
             [](const std::string& s) {
                 std::cout << s << " ";
@@ -367,7 +367,7 @@ CoffeeMachineController::CoffeeMachineController()
 */
 
 	createRWMutex();
-	//pthread_create(&outputThread, NULL, OutputThread, this);
+	pthread_create(&outputThread, NULL, OutputThread, this);
 
 	//memcpy(((char *)address) + sizeof(&commands), RWlistMutex, sizeof(RWlistMutex));
 }
@@ -391,7 +391,7 @@ CoffeeMachineController::~CoffeeMachineController()
 
 	delete RWlistMutex;
 
-//pthread_join(outputThread, NULL);   //maybe we must delete it
+	pthread_join(outputThread, NULL);   //maybe we must delete it
 
 /*
 	if (munmap(NULL, sizeof(&commands)) != 0)
@@ -442,31 +442,6 @@ void CoffeeMachineController::run()
 
 			continue;
 		}
-//TODO: test only
-		//do operations
-        while (!commands.empty()) {
-            Command c = commands.front();
-            commands.pop_front();
-            if (c.isAdd) {
-                this->names.push_back(c.name);
-            } else {
-                auto res = std::find(this->names.begin(), this->names.end(), c.name);
-                if (res == this->names.end()) {
-                    std::cout << std::endl << "User try to remove name that not exist" << std::endl;
-                }
-                else
-                {
-                	this->names.erase(res);
-                }
-            }
-        }
-
-		//show all elements
-        std::for_each(this->names.begin(), this->names.end(),
-                      [](const std::string& s) {
-                          std::cout << s << " ";
-                      }
-        );
 	}
 }
 

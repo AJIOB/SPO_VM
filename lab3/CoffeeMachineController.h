@@ -28,7 +28,7 @@ class CoffeeMachineController
 	pthread_mutexattr_t attrmutex;
 	pthread_mutex_t* RWlistMutex;
 
-	//pthread_t outputThread;
+	pthread_t outputThread;
 
 	void writePID();
 
