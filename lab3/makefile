@@ -23,7 +23,7 @@ COPY = cp
 
 
 $(destinationName) : baseInit $(objects) copyDeps
-	$(compilerPrefix) $(linkFlags) -o $(objBackHome)$(destinationWay)$(destinationName) $(objects)
+	$(compilerPrefix) -o $(objBackHome)$(destinationWay)$(destinationName) $(objects) $(linkFlags)
 
 main.o : $(sourceWay)main.cpp $(sourceWay)Controller.h
 	$(prefix)main.cpp

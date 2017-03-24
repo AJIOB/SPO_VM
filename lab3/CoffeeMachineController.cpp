@@ -186,7 +186,7 @@ namespace
     std::list<Command> commands;
 }
 
-pid_t StartWorkingWithNewUser()
+pid_t CoffeeMachineController::StartWorkingWithNewUser()
 {
     if (PIDq.empty())
     {
@@ -271,13 +271,22 @@ void hdlINTMachine(int sig, siginfo_t *sigptr, void *)
 void CoffeeMachineController::writePID()
 {
     std::fstream f;
+
+    //check if file exist
+    f.open(serverPIDfilename, std::ios::in);
+    if (f)
+    {
+    	f.close();
+        throw ServerAlreadyExistException();
+    }
+
+    //open to write
     f.open(serverPIDfilename, std::ios::out | std::ios::trunc);
 
     if (!f)
     {
-        std::cout << "Ошибка открытия файла" << std::endl;
-        return;
-    }
+    	throw WritePIDException();
+	}
 
     f << (int)getpid();
     f.close();
@@ -357,10 +366,10 @@ CoffeeMachineController::CoffeeMachineController()
 	memcpy(address, &commands, sizeof(&commands));
 */
 
-//createRWMutex();
-//pthread_create(&outputThread, NULL, OutputThread, this);
+	createRWMutex();
+	//pthread_create(&outputThread, NULL, OutputThread, this);
 
-//memcpy(((char *)address) + sizeof(&commands), RWlistMutex, sizeof(RWlistMutex));
+	//memcpy(((char *)address) + sizeof(&commands), RWlistMutex, sizeof(RWlistMutex));
 }
 
 CoffeeMachineController::~CoffeeMachineController()
@@ -369,7 +378,7 @@ CoffeeMachineController::~CoffeeMachineController()
 	{
 		std::cout << "Ошибка удаления PID автомата" << std::endl;
 	}
-/*
+
 	if (pthread_mutex_destroy(RWlistMutex) != 0)
 	{
 		std::cout << "Ошибка удаления mutex-а" << std::endl;
@@ -434,7 +443,7 @@ void CoffeeMachineController::run()
 			continue;
 		}
 //TODO: test only
-//do operations
+		//do operations
         while (!commands.empty()) {
             Command c = commands.front();
             commands.pop_front();
@@ -452,7 +461,7 @@ void CoffeeMachineController::run()
             }
         }
 
-//show all elements
+		//show all elements
         std::for_each(this->names.begin(), this->names.end(),
                       [](const std::string& s) {
                           std::cout << s << " ";
@@ -460,19 +469,19 @@ void CoffeeMachineController::run()
         );
 	}
 }
-/*
+
 void CoffeeMachineController::createRWMutex()
 {
-//mutex attribute (make mutex global)
+	//mutex attribute (make mutex global)
     pthread_mutexattr_init(&attrmutex);
     pthread_mutexattr_setpshared(&attrmutex, PTHREAD_PROCESS_SHARED);
 
-//make mutex
+	//make mutex
     RWlistMutex = new pthread_mutex_t();
     if (pthread_mutex_init(RWlistMutex, &attrmutex) != 0)
     {
         throw InitMutexException();
     }
 }
-*/
+
 #endif

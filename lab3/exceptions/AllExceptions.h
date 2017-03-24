@@ -11,5 +11,7 @@
 #include "ReallocSharedMemoryException.h"
 #include "MapSharedMemoryException.h"
 #include "InitMutexException.h"
+#include "ServerAlreadyExistException.h"
+#include "WritePIDException.h"
 
 #endif

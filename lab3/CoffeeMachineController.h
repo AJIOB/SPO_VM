@@ -25,14 +25,16 @@ class CoffeeMachineController
 
 	pid_t currPID;
 	//int shmPersonNameID;
-	//pthread_mutexattr_t attrmutex;
-	//pthread_mutex_t* RWlistMutex;
+	pthread_mutexattr_t attrmutex;
+	pthread_mutex_t* RWlistMutex;
 
 	//pthread_t outputThread;
 
 	void writePID();
 
-	//void createRWMutex();
+	void createRWMutex();
+
+	pid_t StartWorkingWithNewUser();
 
     friend void* OutputThread(void*);
 #endif

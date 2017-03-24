@@ -213,14 +213,14 @@ PersonController::PersonController(std::string name) : person(name)
 
 	memcpy(RWlistMutex, (char *)address + sizeof(commands), sizeof(RWlistMutex));*/
 
-//Initialise attribute to condition.
-    /*pthread_condattr_init(&attrcond);
+	//Initialise attribute to condition.
+    pthread_condattr_init(&attrcond);
     pthread_condattr_setpshared(&attrcond, PTHREAD_PROCESS_SHARED);
 
     pcond = new pthread_cond_t();
 
-//Initialise condition.
-    pthread_cond_init(pcond, &attrcond);*/
+	//Initialise condition.
+    pthread_cond_init(pcond, &attrcond);
 }
 
 void PersonController::run() {
@@ -237,7 +237,7 @@ void PersonController::run() {
 
     while (true)
     {
-//may throw exception
+		//may throw exception
         person.runConsole();
 
         person.sendRequest();
