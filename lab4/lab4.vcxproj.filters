@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="main">
+      <UniqueIdentifier>{b1da4ced-e441-41af-823d-0aef60ddd4f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="model">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="model\header">
+      <UniqueIdentifier>{36d06731-159b-4b4e-94e5-63e98af4638e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="model\source">
+      <UniqueIdentifier>{09ea84f6-243b-4c1f-9368-018718f79ac8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="view">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="view\header">
+      <UniqueIdentifier>{9f533133-9f15-466d-b6b8-af82f8cb9b66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="view\source">
+      <UniqueIdentifier>{4d69d154-5ed1-4f13-9777-e14aea979d88}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="code\main.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="code\ThreadGenerator.cpp">
+      <Filter>model\source</Filter>
+    </ClCompile>
+    <ClCompile Include="code\UI.cpp">
+      <Filter>view\source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="code\VA_Exception.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\ThreadGenerator.h">
+      <Filter>model\header</Filter>
+    </ClInclude>
+    <ClInclude Include="code\UI.h">
+      <Filter>view\header</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
