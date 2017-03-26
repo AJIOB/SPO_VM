@@ -33,21 +33,36 @@
     <ClCompile Include="code\main.cpp">
       <Filter>main</Filter>
     </ClCompile>
-    <ClCompile Include="code\ThreadGenerator.cpp">
-      <Filter>model\source</Filter>
-    </ClCompile>
     <ClCompile Include="code\UI.cpp">
       <Filter>view\source</Filter>
+    </ClCompile>
+    <ClCompile Include="code\ThreadManager.cpp">
+      <Filter>model\source</Filter>
+    </ClCompile>
+    <ClCompile Include="code\ThreadFuncs.cpp">
+      <Filter>model\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\VA_Exception.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="code\ThreadGenerator.h">
+    <ClInclude Include="code\UI.h">
+      <Filter>view\header</Filter>
+    </ClInclude>
+    <ClInclude Include="code\StreamInput.h">
+      <Filter>view\header</Filter>
+    </ClInclude>
+    <ClInclude Include="code\Sync.h">
       <Filter>model\header</Filter>
     </ClInclude>
-    <ClInclude Include="code\UI.h">
+    <ClInclude Include="code\ThreadManager.h">
+      <Filter>model\header</Filter>
+    </ClInclude>
+    <ClInclude Include="code\ThreadFuncs.h">
+      <Filter>model\header</Filter>
+    </ClInclude>
+    <ClInclude Include="code\logs.h">
       <Filter>view\header</Filter>
     </ClInclude>
   </ItemGroup>

@@ -2,12 +2,14 @@
 #define UI_HEADER
 
 #include <string>
+#include <iostream>
 
-#include "ThreadGenerator.h"
+#include "ThreadManager.h"
+#include "StreamInput.h"
 
 class UI
 {
-	ThreadGenerator model;
+	ThreadManager model;
 
 public:
 	UI(char* showPeriod, char* generateNewThreadPeriod);

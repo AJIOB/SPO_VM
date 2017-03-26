@@ -79,11 +79,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="code\main.cpp" />
-    <ClCompile Include="code\ThreadGenerator.cpp" />
+    <ClCompile Include="code\ThreadFuncs.cpp" />
+    <ClCompile Include="code\ThreadManager.cpp" />
     <ClCompile Include="code\UI.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code\ThreadGenerator.h" />
+    <ClInclude Include="code\logs.h" />
+    <ClInclude Include="code\StreamInput.h" />
+    <ClInclude Include="code\Sync.h" />
+    <ClInclude Include="code\ThreadFuncs.h" />
+    <ClInclude Include="code\ThreadManager.h" />
     <ClInclude Include="code\UI.h" />
     <ClInclude Include="code\VA_Exception.h" />
   </ItemGroup>
