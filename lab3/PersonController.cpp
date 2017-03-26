@@ -9,6 +9,12 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys/mman.h>
+#include <sys/stat.h>        /* For mode constants */
+#include <fcntl.h>           /* For O_* constants */
+#include <pthread.h>		//for mutex
+
+#include "AJIOBlib.h"
 
 #else
 #error Bad operation system. Please, recompile me to Linux, Unix or Windows
@@ -77,13 +83,12 @@ PersonController::PersonController(std::string name) : person(name)
 	//открытие мютекса
 	listMutex = OpenMutex(MUTEX_ALL_ACCESS,FALSE,mutex);
 
-
 	//открытие shared memory
-	hFile = OpenFileMapping(FILE_MAP_ALL_ACCESS,FALSE,shmPersonName);
+	hFile = OpenFileMapping(FILE_MAP_ALL_ACCESS,FALSE, shmPersonName);
 
 	if (hFile == NULL)
 	{
-		std::cout<<"Ошибка при работе с общей памятью";
+		std::cout << "Ошибка при работе с общей памятью";
 		return;
 	}
 
@@ -91,7 +96,7 @@ PersonController::PersonController(std::string name) : person(name)
 	fileBuf = MapViewOfFile(hFile,FILE_MAP_ALL_ACCESS,0,0,BUF_SIZE);
 	if(fileBuf == NULL)
 	{
-		std::cout<<"Ошибка при работе с общей памятью";
+		std::cout << "Ошибка при работе с общей памятью";
 		CloseHandle(hFile);
 		return;
 	}
@@ -155,16 +160,13 @@ void PersonController::run()
 	//start loop
 	do
 	{
-		if (!person.runConsole())
-		{
-			break;
-		}
+		person.runConsole();
 
 		person.sendRequest();
 		//raise flag2
 		if (!SetEvent(EVENT[1]))
 		{
-			throw CannotWorkWithMachineException();
+			throw WorkWithMachineException();
 		}
 
 		//wait flag3
@@ -175,7 +177,7 @@ void PersonController::run()
 
 		if (!SetEvent(EVENT[1]))
 		{
-			throw CannotWorkWithMachineException();
+			throw WorkWithMachineException();
 		}
 	}
 	while (true);
@@ -185,13 +187,15 @@ void PersonController::run()
 
 namespace
 {
-	bool signalIsHere[] = {false, false, false};
+	bool signalIsHere[] = {false, false};
+    bool nameIsRead = false;
+    bool isPersonClose = false;
 }
 
 //значит, можно начинать работу
 void hdlF0Person(int sig, siginfo_t* sigptr, void*)
 {
-	signalIsHere[0] = true;
+    signalIsHere[0] = true;
 }
 
 //можем читать результат
@@ -200,89 +204,166 @@ void hdlF1Person(int sig, siginfo_t* sigptr, void*)
 	signalIsHere[1] = true;
 }
 
-int setSigActionPerson(int sig, void (*handleFun) (int, siginfo_t*, void*))
+void hdlSENDNAMEPerson(int sig, siginfo_t* sigptr, void*)
 {
-	struct sigaction act;
-	memset(&act, NULL, sizeof(act));	//clear all struct
-	act.sa_sigaction = handleFun;
-	act.sa_flags = SA_SIGINFO;
-	sigset_t set;
-	sigemptyset(&set);
-	sigaddset(&set, sig);
-	act.sa_mask = set;
-	return sigaction(sig, &act, NULL);
+    nameIsRead = true;
+}
+
+//нужно выключить сервер
+void hdlINTPerson(int sig, siginfo_t *sigptr, void *)
+{
+    isPersonClose = true;
 }
 
 pid_t PersonController::getServerPID()
 {
-	std::fstream f;
-	f.open(serverPIDfilename, std::ios::in);
+    std::fstream f;
+    f.open(serverPIDfilename, std::ios::in);
 
-	if (!f)
-	{
-		throw NoRunningMachineException();
-	}
+    if (!f)
+    {
+        return 0;
+    }
 
-	int buffer;
+    int buffer;
 
 //стали на чтение
-	f.seekg(0);
-	f >> buffer;
-	if (!f)
-	{
-		f.close();
-		throw NoRunningMachineException();
-	}
-	f.close();
+    f.seekg(0);
+    f >> buffer;
+    if (!f)
+    {
+        f.close();
+        return 0;
+    }
+    f.close();
 
-	return buffer;
+    return buffer;
 }
 
-PersonController::PersonController()
+PersonController::PersonController(std::string name) : person(name)
 {
-	setSigActionPerson(SIGF0, hdlF0Person);
-	setSigActionPerson(SIGF1, hdlF1Person);
+	setSigAction(SIGF0, hdlF0Person);
+	setSigAction(SIGF1, hdlF1Person);
+    setSigAction(SIGSENDNAME, hdlSENDNAMEPerson);
+    setSigAction(SIGINT, hdlINTPerson);
 
-	pid_t serverPID = getServerPID();
+    serverPID = getServerPID();
 
 	if (serverPID == 0)
 	{
 		throw NoRunningMachineException();
 	}
+/*
+	shmPersonNameID = shm_open(shmPersonName, O_RDONLY, S_IRUSR);
+	if (shmPersonNameID < 0)
+	{
+		throw CreateSharedMemoryException();
+	}
+
+	void* address = mmap(NULL, sizeof(commands), PROT_READ, MAP_SHARED, shmPersonNameID, 0);
+	if (address == MAP_FAILED)
+	{
+		throw MapSharedMemoryException();
+	}
+
+	//read shm adress
+	memcpy(commands, address, sizeof(commands));
+
+	memcpy(RWlistMutex, (char *)address + sizeof(commands), sizeof(RWlistMutex));*/
+
+	//Initialise attribute to condition.
+    pthread_condattr_init(&attrcond);
+    pthread_condattr_setpshared(&attrcond, PTHREAD_PROCESS_SHARED);
+
+    pcond = new pthread_cond_t();
+
+	//Initialise condition.
+    pthread_cond_init(pcond, &attrcond);
 }
 
-void PersonController::run()
-{
-	std::cout << "Ждем совей очереди..." << std::endl;
+void PersonController::run() {
+    std::cout << "Ждем совей очереди..." << std::endl;
+
+    sendName(true);
 
 	kill(serverPID, SIGF0);
+    kill(serverPID, SIGF0);
 
-	while (!signalIsHere[0]) {}
+    while (!signalIsHere[0] && !isPersonClose) {}
 
-	signalIsHere[0] = false;
+    if (isPersonClose)
+    {
+    	return;
+    }
 
-	while (true)
-	{
-		if (!person.runConsole())
-		{
-			break;
-		}
+    signalIsHere[0] = false;
 
-		person.sendRequest();
-		
-		kill(serverPID, SIGF1);
+    while (true)
+    {
+    	if (isPersonClose)
+    	{
+    		break;
+    	}
 
-		while (!signalIsHere[1]) {}
+		//may throw exception
+        person.runConsole();
 
-		signalIsHere[1] = false;
+        person.sendRequest();
 
-		person.getResponce();
-	}
+        kill(serverPID, SIGF1);
+
+        while (!signalIsHere[1]) {}
+
+        signalIsHere[1] = false;
+
+        person.getResponce();
+    }
 }
 
 PersonController::~PersonController()
-{
+{/*
+	if (munmap(NULL, sizeof(&commands)) != 0)
+	{
+		std::cout << "Ошибка удаления разбиения shared memory" << std::endl;
+	}
+
+	if (shm_unlink(shmPersonName) != 0)
+	{
+		std::cout << "Ошибка отключения от shared memory" << std::endl;
+	}*/
+
+// Clean up mutex
+    pthread_cond_destroy(pcond);
+    pthread_condattr_destroy(&attrcond);
+
 	kill(serverPID, SIGF2);
+
+	sendName(false);
+}
+
+void PersonController::sendName(bool isAdd)
+{
+//todo: mutex
+
+    std::fstream f;
+    f.open(testFileName, std::ios::out | std::ios::trunc);
+
+    if (!f)
+    {
+        std::cout << ("Ошибка открытия файла") << std::endl;
+        return;
+    }
+
+    f << isAdd << person.getName();
+    f.close();
+
+    kill(serverPID, SIGSENDNAME);
+
+    while(!nameIsRead){}	//todo: wait signal
+
+    nameIsRead = false;
+
+//end mutex
 }
 
 #endif

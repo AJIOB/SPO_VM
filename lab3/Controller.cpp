@@ -24,8 +24,7 @@ void SelectMode()
 		}
 	default:
 		{
-			std::cout << "Извините, такого варианта не существует. Выходим..." << std::endl;
-			break;
+			throw VA_Exception("Извините, такого варианта не существует. Выходим...");
 		}
 	}
 }
@@ -33,7 +32,7 @@ void SelectMode()
 void WorkAsPerson()
 {
 	std::string name;
-	std::cout<<"Введите ваше имя"<<std::endl;
+	std::cout << "Введите ваше имя" << std::endl;
 	Stream::Input(name);
 
 	PersonController controller(name);

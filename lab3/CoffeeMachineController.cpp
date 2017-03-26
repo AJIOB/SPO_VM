@@ -1,8 +1,8 @@
-﻿#ifdef _WIN32
+#ifdef _WIN32
 
 #include <windows.h>
-#include<algorithm>
-#include<string>
+#include <string>
+
 #define BUF_SIZE 256
 
 #elif (defined(__linux__) || defined(__unix__))
@@ -12,6 +12,12 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys/mman.h>
+#include <sys/stat.h>        /* For mode constants */
+#include <fcntl.h>           /* For O_* constants */
+#include <pthread.h>		//for mutex
+
+#include "AJIOBlib.h"
 
 #else
 #error Bad operation system. Please, recompile me to Linux, Unix or Windows
@@ -116,12 +122,12 @@ void CoffeeMachineController::run()
 
 		case WAIT_OBJECT_0 + 0:
 			machine.proceed();
-			machine.writeToFile();
+			machine.saveCondition();
 
 			//raise flag3
 			if (!SetEvent(EVENT[2]))
 			{
-				throw CannotWorkWithPersonException();
+				throw WorkWithPersonException();
 			}
 
 			WaitForSingleObject(EVENT[1],INFINITE);
@@ -132,7 +138,7 @@ void CoffeeMachineController::run()
 			//raise flag1
 			if (!SetEvent(EVENT[0]))
 			{
-				throw CannotWorkWithPersonException();
+				throw WorkWithPersonException();
 			}
 			break;
 
@@ -203,94 +209,227 @@ namespace
 {
 	std::queue<pid_t> PIDq;
 	bool signalIsHere[] = {false, false, false};
+    bool isMachineClose = false;
+    std::list<Command> commands;
 }
 
-pid_t StartWorkingWithNewUser()
+pid_t CoffeeMachineController::StartWorkingWithNewUser()
 {
-	if (PIDq.empty())
-	{
-		return 0;
-	}
+    if (PIDq.empty())
+    {
+        return 0;
+    }
 
-	pid_t currPID = PIDq.front();
-	PIDq.pop();
-	if (currPID == 0)
-	{
-		return 0;
-	}
+    pid_t currPID = PIDq.front();
+    PIDq.pop();
+    if (currPID == 0)
+    {
+        return 0;
+    }
 
-	kill(currPID, SIGF0);
+    kill(currPID, SIGF0);
 
-	return currPID;
+    return currPID;
 }
 
 //save pid to queue
 void hdlF0Machine(int sig, siginfo_t* sigptr, void*)
 {
-	if (!sigptr)
-	{
-		return;
-	}
+    if (!sigptr)
+    {
+        return;
+    }
 
-	PIDq.push(sigptr -> si_pid);
+    PIDq.push(sigptr -> si_pid);
 
-	signalIsHere[0] = true;
+    signalIsHere[0] = true;
 }
 
 //нужно обработать результаты
 void hdlF1Machine(int sig, siginfo_t* sigptr, void*)
 {
-	signalIsHere[1] = true;
+    signalIsHere[1] = true;
 }
 
 //предыдущий пользователь закончил работу
 void hdlF2Machine(int sig, siginfo_t* sigptr, void*)
 {
-	signalIsHere[2] = true;
+    signalIsHere[2] = true;
 }
 
-int setSigAction(int sig, void (*handleFun) (int, siginfo_t*, void*))
+//предыдущий пользователь закончил работу
+void hdlSENDNAME(int sig, siginfo_t* sigptr, void*)
 {
-	struct sigaction act;
-	memset(&act, NULL, sizeof(act));	//clear all struct
-	act.sa_sigaction = handleFun;
-	act.sa_flags = SA_SIGINFO;
-	sigset_t set;
-	sigemptyset(&set);
-	sigaddset(&set, sig);
-	act.sa_mask = set;
-	return sigaction(sig, &act, NULL);
+    Command c;
+//todo: get command (temporary from file)
+
+    std::fstream f;
+    f.open(testFileName, std::ios::in);
+
+    if (!f)
+    {
+        std::cout << ("Ошибка открытия файла") << std::endl;
+        return;
+    }
+
+//стали на чтение
+    f.seekg(0);
+    f >> c.isAdd;
+    while (f)
+    {
+        c.name.push_back(f.get());
+    }
+    f.close();
+    c.name.pop_back(); //лишний символ
+//end get command
+
+    commands.push_back(c);
+
+//закончили читать
+    kill(sigptr->si_pid, SIGSENDNAME);
+}
+
+//нужно выключить сервер
+void hdlINTMachine(int sig, siginfo_t *sigptr, void *)
+{
+    isMachineClose = true;
 }
 
 void CoffeeMachineController::writePID()
 {
-	std::fstream f;
-	f.open(serverPIDfilename, std::ios::out | std::ios::trunc);
+    std::fstream f;
 
-	if (!f)
-	{
-		std::cout << ("Ошибка открытия файла") << std::endl;
-		return;
+    //check if file exist
+    f.open(serverPIDfilename, std::ios::in);
+    if (f)
+    {
+    	f.close();
+        throw ServerAlreadyExistException();
+    }
+
+    //open to write
+    f.open(serverPIDfilename, std::ios::out | std::ios::trunc);
+
+    if (!f)
+    {
+    	throw WritePIDException();
 	}
 
-	f << (int)getpid();
-	f.close();
+    f << (int)getpid();
+    f.close();
 }
+
+void* OutputThread(void* ptr)
+{
+    CoffeeMachineController* cmController = reinterpret_cast<CoffeeMachineController*> (ptr);
+
+    while (true) {
+        if (isMachineClose)
+        {
+            break;
+        }
+
+		//do operations
+        while (!commands.empty()) {
+            Command c = commands.front();
+            commands.pop_front();
+            if (c.isAdd) {
+                cmController->names.push_back(c.name);
+            } else {
+                auto res = std::find(cmController->names.begin(), cmController->names.end(), c.name);
+                if (res == cmController->names.end()) {
+                    std::cout << std::endl << "User try to remove name that not exist" << std::endl;
+                }
+                else
+                {
+                	cmController->names.erase(res);
+                }
+            }
+        }
+
+		//show all elements
+        std::for_each(cmController->names.begin(), cmController->names.end(),
+            [](const std::string& s) {
+                std::cout << s << " ";
+            }
+        );
+    }
+
+    pthread_exit(NULL);
+}
+
+//-------------------CoffeeMachineController-------------------------------
 
 CoffeeMachineController::CoffeeMachineController()
 {
 	setSigAction(SIGF0, hdlF0Machine);
 	setSigAction(SIGF1, hdlF1Machine);
 	setSigAction(SIGF2, hdlF2Machine);
+    setSigAction(SIGINT, hdlINTMachine);
+    setSigAction(SIGSENDNAME, hdlSENDNAME);
 
 	writePID();
 
 	currPID = 0;
+/*
+	shmPersonNameID = shm_open(shmPersonName, O_RDWR | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+	if (shmPersonNameID < 0)
+	{
+		throw CreateSharedMemoryException();
+	}
+
+	if (ftruncate(shmPersonNameID, sizeof(&commands) + sizeof(RWlistMutex)) != 0)
+	{
+		throw ReallocSharedMemoryException();
+	}
+
+	void* address = mmap(NULL, sizeof(&commands) + sizeof(RWlistMutex), PROT_READ, MAP_SHARED, shmPersonNameID, 0);
+	if (address == MAP_FAILED)
+	{
+		throw MapSharedMemoryException();
+	}
+
+	//write adress to shm
+	memcpy(address, &commands, sizeof(&commands));
+*/
+
+	createRWMutex();
+	pthread_create(&outputThread, NULL, OutputThread, this);
+
+	//memcpy(((char *)address) + sizeof(&commands), RWlistMutex, sizeof(RWlistMutex));
 }
 
 CoffeeMachineController::~CoffeeMachineController()
 {
-	unlink(serverPIDfilename);
+	if (unlink(serverPIDfilename) != 0)
+	{
+		std::cout << "Ошибка удаления PID автомата" << std::endl;
+	}
+
+	if (pthread_mutex_destroy(RWlistMutex) != 0)
+	{
+		std::cout << "Ошибка удаления mutex-а" << std::endl;
+	}
+
+    if (pthread_mutexattr_destroy(&attrmutex) != 0)
+    {
+        std::cout << "Ошибка удаления атрибута mutex-а" << std::endl;
+    }
+
+	delete RWlistMutex;
+
+	pthread_join(outputThread, NULL);   //maybe we must delete it
+
+/*
+	if (munmap(NULL, sizeof(&commands)) != 0)
+	{
+		std::cout << "Ошибка удаления разбиения shared memory" << std::endl;
+	}
+
+	if (shm_unlink(shmPersonName) != 0)
+	{
+		std::cout << "Ошибка отключения от shared memory" << std::endl;
+	}*/
 }
 
 void CoffeeMachineController::run()
@@ -299,6 +438,10 @@ void CoffeeMachineController::run()
 
 	while (true)
 	{
+        if (isMachineClose)
+        {
+            break;
+        }
 		if (!isWorkWithUserNow)
 		{
 			currPID = StartWorkingWithNewUser();
@@ -320,13 +463,27 @@ void CoffeeMachineController::run()
 		{
 			signalIsHere[1] = false;
 			machine.proceed();
-			machine.writeToFile();
+			machine.saveCondition();
 
 			kill(currPID, SIGF1);
 
 			continue;
 		}
 	}
+}
+
+void CoffeeMachineController::createRWMutex()
+{
+	//mutex attribute (make mutex global)
+    pthread_mutexattr_init(&attrmutex);
+    pthread_mutexattr_setpshared(&attrmutex, PTHREAD_PROCESS_SHARED);
+
+	//make mutex
+    RWlistMutex = new pthread_mutex_t();
+    if (pthread_mutex_init(RWlistMutex, &attrmutex) != 0)
+    {
+        throw InitMutexException();
+    }
 }
 
 #endif

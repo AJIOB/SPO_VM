@@ -74,7 +74,7 @@ unsigned long long Person::inputDrinkIndex() const
 }
 
 
-bool Person::runConsole()
+void Person::runConsole()
 {
 	do
 	{
@@ -98,7 +98,7 @@ bool Person::runConsole()
 		{
 		case '0':
 			{
-				return false;
+				throw 0;
 			}
 		case '1':
 			{
@@ -138,7 +138,7 @@ bool Person::runConsole()
 		if (isSelectGood)
 		{
 			query.str(params);
-			return true;
+			return;
 		}
 	}
 	while (true);

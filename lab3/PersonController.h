@@ -2,10 +2,11 @@
 #define PERSON_CONTROLLER
 
 #include <iostream>
-#include "Person.h"
-#include "AllExceptions.h"
 #include <list>
+
+#include "Person.h"
 #include "Structs.h"
+#include "exceptions/AllExceptions.h"
 
 class PersonController
 {
@@ -15,10 +16,18 @@ class PersonController
 	HANDLE hFile;
 	LPVOID fileBuf;
 	HANDLE newCommand[2]; 
+
+	char command[50];
+
 #elif (defined(__linux__) || defined(__unix__))
 	pid_t serverPID;
+	//int shmPersonNameID;
 
-	pid_t getServerPID();
+    pthread_cond_t * pcond;
+    pthread_condattr_t attrcond;
+
+    pid_t getServerPID();
+    void sendName(bool isAdd);
 #endif
 
 	Person person;
@@ -26,7 +35,6 @@ class PersonController
 public:
 	PersonController(std::string name);
 	~PersonController();
-	char command[50];
 
 	void run();
 };

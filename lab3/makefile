@@ -1,10 +1,11 @@
-objects = main.o Controller.o CoffeeMachine.o Person.o Drink.o PersonController.o CoffeeMachineController.o
+objects = main.o CoffeeMachine.o Person.o Drink.o CoffeeMachineController.o PersonController.o Controller.o AJIOBlib.o
 CFLAGS = -std=c++11
 CXXFLAGS = $(CFLAGS)
+linkFlags = -lrt -lpthread
 sourceWay =
 deps = $(sourceWay)info.db
 destinationWay = bin/unix/
-destinationName = lab2
+destinationName = lab3
 
 objWay = $(destinationWay)obj/
 objBackHome = ../../../
@@ -22,7 +23,7 @@ COPY = cp
 
 
 $(destinationName) : baseInit $(objects) copyDeps
-	$(compilerPrefix) -o $(objBackHome)$(destinationWay)$(destinationName) $(objects)
+	$(compilerPrefix) -o $(objBackHome)$(destinationWay)$(destinationName) $(objects) $(linkFlags)
 
 main.o : $(sourceWay)main.cpp $(sourceWay)Controller.h
 	$(prefix)main.cpp
@@ -32,12 +33,14 @@ Person.o : $(sourceWay)Person.cpp $(sourceWay)Person.h
 	$(prefix)Person.cpp
 Drink.o : $(sourceWay)Drink.cpp $(sourceWay)Drink.h
 	$(prefix)Drink.cpp
-Controller.o : $(sourceWay)Controller.cpp $(sourceWay)Controller.h
-	$(prefix)Controller.cpp
-PersonController.o : $(sourceWay)PersonController.cpp $(sourceWay)PersonController.h
-	$(prefix)PersonController.cpp
 CoffeeMachineController.o : $(sourceWay)CoffeeMachineController.cpp $(sourceWay)CoffeeMachineController.h
 	$(prefix)CoffeeMachineController.cpp
+PersonController.o : $(sourceWay)PersonController.cpp $(sourceWay)PersonController.h
+	$(prefix)PersonController.cpp
+Controller.o : $(sourceWay)Controller.cpp $(sourceWay)Controller.h
+	$(prefix)Controller.cpp
+AJIOBlib.o : $(sourceWay)AJIOBlib.cpp $(sourceWay)AJIOBlib.h
+	$(prefix)AJIOBlib.cpp
 
 max_clean :
 	$(MAKE) -i clean

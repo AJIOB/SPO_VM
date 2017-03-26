@@ -14,13 +14,13 @@ class Person
 public:
 	Person(std::string name);
 	~Person();
-	bool runConsole();
+	void runConsole();
 	void sendRequest() const;
 	void getResponce() const;
 	std::string getName() const;
 
 private:
-	std::string name; 
+	std::string name;
 
 	unsigned long long inputDrinkIndex() const;
 

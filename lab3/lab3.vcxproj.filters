@@ -60,25 +60,25 @@
     <ClInclude Include="CoffeeMachineController.h">
       <Filter>controller\header</Filter>
     </ClInclude>
-    <ClInclude Include="AllExceptions.h">
+    <ClInclude Include="exceptions\AllExceptions.h">
       <Filter>exceptions</Filter>
     </ClInclude>
-    <ClInclude Include="VA_Exception.h">
+    <ClInclude Include="exceptions\VA_Exception.h">
       <Filter>exceptions\header</Filter>
     </ClInclude>
-    <ClInclude Include="NoRunningMachineException.h">
+    <ClInclude Include="exceptions\NoRunningMachineException.h">
       <Filter>exceptions\header</Filter>
     </ClInclude>
-    <ClInclude Include="CannotWorkWithMachineException.h">
+    <ClInclude Include="exceptions\WorkWithMachineException.h">
       <Filter>exceptions\header</Filter>
     </ClInclude>
-    <ClInclude Include="BadCommandLineArgumentsException.h">
+    <ClInclude Include="exceptions\BadCommandLineArgumentsException.h">
       <Filter>exceptions\header</Filter>
     </ClInclude>
-    <ClInclude Include="MachineAlreadyRunningException.h">
+    <ClInclude Include="exceptions\MachineAlreadyRunningException.h">
       <Filter>exceptions\header</Filter>
     </ClInclude>
-    <ClInclude Include="CannotWorkWithPersonException.h">
+    <ClInclude Include="exceptions\WorkWithPersonException.h">
       <Filter>exceptions\header</Filter>
     </ClInclude>
     <ClInclude Include="Structs.h">
