@@ -10,6 +10,8 @@ class ThreadManager
 #ifdef _WIN32
 
 	std::deque <Sync *> flags;
+	CRITICAL_SECTION workWithFlags;
+
 	friend DWORD WINAPI threadGenerator(LPVOID);
 	friend DWORD WINAPI threadPrinter(LPVOID);
 
@@ -37,6 +39,9 @@ public:
 
 	void runPrinting();
 	void stopPrinting();
+
+	void runAll();
+	void stopAll();
 
 	int getNumOfThreads() const;
 };

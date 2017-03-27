@@ -1,7 +1,7 @@
 #include "ThreadManager.h"
 
 ThreadManager::ThreadManager(const double& showInterval, const double& createNewThreadInterval) :
-	showInterval(showInterval), createNewThreadInterval(createNewThreadInterval), isStopGeneration(false), isStopPrinting(false)
+	showInterval(showInterval), createNewThreadInterval(createNewThreadInterval), isStopGeneration(true), isStopPrinting(true)
 {
 }
 
@@ -10,12 +10,24 @@ int ThreadManager::getNumOfThreads() const
 	return flags.size();
 }
 
-#ifdef _WIN32
+void ThreadManager::runAll()
+{
+	runGeneration();
+	runPrinting();
+}
+
+void ThreadManager::stopAll()
+{
+	stopGeneration();
+	stopPrinting();
+}
 
 ThreadManager::~ThreadManager()
 {
-	//todo: platform-dependent
+	stopAll();
 }
+
+#ifdef _WIN32
 
 void ThreadManager::generateNewThread()
 {
@@ -59,11 +71,6 @@ bool ThreadManager::removeThread()
 }
 
 #else
-
-ThreadManager::~ThreadManager()
-{
-	//todo: platform-dependent
-}
 
 void ThreadManager::generateNewThread()
 {

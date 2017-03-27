@@ -7,7 +7,7 @@ UI::UI(char* showPeriod, char* generateNewThreadPeriod)
 
 void UI::run()
 {
-	model.runGeneration();
+	model.runAll();
 
 	do
 	{
@@ -25,7 +25,7 @@ void UI::run()
 		{
 		case '0':
 			{
-				//todo
+				model.stopAll();
 				return;
 			}
 		case '1':
@@ -35,7 +35,7 @@ void UI::run()
 			}
 		case '2':
 			{
-				std::cout << model.getNumOfThreads();
+				std::cout << model.getNumOfThreads() << std::endl;
 				break;
 			}
 		case '3':
