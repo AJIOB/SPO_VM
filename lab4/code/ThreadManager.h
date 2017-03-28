@@ -1,10 +1,23 @@
 #ifndef THREAD_MANAGER
 #define THREAD_MANAGER
 
+#ifdef _WIN32
+
 #include <deque>
+#include <list>
 #include "logs.h"
 #include "Sync.h"
 #include "ThreadFuncs.h"
+
+#elif (defined(__linux__) || defined(__unix__))
+#include "Thread.h"
+#include <chrono>
+#include <thread>
+#include <mutex>
+#include<pthread.h>
+
+#endif
+
 
 class ThreadManager
 {
@@ -19,18 +32,13 @@ class ThreadManager
 	HANDLE printerThread;
 	HANDLE generatorThread;
 
-#else
-
-	std::deque <bool *> flags;
-
-#endif
-
-	const double showInterval;
-	const double createNewThreadInterval;
+    std::deque <bool *> flags;
+	const double showInterval;                  //interval between printing names
+	const double createNewThreadInterval;       //interval between creating threads
 	bool isStopGeneration;
-	bool isStopPrinting;	
+	bool isStopPrinting;
 
-public:
+    public:
 	ThreadManager(const double& showInterval, const double& createNewThreadInterval);
 	~ThreadManager();
 
@@ -48,6 +56,40 @@ public:
 	void stopAll();
 
 	int getNumOfThreads() const;
+
+#elif (defined(__linux__) || defined(__unix__))
+    void* thread_data;
+
+    pthread_t printerThread;
+    pthread_t generatorThread;
+
+    pthread_mutex_t lock;
+
+    bool printerAlive;
+    bool generatorAlive;
+
+    const double pinterInterval;
+	const double generatorInterval;
+
+    char threadName;
+    std::list <Thread> runningThreads;
+
+public:
+	ThreadManager(const double& printerInterval_, const double& generatorInterval_);
+	~ThreadManager();
+
+	void generateNewThread();
+	bool removeThread();			//kills first thread
+
+	void runGenerator();
+	void runPrinter();
+
+	void runAll();
+	void stopAll();
+
+	int getNumOfThreads() const;
+
+#endif
 };
 
 #endif
