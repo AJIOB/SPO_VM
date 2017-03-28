@@ -57,13 +57,13 @@ DWORD WINAPI threadGenerator(LPVOID ptr)
 
 DWORD WINAPI threadChild(LPVOID ptr)
 {
-	std::string name = std::to_string(static_cast<long long>(rand() % 10000));
 	Sync* s = reinterpret_cast<Sync*> (ptr);
-
 	if (s == NULL)
 	{
 		return 1;
 	}
+
+	std::string name = "Th_" + std::to_string(static_cast<long long>(s->index));
 
 	CRITICAL_SECTION cs;
 	InitializeCriticalSection(&cs);

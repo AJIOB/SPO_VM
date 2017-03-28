@@ -48,21 +48,23 @@ ThreadManager::~ThreadManager()
 
 void ThreadManager::generateNewThread()
 {
+	static int newIndex = 0;
 	Sync* s = new Sync();
+
+	s->index = newIndex;
+	newIndex++;
 
 	s->h = CreateThread(NULL, 0, threadChild, s, /*run immediately*/ 0, NULL);
 	if (s->h != NULL)
 	{
 		EnterCriticalSection(&workWithFlags);
-
 		flags.push_back(s);
-
 		LeaveCriticalSection(&workWithFlags);
 	}
 	else
 	{
 		Stream::log("Error creating new thread");
-		
+		delete s;
 	}
 }
 

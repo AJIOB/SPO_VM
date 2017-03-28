@@ -10,12 +10,14 @@ struct Sync
 	CONDITION_VARIABLE rw;		//flag to write thread's name or stop
 	bool stop;					//flag to stop
 	HANDLE h;					//handle to thread
+	int index;					//thread index
 
 	Sync()
 	{
 		InitializeConditionVariable(&rw);
 		stop  = false;
 		h = NULL;
+		index = -1;
 	}
 };
 
