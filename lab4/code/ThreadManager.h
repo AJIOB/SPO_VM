@@ -2,8 +2,9 @@
 #define THREAD_MANAGER
 
 #include <deque>
-
+#include "logs.h"
 #include "Sync.h"
+#include "ThreadFuncs.h"
 
 class ThreadManager
 {
@@ -14,6 +15,9 @@ class ThreadManager
 
 	friend DWORD WINAPI threadGenerator(LPVOID);
 	friend DWORD WINAPI threadPrinter(LPVOID);
+
+	HANDLE printerThread;
+	HANDLE generatorThread;
 
 #else
 
@@ -31,7 +35,7 @@ public:
 	~ThreadManager();
 
 	void generateNewThread();
-	bool removeThread();
+	bool removeThread();			//kill random thread
 	bool removeThread(int index);
 
 	void runGeneration();

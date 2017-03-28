@@ -1,3 +1,5 @@
+#include "ThreadManager.h"
+
 #include "ThreadFuncs.h"
 
 #ifdef _WIN32
@@ -12,7 +14,8 @@ DWORD WINAPI threadPrinter(LPVOID ptr)
 
 	while (!manager->isStopPrinting)
 	{
-		//todo: add critical section
+		EnterCriticalSection(&manager->workWithFlags);
+
 		for (auto it = manager->flags.begin(); it != manager->flags.end(); ++it)
 		{
 			WakeConditionVariable(&((*it)->rw));
@@ -20,6 +23,8 @@ DWORD WINAPI threadPrinter(LPVOID ptr)
 			SleepConditionVariableCS(&((*it)->rw), NULL, INFINITE);
 		}
 		
+		LeaveCriticalSection(&manager->workWithFlags);
+
 		Sleep(manager->showInterval * 1000);
 	}
 
@@ -36,18 +41,7 @@ DWORD WINAPI threadGenerator(LPVOID ptr)
 
 	while (!manager->isStopGeneration)
 	{
-		Sync* s = new Sync();
-		s->h = CreateThread(NULL, 0, threadChild, s, /*run immediately*/ 0, NULL);
-		if (s->h != NULL)
-		{
-			//todo: add critical section
-
-			manager->flags.push_back(s);
-		}
-		else
-		{
-			Stream::log("Error creating new thread");
-		}
+		manager->generateNewThread();
 
 		Sleep(manager->createNewThreadInterval * 1000);
 	}

@@ -7,7 +7,6 @@
 #include "logs.h"
 
 #include "Sync.h"
-#include "ThreadManager.h"
 
 DWORD WINAPI threadPrinter(LPVOID);
 DWORD WINAPI threadGenerator(LPVOID);
