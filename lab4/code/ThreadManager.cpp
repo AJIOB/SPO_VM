@@ -8,6 +8,9 @@ ThreadManager::ThreadManager(const double& showInterval, const double& createNew
 
 	printerThread = NULL;
 	generatorThread = NULL;
+#elif (defined(__linux__) || defined(__unix__))
+
+    //todo:
 #endif
 }
 
