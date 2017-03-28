@@ -12,6 +12,10 @@ DWORD WINAPI threadPrinter(LPVOID ptr)
 		return 1;
 	}
 
+	CRITICAL_SECTION cs;
+	InitializeCriticalSection(&cs);
+	EnterCriticalSection(&cs);
+
 	while (!manager->isStopPrinting)
 	{
 		EnterCriticalSection(&manager->workWithFlags);
@@ -20,13 +24,15 @@ DWORD WINAPI threadPrinter(LPVOID ptr)
 		{
 			WakeConditionVariable(&((*it)->rw));
 
-			SleepConditionVariableCS(&((*it)->rw), NULL, INFINITE);
+			SleepConditionVariableCS(&((*it)->rw), &cs, INFINITE);
 		}
 		
 		LeaveCriticalSection(&manager->workWithFlags);
 
 		Sleep(manager->showInterval * 1000);
 	}
+
+	LeaveCriticalSection(&cs);
 
 	return 0;
 }
@@ -49,7 +55,7 @@ DWORD WINAPI threadGenerator(LPVOID ptr)
 	return 0;
 }
 
-DWORD __stdcall threadChild(LPVOID ptr)
+DWORD WINAPI threadChild(LPVOID ptr)
 {
 	std::string name = std::to_string(static_cast<long long>(rand() % 10000));
 	Sync* s = reinterpret_cast<Sync*> (ptr);
@@ -59,11 +65,15 @@ DWORD __stdcall threadChild(LPVOID ptr)
 		return 1;
 	}
 
+	CRITICAL_SECTION cs;
+	InitializeCriticalSection(&cs);
+	EnterCriticalSection(&cs);
+
 	while (true)
 	{		
-		SleepConditionVariableCS(&(s->rw), NULL, INFINITE);
+		SleepConditionVariableCS(&(s->rw), &cs, INFINITE);
 
-		if (SleepConditionVariableCS(&(s->stop), NULL, 0))
+		if (SleepConditionVariableCS(&(s->stop), &cs, 0))
 		{
 			break;
 		}
@@ -72,6 +82,8 @@ DWORD __stdcall threadChild(LPVOID ptr)
 
 		WakeConditionVariable(&(s->rw));
 	}
+
+	LeaveCriticalSection(&cs);
 
 	return 0;
 }

@@ -42,6 +42,9 @@ ThreadManager::~ThreadManager()
 void ThreadManager::generateNewThread()
 {
 	Sync* s = new Sync();
+	InitializeConditionVariable(&s->rw);
+	InitializeConditionVariable(&s->stop);
+
 	s->h = CreateThread(NULL, 0, threadChild, s, /*run immediately*/ 0, NULL);
 	if (s->h != NULL)
 	{
@@ -54,6 +57,7 @@ void ThreadManager::generateNewThread()
 	else
 	{
 		Stream::log("Error creating new thread");
+		
 	}
 }
 
