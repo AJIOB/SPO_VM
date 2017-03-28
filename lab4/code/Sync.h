@@ -8,13 +8,13 @@
 struct Sync
 {
 	CONDITION_VARIABLE rw;		//flag to write thread's name or stop
-	CONDITION_VARIABLE stop;	//flag to stop
+	bool stop;					//flag to stop
 	HANDLE h;					//handle to thread
 
 	Sync()
 	{
 		InitializeConditionVariable(&rw);
-		InitializeConditionVariable(&stop);
+		stop  = false;
 		h = NULL;
 	}
 };

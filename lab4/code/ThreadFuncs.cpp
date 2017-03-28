@@ -73,7 +73,7 @@ DWORD WINAPI threadChild(LPVOID ptr)
 	{		
 		SleepConditionVariableCS(&(s->rw), &cs, INFINITE);
 
-		if (SleepConditionVariableCS(&(s->stop), &cs, 0))
+		if (s->stop)
 		{
 			break;
 		}

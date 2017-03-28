@@ -33,7 +33,14 @@ ThreadManager::~ThreadManager()
 	stopAll();
 
 #ifdef _WIN32
+
+	while (!flags.empty())
+	{
+		removeThread(flags.size() - 1);
+	}
+
 	DeleteCriticalSection(&workWithFlags);
+
 #endif
 }
 
@@ -42,8 +49,6 @@ ThreadManager::~ThreadManager()
 void ThreadManager::generateNewThread()
 {
 	Sync* s = new Sync();
-	InitializeConditionVariable(&s->rw);
-	InitializeConditionVariable(&s->stop);
 
 	s->h = CreateThread(NULL, 0, threadChild, s, /*run immediately*/ 0, NULL);
 	if (s->h != NULL)
@@ -72,10 +77,13 @@ bool ThreadManager::removeThread(int index)
 	}
 
 	Sync* s = flags[index];
-	WakeConditionVariable(&s->stop);
+	s->stop = true;
 	WakeConditionVariable(&s->rw);
 
 	WaitForSingleObject(s->h, INFINITE);
+
+	//CloseThread();
+	CloseHandle(s->h);
 
 	delete s;
 
@@ -102,6 +110,10 @@ void ThreadManager::stopGeneration()
 	isStopGeneration = true;
 	
 	WaitForSingleObject(generatorThread, INFINITE);
+
+	CloseHandle(printerThread);
+	
+	printerThread = NULL;
 }
 
 void ThreadManager::runPrinting()
@@ -121,13 +133,15 @@ void ThreadManager::stopPrinting()
 	isStopPrinting = true;
 
 	WaitForSingleObject(printerThread, INFINITE);
+
+	CloseHandle(printerThread);
+
+	printerThread = NULL;
 }
 
 bool ThreadManager::removeThread()
 {
-	bool res = removeThread(rand() % flags.size());
-
-	return res;
+	return removeThread(rand() % flags.size());
 }
 
 #else

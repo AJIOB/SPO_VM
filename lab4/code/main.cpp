@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <string>
 #include <clocale>
+#include <ctime>
 
 #include "VA_Exception.h"
 #include "UI.h"
@@ -8,6 +9,7 @@
 int main(int argc, char* argv[])
 {
 	setlocale(LC_ALL, "");
+	srand(time(NULL));
 
 	try
 	{
