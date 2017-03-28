@@ -25,7 +25,7 @@ void UI::run()
 		{
 		case '0':
 			{
-				model.stopAll();
+				std::cout << std::endl << "Программа завершается. Пожалуйста, подождите..." << std::endl;
 				return;
 			}
 		case '1':

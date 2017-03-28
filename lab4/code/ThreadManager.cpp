@@ -111,6 +111,11 @@ void ThreadManager::runGeneration()
 
 void ThreadManager::stopGeneration()
 {
+	if (!generatorThread)
+	{
+		return;
+	}
+
 	isStopGeneration = true;
 	
 	WaitForSingleObject(generatorThread, INFINITE);
@@ -139,6 +144,11 @@ void ThreadManager::runPrinting()
 
 void ThreadManager::stopPrinting()
 {
+	if (!printerThread)
+	{
+		return;
+	}
+
 	isStopPrinting = true;
 
 	WaitForSingleObject(printerThread, INFINITE);
