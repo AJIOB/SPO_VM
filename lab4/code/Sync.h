@@ -5,19 +5,32 @@
 
 #include <windows.h>
 
+#define OPERATION_EXIT_THREAD 1
+#define OPERATION_START_WRITING_NAME 2
+
 struct Sync
 {
-	CONDITION_VARIABLE rw;		//flag to write thread's name or stop
-	bool stop;					//flag to stop
-	HANDLE h;					//handle to thread
+	CONDITION_VARIABLE canWork;
+	CONDITION_VARIABLE isEndWork;
+	HANDLE threadHandle;		//handle to thread
+	int operation;				//operation type: 1 - exit, 2 - start writing name
 	int index;					//thread index
 
 	Sync()
 	{
-		InitializeConditionVariable(&rw);
-		stop  = false;
-		h = NULL;
+		InitializeConditionVariable(&canWork);
+		InitializeConditionVariable(&isEndWork);
+		threadHandle = NULL;
+		operation = 0;
 		index = -1;
+	}
+
+	~Sync()
+	{
+		if (threadHandle)
+		{
+			CloseHandle(threadHandle);
+		}
 	}
 };
 

@@ -54,18 +54,17 @@ void ThreadManager::generateNewThread()
 	s->index = newIndex;
 	newIndex++;
 
-	s->h = CreateThread(NULL, 0, threadChild, s, /*run immediately*/ 0, NULL);
-	if (s->h != NULL)
-	{
-		EnterCriticalSection(&workWithFlags);
-		flags.push_back(s);
-		LeaveCriticalSection(&workWithFlags);
-	}
-	else
+	s->threadHandle = CreateThread(NULL, 0, threadChild, s, /*run immediately*/ 0, NULL);
+	if (s->threadHandle == NULL)
 	{
 		Stream::log("Error creating new thread");
 		delete s;
+		return;
 	}
+
+	EnterCriticalSection(&workWithFlags);
+	flags.push_back(s);
+	LeaveCriticalSection(&workWithFlags);
 }
 
 bool ThreadManager::removeThread(int index)
@@ -79,25 +78,28 @@ bool ThreadManager::removeThread(int index)
 	}
 
 	Sync* s = flags[index];
-	s->stop = true;
-	WakeConditionVariable(&s->rw);
+	flags.erase(flags.begin() + index);
 
-	WaitForSingleObject(s->h, INFINITE);
+	s->operation = OPERATION_EXIT_THREAD;
+	WakeConditionVariable(&s->canWork);
 
-	//CloseThread();
-	CloseHandle(s->h);
+	WaitForSingleObject(s->threadHandle, INFINITE);
 
 	delete s;
-
-	flags.erase(flags.begin() + index);
+	
 	LeaveCriticalSection(&workWithFlags);
 
-	return false;
+	return true;
 }
 
 void ThreadManager::runGeneration()
 {
 	isStopGeneration = false;
+
+	if (generatorThread != NULL)
+	{
+		return;
+	}
 
 	generatorThread = CreateThread(NULL, 0, threadGenerator, this, /*run immediately*/ 0, NULL);
 	if (generatorThread == NULL)
@@ -113,14 +115,19 @@ void ThreadManager::stopGeneration()
 	
 	WaitForSingleObject(generatorThread, INFINITE);
 
-	CloseHandle(printerThread);
+	CloseHandle(generatorThread);
 	
-	printerThread = NULL;
+	generatorThread = NULL;
 }
 
 void ThreadManager::runPrinting()
 {
 	isStopPrinting = false;
+
+	if (printerThread != NULL)
+	{
+		return;
+	}
 
 	printerThread = CreateThread(NULL, 0, threadPrinter, this, /*run immediately*/ 0, NULL);
 	if (printerThread == NULL)
@@ -143,7 +150,16 @@ void ThreadManager::stopPrinting()
 
 bool ThreadManager::removeThread()
 {
-	return removeThread(rand() % flags.size());
+	EnterCriticalSection(&workWithFlags);
+	int size = flags.size();
+	LeaveCriticalSection(&workWithFlags);
+	
+	if (!size)
+	{
+		return false;
+	}
+
+	return removeThread(rand() % size);
 }
 
 #else

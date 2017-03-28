@@ -22,9 +22,10 @@ DWORD WINAPI threadPrinter(LPVOID ptr)
 
 		for (auto it = manager->flags.begin(); it != manager->flags.end(); ++it)
 		{
-			WakeConditionVariable(&((*it)->rw));
+			(*it)->operation = OPERATION_START_WRITING_NAME;
+			WakeConditionVariable(&(*it)->canWork);
 
-			SleepConditionVariableCS(&((*it)->rw), &cs, INFINITE);
+			SleepConditionVariableCS(&(*it)->isEndWork, &cs, INFINITE);
 		}
 		
 		LeaveCriticalSection(&manager->workWithFlags);
@@ -33,6 +34,7 @@ DWORD WINAPI threadPrinter(LPVOID ptr)
 	}
 
 	LeaveCriticalSection(&cs);
+	DeleteCriticalSection(&cs);
 
 	return 0;
 }
@@ -71,19 +73,25 @@ DWORD WINAPI threadChild(LPVOID ptr)
 
 	while (true)
 	{		
-		SleepConditionVariableCS(&(s->rw), &cs, INFINITE);
+		SleepConditionVariableCS(&s->canWork, &cs, INFINITE);
 
-		if (s->stop)
+		if (s->operation == OPERATION_EXIT_THREAD)
 		{
 			break;
 		}
 
-		std::cout << name << " ";
+		if (s->operation == OPERATION_START_WRITING_NAME)
+		{
+			std::cout << name << " ";
+			WakeConditionVariable(&s->isEndWork);
+			continue;
+		}
 
-		WakeConditionVariable(&(s->rw));
+		WakeConditionVariable(&s->isEndWork);
 	}
 
 	LeaveCriticalSection(&cs);
+	DeleteCriticalSection(&cs);
 
 	return 0;
 }
