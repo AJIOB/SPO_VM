@@ -9,19 +9,18 @@ int calculateCurrentPrintIndex(ThreadManager* manager, int prevIndex)
 	if (prevIndex < 0)
 	{
 		return 0;
-
 	}
-	
-	auto findRes = std::find_if(manager->flags.begin(), manager->flags.end(), 
-		[prevIndex](Sync* s) -> bool
-		{
-			if(!s)
-			{
-				return false;
-			}
 
-			return (s->index > prevIndex);
-		});
+	auto findRes = std::find_if(manager->flags.begin(), manager->flags.end(),
+	                            [prevIndex](Sync* s) -> bool
+	                            {
+		                            if (!s)
+		                            {
+			                            return false;
+		                            }
+
+		                            return (s->index > prevIndex);
+	                            });
 
 	int currIndex;
 
@@ -66,7 +65,7 @@ DWORD WINAPI threadPrinter(LPVOID ptr)
 		curr->operation = OPERATION_START_WRITING_NAME;
 		SetEvent(curr->canWork);
 
-		while(WaitForSingleObject(curr->isEndWork, INFINITE) != WAIT_OBJECT_0);
+		while (WaitForSingleObject(curr->isEndWork, INFINITE) != WAIT_OBJECT_0);
 
 		auto numOfElements = manager->flags.size();
 		prevIndex = curr->index;
@@ -99,7 +98,7 @@ DWORD WINAPI threadGenerator(LPVOID ptr)
 
 DWORD WINAPI threadChild(LPVOID ptr)
 {
-	Sync* s = reinterpret_cast<Sync*> (ptr);
+	Sync* s = reinterpret_cast<Sync*>(ptr);
 	if (s == NULL)
 	{
 		return 1;
@@ -108,7 +107,7 @@ DWORD WINAPI threadChild(LPVOID ptr)
 	std::string name = "Th_" + std::to_string(static_cast<long long>(s->index));
 
 	while (true)
-	{		
+	{
 		WaitForSingleObject(s->canWork, INFINITE);
 
 		if (s->operation == OPERATION_EXIT_THREAD)
@@ -127,6 +126,37 @@ DWORD WINAPI threadChild(LPVOID ptr)
 	}
 
 	return 0;
+}
+
+#elif (defined(__linux__) || defined(__unix__))
+
+void* runPrinter(void* thread_data)
+{
+    ThreadManager &threadManager = *reinterpret_cast<ThreadManager*>(thread_data);
+    while(threadManager.printerAlive)
+    {
+        for(auto it=threadManager.runningThreads.begin(); it != threadManager.runningThreads.end(); ++it)
+        {
+            if(!threadManager.printerAlive) break;
+            (*it) -> askToWriteName();
+            while(!(*it) -> isStoppedWriting);
+            (*it)->isStoppedWriting = false;
+            std::this_thread::sleep_for(std::chrono::milliseconds((int)(threadManager.printerInterval * 1000)));   //sleps printerInterval seconds!!!
+        }
+    }
+    pthread_exit(0);
+}
+
+void* runGenerator(void* thread_data)
+{
+    ThreadManager &threadManager = *reinterpret_cast<ThreadManager*>(thread_data);
+    while(threadManager.generatorAlive)
+    {
+        threadManager.generateNewThread();
+        std::this_thread::sleep_for(std::chrono::milliseconds((int)(threadManager.generatorInterval * 1000)));   //sleps printerInterval seconds!!!
+//std::this_thread::sleep_for(std::chrono::seconds(2));   //sleps printerInterval seconds!!!
+    }
+    pthread_exit(0);
 }
 
 #endif

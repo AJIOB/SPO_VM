@@ -1,14 +1,11 @@
 #include "ThreadManager.h"
 
-ThreadManager::ThreadManager(const double& showInterval, const double& createNewThreadInterval) :
-	showInterval(showInterval), createNewThreadInterval(createNewThreadInterval), isStopGeneration(true), isStopPrinting(true)
-{
 #ifdef _WIN32
-	InitializeCriticalSection(&workWithFlags);
 
-	printerThread = NULL;
-	generatorThread = NULL;
-#endif
+ThreadManager::ThreadManager(const double& showInterval, const double& createNewThreadInterval) :
+	printerThread(nullptr), generatorThread(nullptr), showInterval(showInterval), createNewThreadInterval(createNewThreadInterval), isStopGeneration(true), isStopPrinting(true)
+{
+	InitializeCriticalSection(&workWithFlags);
 }
 
 int ThreadManager::getNumOfThreads() const
@@ -32,19 +29,13 @@ ThreadManager::~ThreadManager()
 {
 	stopAll();
 
-#ifdef _WIN32
-
 	while (!flags.empty())
 	{
 		removeThread(flags.size() - 1);
 	}
 
 	DeleteCriticalSection(&workWithFlags);
-
-#endif
 }
-
-#ifdef _WIN32
 
 void ThreadManager::generateNewThread()
 {
@@ -98,7 +89,7 @@ bool ThreadManager::removeThread(int index)
 	WaitForSingleObject(s->threadHandle, INFINITE);
 
 	delete s;
-	
+
 	LeaveCriticalSection(&workWithFlags);
 
 	return true;
@@ -114,7 +105,7 @@ void ThreadManager::runGeneration()
 	}
 
 	generatorThread = CreateThread(NULL, 0, threadGenerator, this, /*run immediately*/ 0, NULL);
-	if (generatorThread == NULL)
+	if (!generatorThread)
 	{
 		Stream::log("Error creating generation thread");
 		isStopGeneration = true;
@@ -129,11 +120,11 @@ void ThreadManager::stopGeneration()
 	}
 
 	isStopGeneration = true;
-	
+
 	WaitForSingleObject(generatorThread, INFINITE);
 
 	CloseHandle(generatorThread);
-	
+
 	generatorThread = NULL;
 }
 
@@ -147,7 +138,7 @@ void ThreadManager::runPrinting()
 	}
 
 	printerThread = CreateThread(NULL, 0, threadPrinter, this, /*run immediately*/ 0, NULL);
-	if (printerThread == NULL)
+	if (!printerThread)
 	{
 		Stream::log("Error creating printer thread");
 		isStopPrinting = true;
@@ -175,7 +166,7 @@ bool ThreadManager::removeThread()
 	EnterCriticalSection(&workWithFlags);
 	int size = flags.size();
 	LeaveCriticalSection(&workWithFlags);
-	
+
 	if (!size)
 	{
 		return false;
@@ -184,38 +175,78 @@ bool ThreadManager::removeThread()
 	return removeThread(rand() % size);
 }
 
-#else
+#elif (defined(__linux__) || defined(__unix__))
+
+ThreadManager::ThreadManager(const double& printerInterval_, const double& generatorInterval_)
+{
+	this -> printerInterval = printerInterval_;
+	this -> generatorInterval = generatorInterval_;
+	this -> printerAlive = true;
+	this -> generatorAlive = true;
+	this -> threadName = 'a';
+
+	if (pthread_mutex_init(&lock, NULL) != 0)
+	{
+		std::cout<<" mutex init failed";
+		return;
+	}
+
+}
+
+ThreadManager::~ThreadManager()
+{
+// finishing all running threads
+	for(auto it=runningThreads.begin(); it != runningThreads.end(); ++it)
+		delete (*it);
+}
+
+void ThreadManager::runAll()
+{
+	pthread_create(&printerThread, NULL, runPrinter, this);
+	pthread_create(&generatorThread, NULL, runGenerator, this);
+}
+
+void ThreadManager::stopAll()
+{
+	this -> printerAlive = false;
+	this -> generatorAlive = false;
+}
+
+int ThreadManager::getNumOfThreads()
+{
+	pthread_mutex_lock(&lock);
+
+	int count = runningThreads.size();
+
+	pthread_mutex_unlock(&lock);
+	return count;
+}
+
+void ThreadManager::removeThread()
+{
+	pthread_mutex_lock(&lock);
+	if(runningThreads.size() != 0)
+	{
+		Thread* t = runningThreads.front();
+		delete t;
+		runningThreads.pop_front();
+	}
+	else
+	{
+		std::cout<<"Очередь потоков пустая"<<std::endl;
+	}
+	pthread_mutex_unlock(&lock);
+}
 
 void ThreadManager::generateNewThread()
 {
-	//todo: platform-dependent
-}
+	pthread_mutex_lock(&lock);                     //mutex, to bу sure, that only one operation is making on list
 
-void ThreadManager::runPrinting()
-{
-	//todo: platform-dependent
-}
+	Thread* newThread = new Thread(threadName);
+	threadName++;
+	runningThreads.push_back(newThread);
 
-void ThreadManager::stopPrinting()
-{
-	//todo: platform-dependent
-}
-
-void ThreadManager::runGeneration()
-{
-	//todo: platform-dependent
-}
-
-void ThreadManager::stopGeneration()
-{
-	isStopGeneration = true;
-	//todo: platform-dependent
-}
-
-bool ThreadManager::removeThread(int index)
-{
-	//todo: platform-dependent
-	return false;
+	pthread_mutex_unlock(&lock);
 }
 
 #endif

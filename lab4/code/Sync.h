@@ -10,11 +10,11 @@
 
 struct Sync
 {
-	HANDLE canWork;				//event that said that thread can work (print name)
-	HANDLE isEndWork;			//event that said that thread is stopped working
-	HANDLE threadHandle;		//handle to thread
-	int operation;				//operation type: 1 - exit, 2 - start writing name
-	int index;					//thread index
+	HANDLE canWork; //event that said that thread can work (print name)
+	HANDLE isEndWork; //event that said that thread is stopped working
+	HANDLE threadHandle; //handle to thread
+	int operation; //operation type: 1 - exit, 2 - start writing name
+	int index; //thread index
 
 	Sync()
 	{

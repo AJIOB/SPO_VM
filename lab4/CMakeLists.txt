@@ -8,12 +8,14 @@ set(SOURCE_FILES
         code/main.cpp
         code/StreamInput.h
         code/Sync.h
+        code/Thread.cpp
+        code/Thread.h
         code/ThreadFuncs.cpp
         code/ThreadFuncs.h
         code/ThreadManager.cpp
         code/ThreadManager.h
         code/UI.cpp
         code/UI.h
-        code/VA_Exception.h code/Thread.cpp code/Thread.h)
+        code/VA_Exception.h)
 
 add_executable(lab4 ${SOURCE_FILES})
