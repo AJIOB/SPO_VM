@@ -4,6 +4,36 @@
 
 #ifdef _WIN32
 
+int calculateCurrentPrintIndex()
+{
+
+	//todo
+
+	Sync *curr = nullptr;
+	int currIndex = -1;
+
+	if (prevIndex < 0 || prevIndex >= manager->flags.size())
+	{
+		curr = manager->flags.front();
+		currIndex = 0;
+	}
+	else
+	{
+		auto findRes = std::find(manager->flags.begin(), manager->flags.end(), prev);
+		if (findRes == manager->flags.end())
+		{
+			currIndex = prevIndex;
+			curr = manager->flags[prevIndex];
+		}
+		else
+		{
+			currIndex = findRes - manager->flags.begin();
+		}
+	}
+
+	return 0;
+}
+
 DWORD WINAPI threadPrinter(LPVOID ptr)
 {
 	ThreadManager* manager = reinterpret_cast<ThreadManager*>(ptr);
@@ -12,9 +42,25 @@ DWORD WINAPI threadPrinter(LPVOID ptr)
 		return 1;
 	}
 
+	Sync* prev = nullptr;
+	int prevIndex = -1;
+
 	while (!manager->isStopPrinting)
 	{
 		EnterCriticalSection(&manager->workWithFlags);
+
+		if (manager->flags.size() == 0)
+		{
+			prev = nullptr;
+			prevIndex = -1;
+			LeaveCriticalSection(&manager->workWithFlags);
+
+			Sleep(100);
+
+			continue;
+		}
+
+		//todo: call calculate
 
 		for (auto it = manager->flags.begin(); it != manager->flags.end(); ++it)
 		{
