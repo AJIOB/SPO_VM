@@ -10,15 +10,19 @@
 
 class Thread
 {
-    char name;
-    bool writeName;
-    bool alive;
+
+
     pthread_t thread;
 
 public:
-    Thread(char name_, const double showInterval);
+    char name;
+    bool writeName;
+    bool alive;
+
+    Thread(char name_);
+    Thread(const Thread &t);
     ~Thread();
-    void run();
+
     void stopThread();
     void askToWriteName();
 };

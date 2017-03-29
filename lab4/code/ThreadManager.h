@@ -10,11 +10,13 @@
 #include "ThreadFuncs.h"
 
 #elif (defined(__linux__) || defined(__unix__))
-#include "Thread.h"
+
 #include <chrono>
 #include <thread>
 #include <mutex>
 #include<pthread.h>
+#include <list>
+#include "Thread.h"
 
 #endif
 
@@ -58,38 +60,37 @@ class ThreadManager
 	int getNumOfThreads() const;
 
 #elif (defined(__linux__) || defined(__unix__))
-    void* thread_data;
 
     pthread_t printerThread;
     pthread_t generatorThread;
 
     pthread_mutex_t lock;
 
-    bool printerAlive;
-    bool generatorAlive;
-
-    const double pinterInterval;
-	const double generatorInterval;
-
-    char threadName;
-    std::list <Thread> runningThreads;
-
 public:
+
+	bool printerAlive;
+	bool generatorAlive;
+
+	double printerInterval;
+	double generatorInterval;
+
+	char threadName;
+	std::list <Thread> runningThreads;
+
+
 	ThreadManager(const double& printerInterval_, const double& generatorInterval_);
 	~ThreadManager();
 
 	void generateNewThread();
-	bool removeThread();			//kills first thread
-
-	void runGenerator();
-	void runPrinter();
+	void removeThread();			//kills first thread
 
 	void runAll();
 	void stopAll();
 
-	int getNumOfThreads() const;
-
+	int getNumOfThreads();
 #endif
+
+
 };
 
 #endif
