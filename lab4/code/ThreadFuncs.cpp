@@ -88,4 +88,35 @@ DWORD WINAPI threadChild(LPVOID ptr)
 	return 0;
 }
 
+#elif (defined(__linux__) || defined(__unix__))
+
+void* runPrinter(void* thread_data)
+{
+    ThreadManager &threadManager = *reinterpret_cast<ThreadManager*>(thread_data);
+    while(threadManager.printerAlive)
+    {
+        for(auto it=threadManager.runningThreads.begin(); it != threadManager.runningThreads.end(); ++it)
+        {
+            if(!threadManager.printerAlive) break;
+            (*it) -> askToWriteName();
+            while(!(*it) -> isStoppedWriting);
+            (*it)->isStoppedWriting = false;
+            std::this_thread::sleep_for(std::chrono::milliseconds((int)(threadManager.printerInterval * 1000)));   //sleps printerInterval seconds!!!
+        }
+    }
+    pthread_exit(0);
+}
+
+void* runGenerator(void* thread_data)
+{
+    ThreadManager &threadManager = *reinterpret_cast<ThreadManager*>(thread_data);
+    while(threadManager.generatorAlive)
+    {
+        threadManager.generateNewThread();
+        std::this_thread::sleep_for(std::chrono::milliseconds((int)(threadManager.generatorInterval * 1000)));   //sleps printerInterval seconds!!!
+        //std::this_thread::sleep_for(std::chrono::seconds(2));   //sleps printerInterval seconds!!!
+    }
+    pthread_exit(0);
+}
+
 #endif

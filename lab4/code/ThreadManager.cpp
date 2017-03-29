@@ -1,6 +1,4 @@
-#include <iostream>
 #include "ThreadManager.h"
-
 
 #ifdef _WIN32
 	InitializeCriticalSection(&workWithFlags);
@@ -129,9 +127,6 @@ bool ThreadManager::removeThread()
 
 #elif (defined(__linux__) || defined(__unix__))
 
-void* runPrinter(void* thread_data);
-void* runGenerator(void* thread_data);
-
 ThreadManager::ThreadManager(const double& printerInterval_, const double& generatorInterval_)
 {
     this -> printerInterval = printerInterval_;
@@ -142,7 +137,7 @@ ThreadManager::ThreadManager(const double& printerInterval_, const double& gener
 
 	if (pthread_mutex_init(&lock, NULL) != 0)
     {
-        printf("\n mutex init failed\n");
+        std::cout<<" mutex init failed";
         return;
     }
 
@@ -150,23 +145,20 @@ ThreadManager::ThreadManager(const double& printerInterval_, const double& gener
 ThreadManager::~ThreadManager()
 {
     // finishing all running threads
-    for(std::list<Thread>::iterator it=runningThreads.begin(); it != runningThreads.end(); ++it)
-        it -> stopThread();
+    for(auto it=runningThreads.begin(); it != runningThreads.end(); ++it)
+        delete (*it);
 }
 
 void ThreadManager::runAll()
 {
-
-    //pthread_create(&printerThread, NULL, runPrinter, this);
-    //pthread_create(&generatorThread, NULL, runGenerator, this);
+    pthread_create(&printerThread, NULL, runPrinter, this);
+    pthread_create(&generatorThread, NULL, runGenerator, this);
 }
 
 void ThreadManager::stopAll()
 {
     this -> printerAlive = false;
 	this -> generatorAlive = false;
-
-	this -> ~ThreadManager();
 }
 
 int ThreadManager::getNumOfThreads()
@@ -176,34 +168,7 @@ int ThreadManager::getNumOfThreads()
 	int count = runningThreads.size();
 
 	pthread_mutex_unlock(&lock);
-    return  count;
-}
-
-void* runPrinter(void* thread_data)
-{
-    ThreadManager &threadManager = *reinterpret_cast<ThreadManager*>(thread_data);
-    while(threadManager.printerAlive)
-    {
-        for(std::list<Thread>::iterator it=threadManager.runningThreads.begin(); it != threadManager.runningThreads.end(); ++it)
-        {
-            if(!threadManager.printerAlive) break;
-            it -> askToWriteName();
-            std::this_thread::sleep_for(std::chrono::milliseconds((int)(threadManager.printerInterval * 1000)));   //sleps printerInterval seconds!!!
-        }
-    }
-     pthread_exit(0);
-}
-
-void* runGenerator(void* thread_data)
-{
-    ThreadManager &threadManager = *reinterpret_cast<ThreadManager*>(thread_data);
-	while(threadManager.generatorAlive)
-    {
-        threadManager.generateNewThread();
-        std::this_thread::sleep_for(std::chrono::milliseconds((int)(threadManager.generatorInterval * 1000)));   //sleps printerInterval seconds!!!
-       //std::this_thread::sleep_for(std::chrono::seconds(2));   //sleps printerInterval seconds!!!
-    }
-     pthread_exit(0);
+    return count;
 }
 
 void ThreadManager::removeThread()
@@ -211,8 +176,8 @@ void ThreadManager::removeThread()
     pthread_mutex_lock(&lock);
     if(runningThreads.size() != 0)
     {
-        Thread &t = runningThreads.front();
-        t.stopThread();
+        Thread* t = runningThreads.front();
+        delete t;
         runningThreads.pop_front();
     } else
     {
@@ -225,7 +190,7 @@ void ThreadManager::generateNewThread()
 {
      pthread_mutex_lock(&lock);                     //mutex, to bу sure, that only one operation is making on list
 
-	Thread newThread(threadName);
+	Thread* newThread = new Thread(threadName);
 	threadName++;
     runningThreads.push_back(newThread);
 

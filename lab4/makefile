@@ -1,4 +1,4 @@
-objects = main.o Thread.o ThreadManager.o UI.o
+objects = main.o Thread.o ThreadManager.o UI.o ThreadFuncs.o
 CFLAGS = -std=c++11
 CXXFLAGS = $(CFLAGS)
 linkFlags = -lrt -lpthread
@@ -32,7 +32,7 @@ Thread.o : $(sourceWay)Thread.cpp $(sourceWay)Thread.h
 	$(prefix)Thread.cpp
 	
 ThreadFuncs.o : $(sourceWay)ThreadFuncs.cpp $(sourceWay)ThreadFuncs.h
-#	$(prefix)ThreadFuncs.cpp
+	$(prefix)ThreadFuncs.cpp
 	
 ThreadManager.o : $(sourceWay)ThreadManager.cpp $(sourceWay)ThreadManager.h
 	$(prefix)ThreadManager.cpp

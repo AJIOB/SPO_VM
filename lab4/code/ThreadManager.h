@@ -4,22 +4,25 @@
 #ifdef _WIN32
 
 #include <deque>
-#include <list>
 #include "logs.h"
 #include "Sync.h"
-#include "ThreadFuncs.h"
+
 
 #elif (defined(__linux__) || defined(__unix__))
 
+#include <iostream>
 #include <chrono>
 #include <thread>
 #include <mutex>
-#include<pthread.h>
+#include <pthread.h>
 #include <list>
 #include "Thread.h"
 
+#else
+#error Bad operation system. Please, recompile me to Linux, Unix or Windows
 #endif
 
+#include "ThreadFuncs.h"
 
 class ThreadManager
 {
@@ -75,7 +78,7 @@ public:
 	double generatorInterval;
 
 	char threadName;
-	std::list <Thread> runningThreads;
+	std::list <Thread *> runningThreads;
 
 
 	ThreadManager(const double& printerInterval_, const double& generatorInterval_);
@@ -89,7 +92,6 @@ public:
 
 	int getNumOfThreads();
 #endif
-
 
 };
 
