@@ -21,7 +21,7 @@ Thread::Thread(char name_)
 
 Thread::~Thread()
 {
-    free(thread);
+    
 }
 
 void* run(void* thread_data)

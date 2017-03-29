@@ -152,10 +152,6 @@ ThreadManager::~ThreadManager()
     // finishing all running threads
     for(std::list<Thread>::iterator it=runningThreads.begin(); it != runningThreads.end(); ++it)
         it -> stopThread();
-
-    free(printerThread);
-    free(generatorThread);
-
 }
 
 void ThreadManager::runAll()
