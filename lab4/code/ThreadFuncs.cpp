@@ -12,10 +12,6 @@ DWORD WINAPI threadPrinter(LPVOID ptr)
 		return 1;
 	}
 
-	CRITICAL_SECTION cs;
-	InitializeCriticalSection(&cs);
-	EnterCriticalSection(&cs);
-
 	while (!manager->isStopPrinting)
 	{
 		EnterCriticalSection(&manager->workWithFlags);
@@ -23,18 +19,15 @@ DWORD WINAPI threadPrinter(LPVOID ptr)
 		for (auto it = manager->flags.begin(); it != manager->flags.end(); ++it)
 		{
 			(*it)->operation = OPERATION_START_WRITING_NAME;
-			WakeConditionVariable(&(*it)->canWork);
+			SetEvent((*it)->canWork);
 
-			SleepConditionVariableCS(&(*it)->isEndWork, &cs, INFINITE);
+			while(WaitForSingleObject((*it)->isEndWork, INFINITE) != WAIT_OBJECT_0);
 		}
 		
 		LeaveCriticalSection(&manager->workWithFlags);
 
 		Sleep(manager->showInterval * 1000);
 	}
-
-	LeaveCriticalSection(&cs);
-	DeleteCriticalSection(&cs);
 
 	return 0;
 }
@@ -67,13 +60,9 @@ DWORD WINAPI threadChild(LPVOID ptr)
 
 	std::string name = "Th_" + std::to_string(static_cast<long long>(s->index));
 
-	CRITICAL_SECTION cs;
-	InitializeCriticalSection(&cs);
-	EnterCriticalSection(&cs);
-
 	while (true)
 	{		
-		SleepConditionVariableCS(&s->canWork, &cs, INFINITE);
+		WaitForSingleObject(s->canWork, INFINITE);
 
 		if (s->operation == OPERATION_EXIT_THREAD)
 		{
@@ -83,15 +72,12 @@ DWORD WINAPI threadChild(LPVOID ptr)
 		if (s->operation == OPERATION_START_WRITING_NAME)
 		{
 			std::cout << name << " ";
-			WakeConditionVariable(&s->isEndWork);
+			SetEvent(s->isEndWork);
 			continue;
 		}
 
-		WakeConditionVariable(&s->isEndWork);
+		SetEvent(s->isEndWork);
 	}
-
-	LeaveCriticalSection(&cs);
-	DeleteCriticalSection(&cs);
 
 	return 0;
 }

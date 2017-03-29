@@ -10,23 +10,33 @@
 
 struct Sync
 {
-	CONDITION_VARIABLE canWork;
-	CONDITION_VARIABLE isEndWork;
+	HANDLE canWork;				//event that said that thread can work (print name)
+	HANDLE isEndWork;			//event that said that thread is stopped working
 	HANDLE threadHandle;		//handle to thread
 	int operation;				//operation type: 1 - exit, 2 - start writing name
 	int index;					//thread index
 
 	Sync()
 	{
-		InitializeConditionVariable(&canWork);
-		InitializeConditionVariable(&isEndWork);
-		threadHandle = NULL;
+		canWork = nullptr;
+		isEndWork = nullptr;
+		threadHandle = nullptr;
 		operation = 0;
 		index = -1;
 	}
 
 	~Sync()
 	{
+		if (canWork)
+		{
+			CloseHandle(canWork);
+		}
+
+		if (isEndWork)
+		{
+			CloseHandle(isEndWork);
+		}
+
 		if (threadHandle)
 		{
 			CloseHandle(threadHandle);

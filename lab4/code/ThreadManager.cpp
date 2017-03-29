@@ -55,9 +55,21 @@ void ThreadManager::generateNewThread()
 	newIndex++;
 
 	s->threadHandle = CreateThread(NULL, 0, threadChild, s, /*run immediately*/ 0, NULL);
-	if (s->threadHandle == NULL)
+	if (!s->threadHandle)
 	{
 		Stream::log("Error creating new thread");
+		delete s;
+		return;
+	}
+	if (!(s->canWork = CreateEvent(NULL, FALSE, FALSE, NULL)))
+	{
+		Stream::log("Error creating new thread event \"can Work\"");
+		delete s;
+		return;
+	}
+	if (!(s->isEndWork = CreateEvent(NULL, FALSE, FALSE, NULL)))
+	{
+		Stream::log("Error creating new thread event \"is End Work\"");
 		delete s;
 		return;
 	}
@@ -81,7 +93,7 @@ bool ThreadManager::removeThread(int index)
 	flags.erase(flags.begin() + index);
 
 	s->operation = OPERATION_EXIT_THREAD;
-	WakeConditionVariable(&s->canWork);
+	SetEvent(&s->canWork);
 
 	WaitForSingleObject(s->threadHandle, INFINITE);
 
