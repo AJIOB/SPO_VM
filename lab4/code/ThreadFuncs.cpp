@@ -4,34 +4,37 @@
 
 #ifdef _WIN32
 
-int calculateCurrentPrintIndex()
+int calculateCurrentPrintIndex(ThreadManager* manager, int prevIndex)
 {
-
-	//todo
-
-	Sync *curr = nullptr;
-	int currIndex = -1;
-
-	if (prevIndex < 0 || prevIndex >= manager->flags.size())
+	if (prevIndex < 0)
 	{
-		curr = manager->flags.front();
+		return 0;
+
+	}
+	
+	auto findRes = std::find_if(manager->flags.begin(), manager->flags.end(), 
+		[prevIndex](Sync* s) -> bool
+		{
+			if(!s)
+			{
+				return false;
+			}
+
+			return (s->index > prevIndex);
+		});
+
+	int currIndex;
+
+	if (findRes == manager->flags.end())
+	{
 		currIndex = 0;
 	}
 	else
 	{
-		auto findRes = std::find(manager->flags.begin(), manager->flags.end(), prev);
-		if (findRes == manager->flags.end())
-		{
-			currIndex = prevIndex;
-			curr = manager->flags[prevIndex];
-		}
-		else
-		{
-			currIndex = findRes - manager->flags.begin();
-		}
+		currIndex = findRes - manager->flags.begin();
 	}
 
-	return 0;
+	return currIndex;
 }
 
 DWORD WINAPI threadPrinter(LPVOID ptr)
@@ -42,7 +45,6 @@ DWORD WINAPI threadPrinter(LPVOID ptr)
 		return 1;
 	}
 
-	Sync* prev = nullptr;
 	int prevIndex = -1;
 
 	while (!manager->isStopPrinting)
@@ -51,7 +53,6 @@ DWORD WINAPI threadPrinter(LPVOID ptr)
 
 		if (manager->flags.size() == 0)
 		{
-			prev = nullptr;
 			prevIndex = -1;
 			LeaveCriticalSection(&manager->workWithFlags);
 
@@ -60,19 +61,19 @@ DWORD WINAPI threadPrinter(LPVOID ptr)
 			continue;
 		}
 
-		//todo: call calculate
+		auto currIndex = calculateCurrentPrintIndex(manager, prevIndex);
+		auto curr = manager->flags[currIndex];
+		curr->operation = OPERATION_START_WRITING_NAME;
+		SetEvent(curr->canWork);
 
-		for (auto it = manager->flags.begin(); it != manager->flags.end(); ++it)
-		{
-			(*it)->operation = OPERATION_START_WRITING_NAME;
-			SetEvent((*it)->canWork);
+		while(WaitForSingleObject(curr->isEndWork, INFINITE) != WAIT_OBJECT_0);
 
-			while(WaitForSingleObject((*it)->isEndWork, INFINITE) != WAIT_OBJECT_0);
-		}
-		
+		auto numOfElements = manager->flags.size();
+		prevIndex = curr->index;
+
 		LeaveCriticalSection(&manager->workWithFlags);
 
-		Sleep(manager->showInterval * 1000);
+		Sleep(manager->showInterval * 1000 / numOfElements);
 	}
 
 	return 0;

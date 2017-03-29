@@ -93,7 +93,7 @@ bool ThreadManager::removeThread(int index)
 	flags.erase(flags.begin() + index);
 
 	s->operation = OPERATION_EXIT_THREAD;
-	SetEvent(&s->canWork);
+	SetEvent(s->canWork);
 
 	WaitForSingleObject(s->threadHandle, INFINITE);
 

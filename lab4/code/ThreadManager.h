@@ -15,6 +15,7 @@ class ThreadManager
 
 	friend DWORD WINAPI threadGenerator(LPVOID);
 	friend DWORD WINAPI threadPrinter(LPVOID);
+	friend int calculateCurrentPrintIndex(ThreadManager* manager, int prevIndex);
 
 	HANDLE printerThread;
 	HANDLE generatorThread;
