@@ -1,0 +1,10 @@
+//
+// Created by alex on 02.04.17.
+//
+
+#ifndef LAB5_ASYNCREADWRITELIB_H
+#define LAB5_ASYNCREADWRITELIB_H
+
+
+
+#endif //LAB5_ASYNCREADWRITELIB_H
