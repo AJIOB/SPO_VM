@@ -14,6 +14,11 @@ class ParserManager {
     std::string rootWay;
     std::queue<std::string> fileQueue;
 
+    void findFilesRecursively(const std::string& way);
+
+    int (*onlyFolders)(const dirent *);
+    int (*onlyTextFiles)(const dirent *);
+
 public:
     ParserManager(const std::string& rootWay);
 
