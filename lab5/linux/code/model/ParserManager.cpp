@@ -7,7 +7,7 @@
 ParserManager::ParserManager(const std::string &rootWay) {
     this->rootWay = rootWay;
 
-    onlyFolders = [](const struct dirent* d)->int
+    onlyFolders = [](const dirent* d)->int
     {
         //non-zero return => selected
 
@@ -16,10 +16,20 @@ ParserManager::ParserManager(const std::string &rootWay) {
             return 0;
         }
 
-        return (d->d_type != DT_DIR);
+        if (d->d_type != DT_DIR)
+        {
+            return 0;
+        }
+
+        if (d->d_name == std::string(".") || (d->d_name == std::string("..")))
+        {
+            return 0;
+        }
+
+        return 1;
     };
 
-    onlyTextFiles = [](const struct dirent* d)->int
+    onlyTextFiles = [](const dirent* d)->int
     {
         //non-zero return => selected
         if (!d)
@@ -38,7 +48,12 @@ ParserManager::ParserManager(const std::string &rootWay) {
 
         bool isTXT = (fExtension == requiredExtension[0]) || (fExtension == requiredExtension[1]);
 
-        return !((d->d_type == DT_UNKNOWN) && (isTXT));
+        if ((d->d_type != DT_DIR) && (isTXT))
+        {
+            return 1;
+        }
+
+        return 0;
     };
 }
 
@@ -51,15 +66,15 @@ void ParserManager::run() {
 void ParserManager::findFilesRecursively(const std::string &way)
 {
     dirent** listOfEntries;
-    auto numDirEntries = scandir(rootWay.c_str(), &listOfEntries, onlyFolders, alphasort);
+    auto numDirEntries = scandir(way.c_str(), &listOfEntries, onlyFolders, alphasort);
     for (auto i = 0; i < numDirEntries; i++)
     {
-        findFilesRecursively(way + "//" + listOfEntries[i]->d_name);
+        findFilesRecursively(way + "/" + listOfEntries[i]->d_name);
     }
 
-    auto numFilesEntries = scandir(rootWay.c_str(), &listOfEntries, onlyTextFiles, alphasort);
+    auto numFilesEntries = scandir(way.c_str(), &listOfEntries, onlyTextFiles, alphasort);
     for (auto i = 0; i < numFilesEntries; i++)
     {
-        fileQueue.push(way + "//" + listOfEntries[i]->d_name);
+        fileQueue.push(way + "/" + listOfEntries[i]->d_name);
     }
 }
