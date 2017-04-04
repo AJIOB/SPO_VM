@@ -18,7 +18,11 @@ set(consoleIO_files
 set(VA_exceptions
         code/exceptions/AllExceptions.h
         code/exceptions/headers/VA_Exception.h
-        code/exceptions/headers/RangeException.h)
+        code/exceptions/headers/RangeException.h
+        code/exceptions/headers/OpenFileException.h
+        code/exceptions/headers/FileLengthException.h
+        code/exceptions/headers/WaitSignalException.h
+        )
 
 set(SOURCE_FILES code/main.cpp)
 
@@ -29,9 +33,11 @@ set(parser_files
         )
 
 set(dynamicLib_Files
-        code/model/AsyncReadWriteLib.h code/model/AsyncReadWriteLib.cpp)
+        code/model/AsyncReadWriteLib.h
+        code/model/AsyncReadWriteLib.cpp
+        )
 
-add_library(dll ${dynamicLib_Files})
+add_library(dll SHARED ${dynamicLib_Files} ${VA_exceptions})
 
 add_executable(lab5 ${SOURCE_FILES} ${consoleIO_files} ${VA_exceptions})
 add_executable(oneFolderParser ${parser_files} ${consoleIO_files} ${VA_exceptions})
