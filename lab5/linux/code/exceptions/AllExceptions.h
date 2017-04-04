@@ -6,5 +6,6 @@
 #include "headers/OpenFileException.h"
 #include "headers/FileLengthException.h"
 #include "headers/WaitSignalException.h"
+#include "headers/BadLoadingDLLException.h"
 
 #endif

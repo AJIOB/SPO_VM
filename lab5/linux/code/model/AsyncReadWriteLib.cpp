@@ -20,7 +20,9 @@ std::string asyncReadAllFile(const std::string &fileWay)
 
     char *buff = new char[fsize];
 
-    aiocb controlBlock = Make_aiocb(open(fileWay.c_str(), O_RDONLY), buff, fsize, RWFinishedSignal, readFinished);
+    auto fileDescriptor = open(fileWay.c_str(), O_RDONLY);
+
+    aiocb controlBlock = Make_aiocb(fileDescriptor, buff, fsize, RWFinishedSignal, readFinished);
     aio_read(&controlBlock);
 
     sigset_t set;
@@ -36,6 +38,7 @@ std::string asyncReadAllFile(const std::string &fileWay)
 
     std::string res(buff, (unsigned long) fsize);
     delete[] buff;
+    close(fileDescriptor);
     return res;
 }
 

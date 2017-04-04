@@ -3,6 +3,11 @@
 //
 
 #include "ParserManager.h"
+#include "../view/headers/view.h"
+
+namespace {
+    static const char dllName[] = "VA_ARW.so";
+}
 
 ParserManager::ParserManager(const std::string &rootWay) {
     this->rootWay = rootWay;
@@ -60,7 +65,28 @@ ParserManager::ParserManager(const std::string &rootWay) {
 void ParserManager::run() {
     findFilesRecursively(rootWay);
 
+    auto dllDescriptor = dlopen(dllName, RTLD_LAZY);
+
+    if (!dllDescriptor)
+    {
+        throw BadLoadingDLLException(dlerror());
+    }
+
+    std::string (*readFile)(const std::string &fileWay);
+    readFile = (std::string (*)(const std::string &)) dlsym(dllDescriptor, "asyncReadAllFile");
+
+    auto err = dlerror();
+    if (!err)
+    {
+        throw BadLoadingDLLException(err);
+    }
+
+    PrintLine(readFile(fileQueue.front()));
+
     //todo
+
+
+    dlclose(dllDescriptor);
 }
 
 void ParserManager::findFilesRecursively(const std::string &way)

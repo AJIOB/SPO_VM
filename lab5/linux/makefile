@@ -1,13 +1,20 @@
 ParserObjects = parser_main.o ParserManager.o
 ViewObjects = log.o StreamInput.o StreamOutput.o
+dllObjects = AsyncReadWriteLib.o
+
 CFLAGS = -std=c++11
 CXXFLAGS = $(CFLAGS)
-linkFlags = -lrt -lpthread
+linkFlags = -lrt -lpthread -ldl
+
 sourceWay = code/
 ViewWayHeaders = view/headers/
 ViewWaySource = view/source/
+modelWay = model/
+
 destinationWay = bin/unix/
 destinationName = parser
+dllDestName = VA_ARW.so
+
 deps = VA_$(destinationName).log
 
 objWay = $(destinationWay)obj/
@@ -24,17 +31,24 @@ COPY = cp
 
 .PHONY: buildAll parser $(destinationName) clean max_clean baseInit copyDeps run runParams
 
-buildAll : baseInit $(destinationName)
+buildAll : baseInit $(destinationName) $(dllDestName) copyDeps
 
-$(destinationName) : $(ParserObjects) $(ViewObjects) copyDeps
+$(destinationName) : $(ParserObjects) $(ViewObjects)
 	$(compilerPrefix) -o $(objBackHome)$(destinationWay)$(destinationName) $(ParserObjects) $(ViewObjects) $(linkFlags)
+
+$(dllDestName) : $(dllObjects)
+	$(compilerPrefix) -shared -o $(objBackHome)$(destinationWay)$(dllDestName) $(dllObjects)
+
+#------------------------------------dll------------------------------
+AsyncReadWriteLib.o : $(sourceWay)$(modelWay)AsyncReadWriteLib.cpp $(sourceWay)$(modelWay)AsyncReadWriteLib.h
+	$(prefix)$(modelWay)AsyncReadWriteLib.cpp
 
 #------------------------------------parser---------------------------
 parser_main.o : $(sourceWay)parser_main.cpp
 	$(prefix)parser_main.cpp
 	
-ParserManager.o : $(sourceWay)model/ParserManager.cpp $(sourceWay)model/ParserManager.h
-	$(prefix)model/ParserManager.cpp
+ParserManager.o : $(sourceWay)$(modelWay)ParserManager.cpp $(sourceWay)$(modelWay)ParserManager.h
+	$(prefix)$(modelWay)ParserManager.cpp
 
 #------------------------------------view-----------------------------
 log.o : $(sourceWay)$(ViewWaySource)log.cpp $(sourceWay)$(ViewWayHeaders)log.h
@@ -46,6 +60,7 @@ StreamInput.o : $(sourceWay)$(ViewWaySource)StreamInput.cpp $(sourceWay)$(ViewWa
 StreamOutput.o : $(sourceWay)$(ViewWaySource)StreamOutput.cpp $(sourceWay)$(ViewWayHeaders)StreamOutput.h
 	$(prefix)$(ViewWaySource)StreamOutput.cpp	
 
+#------------------------------------other----------------------------
 max_clean :
 	$(MAKE) -i clean
 	$(RMDIR) $(destinationWay)

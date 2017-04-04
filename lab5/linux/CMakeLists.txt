@@ -22,6 +22,7 @@ set(VA_exceptions
         code/exceptions/headers/OpenFileException.h
         code/exceptions/headers/FileLengthException.h
         code/exceptions/headers/WaitSignalException.h
+        code/exceptions/headers/BadLoadingDLLException.h
         )
 
 set(SOURCE_FILES code/main.cpp)
@@ -37,7 +38,7 @@ set(dynamicLib_Files
         code/model/AsyncReadWriteLib.cpp
         )
 
-add_library(dll SHARED ${dynamicLib_Files} ${VA_exceptions})
+add_library(VA_ARW.so SHARED ${dynamicLib_Files} ${VA_exceptions})
 
 add_executable(lab5 ${SOURCE_FILES} ${consoleIO_files} ${VA_exceptions})
 add_executable(oneFolderParser ${parser_files} ${consoleIO_files} ${VA_exceptions})

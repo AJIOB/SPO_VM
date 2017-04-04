@@ -8,6 +8,7 @@
 #include <string>
 #include <aio.h>
 #include <signal.h>
+#include <unistd.h>
 
 static const int readFinished = 1;
 static const int writeFinished = 2;

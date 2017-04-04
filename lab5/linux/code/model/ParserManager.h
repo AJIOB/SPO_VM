@@ -9,6 +9,9 @@
 #include <queue>
 
 #include <dirent.h>
+#include <dlfcn.h>
+
+#include "../exceptions/AllExceptions.h"
 
 class ParserManager {
     std::string rootWay;
