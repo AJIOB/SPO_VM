@@ -58,8 +58,10 @@ ParserManager::ParserManager(const std::string &rootWay) {
     };
 }
 
+std::string (*readFile)(const std::string &fileWay);
+
 void ParserManager::run() {
-    setSigAction(RWFinishedSignal, ignore_handler);
+    //setSigAction(RWFinishedSignal, ignore_handler);
 
     findFilesRecursively(rootWay);
 
@@ -70,12 +72,12 @@ void ParserManager::run() {
         throw BadLoadingDLLException(dlerror());
     }
 
-    std::string (*readFile)(const std::string &fileWay);
     readFile = (std::string (*)(const std::string &)) dlsym(dllDescriptor, "asyncReadAllFile");
 
     auto err = dlerror();
-    if (!err)
+    if (err)
     {
+        dlclose(dllDescriptor);
         throw BadLoadingDLLException(err);
     }
 

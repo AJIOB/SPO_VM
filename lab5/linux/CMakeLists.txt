@@ -40,9 +40,10 @@ set(dynamicLib_Files
         code/model/AsyncReadWriteLib.cpp
         )
 
-add_library(VA_ARW SHARED ${dynamicLib_Files} ${VA_exceptions})
+add_library(VA_ARW SHARED ${dynamicLib_Files} ${VA_exceptions} code/model/Constants.h)
 
 add_executable(lab5 ${SOURCE_FILES} ${consoleIO_files} ${VA_exceptions})
-add_executable(oneFolderParser ${parser_files} ${consoleIO_files} ${VA_exceptions})
+add_executable(oneFolderParser ${parser_files} ${consoleIO_files} ${VA_exceptions} code/model/Constants.h)
 
 target_link_libraries(oneFolderParser ${CMAKE_DL_LIBS})
+target_link_libraries(VA_ARW -lrt)

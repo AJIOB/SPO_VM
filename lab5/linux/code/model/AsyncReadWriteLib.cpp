@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <aio.h>
+#include <cstring>
 
 #include "AsyncReadWriteLib.h"
 
@@ -18,11 +20,11 @@ std::string asyncReadAllFile(const std::string &fileWay)
         throw FileLengthException();
     }
 
-    char *buff = new char[fsize];
+    char *buff = new char[fsize+10];
 
-    auto fileDescriptor = open(fileWay.c_str(), O_RDONLY);
+    auto fileDescriptor = open(fileWay.c_str(), O_CREAT | O_RDWR | O_EXCL, S_IRUSR | S_IWUSR);
 
-    aiocb controlBlock = Make_aiocb(fileDescriptor, buff, fsize, RWFinishedSignal, readFinished);
+    aiocb controlBlock = Make_aiocb(fileDescriptor, buff, fsize, RWFinishedSignal, readFinished, LIO_READ);
     aio_read(&controlBlock);
 
     sigset_t set;
@@ -48,19 +50,22 @@ long filelength(const char *fileName) {
     return st.st_size;
 }
 
-aiocb Make_aiocb(const int &fileDescriptor, void *bufferToRead, const long &sizeOfBuffer, int signal, int sigval_int) {
+aiocb Make_aiocb(const int &fileDescriptor, void *bufferToRead, const long &sizeOfBuffer, int signal, int sigval_int,
+                 int operationCode) {
     sigevent tmpSigevent;
-    tmpSigevent.sigev_notify = SIGEV_THREAD;
+    tmpSigevent.sigev_notify = SIGEV_SIGNAL;
     tmpSigevent.sigev_signo = signal;
     tmpSigevent.sigev_value.sival_int = sigval_int;
 
     aiocb controlBlock;
+    memset(&controlBlock, 0, sizeof(struct aiocb));
     controlBlock.aio_fildes = fileDescriptor;           //file descriptor
     controlBlock.aio_offset = 0;                        //read from begin
     controlBlock.aio_buf = bufferToRead;                //Location of buffer
     controlBlock.aio_nbytes = (size_t) sizeOfBuffer;    //Length of transfer
     controlBlock.aio_reqprio = 0;                       //Request priority
     controlBlock.aio_sigevent = tmpSigevent;            //Notification method
+    controlBlock.aio_lio_opcode = operationCode;        //Operation to be performed
 
     return controlBlock;
 }

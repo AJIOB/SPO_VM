@@ -4,7 +4,9 @@ dllObjects = AsyncReadWriteLib.o
 
 CFLAGS = -std=c++11
 CXXFLAGS = $(CFLAGS)
-linkFlags = -lrt -lpthread -ldl
+
+destinationLinkFlags = -lrt -ldl
+dllLinkFlags = -lrt
 
 sourceWay = code/
 ViewWayHeaders = view/headers/
@@ -34,10 +36,10 @@ COPY = cp
 buildAll : baseInit $(destinationName) $(dllDestName) copyDeps
 
 $(destinationName) : $(ParserObjects) $(ViewObjects)
-	$(compilerPrefix) -o $(objBackHome)$(destinationWay)$(destinationName) $(ParserObjects) $(ViewObjects) $(linkFlags)
+	$(compilerPrefix) -o $(objBackHome)$(destinationWay)$(destinationName) $(ParserObjects) $(ViewObjects) $(destinationLinkFlags)
 
 $(dllDestName) : $(dllObjects)
-	$(compilerPrefix) -shared -o $(objBackHome)$(destinationWay)$(dllDestName) $(dllObjects)
+	$(compilerPrefix) -shared $(dllObjects) -o $(objBackHome)$(destinationWay)$(dllDestName) $(dllLinkFlags)
 
 #------------------------------------dll------------------------------
 AsyncReadWriteLib.o : $(sourceWay)$(modelWay)AsyncReadWriteLib.cpp $(sourceWay)$(modelWay)AsyncReadWriteLib.h
