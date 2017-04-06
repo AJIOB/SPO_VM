@@ -10,10 +10,7 @@
 #include <signal.h>
 #include <unistd.h>
 
-static const int readFinished = 1;
-static const int writeFinished = 2;
-
-static const int RWFinishedSignal = SIGUSR1;
+#include "Constants.h"
 
 std::string asyncReadAllFile(const std::string &fileWay);
 void asyncWriteToFileEnd(const std::string &fileWay, const std::string &toWrite);

@@ -5,10 +5,6 @@
 #include "ParserManager.h"
 #include "../view/headers/view.h"
 
-namespace {
-    static const char dllName[] = "VA_ARW.so";
-}
-
 ParserManager::ParserManager(const std::string &rootWay) {
     this->rootWay = rootWay;
 
@@ -63,6 +59,8 @@ ParserManager::ParserManager(const std::string &rootWay) {
 }
 
 void ParserManager::run() {
+    setSigAction(RWFinishedSignal, ignore_handler);
+
     findFilesRecursively(rootWay);
 
     auto dllDescriptor = dlopen(dllName, RTLD_LAZY);
@@ -91,16 +89,18 @@ void ParserManager::run() {
 
 void ParserManager::findFilesRecursively(const std::string &way)
 {
+    std::string goodWay = (way.back() == '/') ? way.substr(0, way.size() - 1) : way;
+
     dirent** listOfEntries;
-    auto numDirEntries = scandir(way.c_str(), &listOfEntries, onlyFolders, alphasort);
+    auto numDirEntries = scandir(goodWay.c_str(), &listOfEntries, onlyFolders, alphasort);
     for (auto i = 0; i < numDirEntries; i++)
     {
-        findFilesRecursively(way + "/" + listOfEntries[i]->d_name);
+        findFilesRecursively(goodWay + "/" + listOfEntries[i]->d_name);
     }
 
-    auto numFilesEntries = scandir(way.c_str(), &listOfEntries, onlyTextFiles, alphasort);
+    auto numFilesEntries = scandir(goodWay.c_str(), &listOfEntries, onlyTextFiles, alphasort);
     for (auto i = 0; i < numFilesEntries; i++)
     {
-        fileQueue.push(way + "/" + listOfEntries[i]->d_name);
+        fileQueue.push(goodWay + "/" + listOfEntries[i]->d_name);
     }
 }

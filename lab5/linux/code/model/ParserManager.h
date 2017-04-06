@@ -12,6 +12,8 @@
 #include <dlfcn.h>
 
 #include "../exceptions/AllExceptions.h"
+#include "handlers.h"
+#include "Constants.h"
 
 class ParserManager {
     std::string rootWay;

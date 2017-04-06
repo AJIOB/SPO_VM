@@ -1,4 +1,4 @@
-ParserObjects = parser_main.o ParserManager.o
+ParserObjects = parser_main.o ParserManager.o handlers.o
 ViewObjects = log.o StreamInput.o StreamOutput.o
 dllObjects = AsyncReadWriteLib.o
 
@@ -13,7 +13,7 @@ modelWay = model/
 
 destinationWay = bin/unix/
 destinationName = parser
-dllDestName = VA_ARW.so
+dllDestName = libVA_ARW.so
 
 deps = VA_$(destinationName).log
 
@@ -41,7 +41,7 @@ $(dllDestName) : $(dllObjects)
 
 #------------------------------------dll------------------------------
 AsyncReadWriteLib.o : $(sourceWay)$(modelWay)AsyncReadWriteLib.cpp $(sourceWay)$(modelWay)AsyncReadWriteLib.h
-	$(prefix)$(modelWay)AsyncReadWriteLib.cpp
+	$(prefix)$(modelWay)AsyncReadWriteLib.cpp -fPIC
 
 #------------------------------------parser---------------------------
 parser_main.o : $(sourceWay)parser_main.cpp
@@ -49,6 +49,9 @@ parser_main.o : $(sourceWay)parser_main.cpp
 	
 ParserManager.o : $(sourceWay)$(modelWay)ParserManager.cpp $(sourceWay)$(modelWay)ParserManager.h
 	$(prefix)$(modelWay)ParserManager.cpp
+
+handlers.o : $(sourceWay)$(modelWay)handlers.cpp $(sourceWay)$(modelWay)handlers.h
+	$(prefix)$(modelWay)handlers.cpp
 
 #------------------------------------view-----------------------------
 log.o : $(sourceWay)$(ViewWaySource)log.cpp $(sourceWay)$(ViewWayHeaders)log.h
