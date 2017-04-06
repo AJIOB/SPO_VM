@@ -3,10 +3,13 @@
 //
 
 #include "ParserManager.h"
-#include "../view/headers/view.h"
 
-ParserManager::ParserManager(const std::string &rootWay) {
-    this->rootWay = rootWay;
+ParserManager::ParserManager(const std::string &rootWay_) {
+    this->rootWay = rootWay_;
+    while (rootWay.back() == '/')
+    {
+        rootWay = rootWay.substr(0, rootWay.size() - 1);
+    }
 
     onlyFolders = [](const dirent* d)->int
     {
@@ -58,11 +61,10 @@ ParserManager::ParserManager(const std::string &rootWay) {
     };
 }
 
-std::string (*readFile)(const std::string &fileWay);
-
 void ParserManager::run() {
-    //setSigAction(RWFinishedSignal, ignore_handler);
+    using namespace VA_const;
 
+    //setSigAction(RWFinishedSignal, ignore_handler);
     findFilesRecursively(rootWay);
 
     auto dllDescriptor = dlopen(dllName, RTLD_LAZY);
@@ -72,8 +74,9 @@ void ParserManager::run() {
         throw BadLoadingDLLException(dlerror());
     }
 
-    readFile = (std::string (*)(const std::string &)) dlsym(dllDescriptor, "asyncReadAllFile");
+    Sync* sync = new Sync;
 
+    sync->readFileFun = (std::string (*)(const std::string &)) dlsym(dllDescriptor, "asyncReadAllFile");
     auto err = dlerror();
     if (err)
     {
@@ -81,28 +84,49 @@ void ParserManager::run() {
         throw BadLoadingDLLException(err);
     }
 
-    PrintLine(readFile(fileQueue.front()));
+    sync->writeFileFun = (void (*)(const std::string &, const std::string &)) dlsym(dllDescriptor, "asyncWriteToFileEnd");
+    err = dlerror();
+    if (err)
+    {
+        dlclose(dllDescriptor);
+        throw BadLoadingDLLException(err);
+    }
 
-    //todo
+    sync->readWays = fileQueue;
+    sync->writeWay = rootWay + extension;
 
+    pthread_t reader, writer;
+    if (pthread_create(&reader, nullptr, ReadThread, nullptr) ||
+            pthread_create(&writer, nullptr, WriteThread, nullptr))
+    {
+        throw CreatingNewThreadException();
+    }
 
+    while (!sync->ThatIsAll)
+    {
+        Sleep(250);
+    }
+
+    pthread_join(reader, nullptr);
+    pthread_join(writer, nullptr);
+
+    delete sync;
     dlclose(dllDescriptor);
+
 }
 
 void ParserManager::findFilesRecursively(const std::string &way)
 {
-    std::string goodWay = (way.back() == '/') ? way.substr(0, way.size() - 1) : way;
-
     dirent** listOfEntries;
-    auto numDirEntries = scandir(goodWay.c_str(), &listOfEntries, onlyFolders, alphasort);
+    auto numDirEntries = scandir(way.c_str(), &listOfEntries, onlyFolders, alphasort);
     for (auto i = 0; i < numDirEntries; i++)
     {
-        findFilesRecursively(goodWay + "/" + listOfEntries[i]->d_name);
+        findFilesRecursively(way + "/" + listOfEntries[i]->d_name);
     }
 
-    auto numFilesEntries = scandir(goodWay.c_str(), &listOfEntries, onlyTextFiles, alphasort);
+    auto numFilesEntries = scandir(way.c_str(), &listOfEntries, onlyTextFiles, alphasort);
     for (auto i = 0; i < numFilesEntries; i++)
     {
-        fileQueue.push(goodWay + "/" + listOfEntries[i]->d_name);
+        fileQueue.push(way + "/" + listOfEntries[i]->d_name);
     }
 }

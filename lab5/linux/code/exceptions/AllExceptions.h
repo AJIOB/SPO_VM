@@ -7,5 +7,6 @@
 #include "headers/FileLengthException.h"
 #include "headers/WaitSignalException.h"
 #include "headers/BadLoadingDLLException.h"
+#include "headers/CreatingNewThreadException.h"
 
 #endif

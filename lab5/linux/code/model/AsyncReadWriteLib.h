@@ -12,7 +12,7 @@
 #include "Constants.h"
 
 extern "C" std::string asyncReadAllFile(const std::string &fileWay);
-void asyncWriteToFileEnd(const std::string &fileWay, const std::string &toWrite);
+extern "C" void asyncWriteToFileEnd(const std::string &fileWay, const std::string &toWrite);
 
 long filelength(const char* fileName);
 

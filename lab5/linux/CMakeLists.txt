@@ -23,7 +23,7 @@ set(VA_exceptions
         code/exceptions/headers/FileLengthException.h
         code/exceptions/headers/WaitSignalException.h
         code/exceptions/headers/BadLoadingDLLException.h
-        )
+        code/exceptions/headers/CreatingNewThreadException.h)
 
 set(SOURCE_FILES code/main.cpp)
 
@@ -33,7 +33,7 @@ set(parser_files
         code/model/ParserManager.h
         code/model/handlers.h
         code/model/handlers.cpp
-        )
+        code/model/Threads.cpp code/model/Threads.h code/model/Sync.h code/model/Sync.cpp)
 
 set(dynamicLib_Files
         code/model/AsyncReadWriteLib.h

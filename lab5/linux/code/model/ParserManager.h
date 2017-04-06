@@ -10,10 +10,14 @@
 
 #include <dirent.h>
 #include <dlfcn.h>
+#include <thread>
 
 #include "../exceptions/AllExceptions.h"
+#include "Sync.h"
+#include "Threads.h"
 #include "handlers.h"
 #include "Constants.h"
+
 
 class ParserManager {
     std::string rootWay;

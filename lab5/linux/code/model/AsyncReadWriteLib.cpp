@@ -14,6 +14,8 @@
 
 std::string asyncReadAllFile(const std::string &fileWay)
 {
+    using namespace VA_const;
+
     auto fsize = filelength(fileWay.c_str());
     if (fsize < 0)
     {

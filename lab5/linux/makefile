@@ -1,11 +1,11 @@
-ParserObjects = parser_main.o ParserManager.o handlers.o
+ParserObjects = parser_main.o ParserManager.o handlers.o Threads.o Sync.o
 ViewObjects = log.o StreamInput.o StreamOutput.o
 dllObjects = AsyncReadWriteLib.o
 
 CFLAGS = -std=c++11
 CXXFLAGS = $(CFLAGS)
 
-destinationLinkFlags = -lrt -ldl
+destinationLinkFlags = -lrt -ldl -pthread
 dllLinkFlags = -lrt
 
 sourceWay = code/
@@ -54,6 +54,12 @@ ParserManager.o : $(sourceWay)$(modelWay)ParserManager.cpp $(sourceWay)$(modelWa
 
 handlers.o : $(sourceWay)$(modelWay)handlers.cpp $(sourceWay)$(modelWay)handlers.h
 	$(prefix)$(modelWay)handlers.cpp
+
+Threads.o : $(sourceWay)$(modelWay)Threads.cpp $(sourceWay)$(modelWay)Threads.h
+	$(prefix)$(modelWay)Threads.cpp
+
+Sync.o : $(sourceWay)$(modelWay)Sync.cpp $(sourceWay)$(modelWay)Sync.h
+	$(prefix)$(modelWay)Sync.cpp
 
 #------------------------------------view-----------------------------
 log.o : $(sourceWay)$(ViewWaySource)log.cpp $(sourceWay)$(ViewWayHeaders)log.h
