@@ -25,6 +25,7 @@ set(VA_exceptions
         code/exceptions/headers/BadLoadingDLLException.h
         code/exceptions/headers/CreatingNewThreadException.h
         code/exceptions/headers/BadCMDAgrsException.h
+        code/exceptions/headers/CreateProcessException.h
         )
 
 set(SOURCE_FILES

@@ -11,12 +11,17 @@
 class ProcessCreator
 {
     std::string parentWay;
-    std::deque<std::string> childPIDs;
+    std::deque<pid_t> childPIDs;
+    std::deque<char**> arguments;
 
-    void findFolders(const std::string &way);
+    std::deque<std::string> findFolders(const std::string &way);
+
+    void createProcess(const std::string& CMDParameter);
+    char **GenerateCallingParams(const std::string &CMDParam);
 
 public:
     ProcessCreator(const std::string& way);
+    ~ProcessCreator();
 
     void run();
 };

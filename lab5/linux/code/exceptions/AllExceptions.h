@@ -9,5 +9,6 @@
 #include "headers/BadLoadingDLLException.h"
 #include "headers/CreatingNewThreadException.h"
 #include "headers/BadCMDAgrsException.h"
+#include "headers/CreateProcessException.h"
 
 #endif
