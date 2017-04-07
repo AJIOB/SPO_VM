@@ -16,6 +16,7 @@ struct Sync
     bool WeCanRead = false;
     bool WeCanWrite = false;
     bool ThatIsAll = false;
+    bool ThisIsLast = false;
 
     std::queue<std::string> readWays;
     std::string writeWay;

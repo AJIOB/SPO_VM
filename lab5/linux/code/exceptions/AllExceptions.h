@@ -8,5 +8,6 @@
 #include "headers/WaitSignalException.h"
 #include "headers/BadLoadingDLLException.h"
 #include "headers/CreatingNewThreadException.h"
+#include "headers/BadCMDAgrsException.h"
 
 #endif

@@ -16,7 +16,7 @@ extern "C" void asyncWriteToFileEnd(const std::string &fileWay, const std::strin
 
 long filelength(const char* fileName);
 
-aiocb Make_aiocb(const int &fileDescriptor, void *bufferToRead, const long &sizeOfBuffer, int signal, int sigval_int,
+aiocb Make_aiocb(const int &fileDescriptor, __off_t posToRead, void *bufferToRead, const long &sizeOfBuffer, int signal, int sigval_int,
                  int operationCode);
 
 #endif //LAB5_ASYNCREADWRITELIB_H

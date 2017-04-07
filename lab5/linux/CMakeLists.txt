@@ -23,9 +23,9 @@ set(VA_exceptions
         code/exceptions/headers/FileLengthException.h
         code/exceptions/headers/WaitSignalException.h
         code/exceptions/headers/BadLoadingDLLException.h
-        code/exceptions/headers/CreatingNewThreadException.h)
+        code/exceptions/headers/CreatingNewThreadException.h code/exceptions/headers/BadCMDAgrsException.h)
 
-set(SOURCE_FILES code/main.cpp)
+set(SOURCE_FILES code/main.cpp code/model/ProcessCreator.cpp code/model/ProcessCreator.h)
 
 set(parser_files
         code/parser_main.cpp
@@ -47,3 +47,4 @@ add_executable(oneFolderParser ${parser_files} ${consoleIO_files} ${VA_exception
 
 target_link_libraries(oneFolderParser ${CMAKE_DL_LIBS})
 target_link_libraries(VA_ARW -lrt)
+target_link_libraries(oneFolderParser -pthread)

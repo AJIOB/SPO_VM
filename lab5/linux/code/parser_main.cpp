@@ -2,23 +2,21 @@
 // Created by alex on 02.04.17.
 //
 
-#include <iostream>
-#include <sstream>
 #include "model/ParserManager.h"
 #include "exceptions/AllExceptions.h"
 #include "view/headers/view.h"
 
 int main(int argc, char ** argv) {
-    if (argc != 2)
-    {
-        return 1;
-    }
-
-    std::stringstream s;
-    s << "Hello! I'm parser. I work with " << argv[1] << " folder" << std::endl;
-    PrintLine(s.str());
+    //std::stringstream s;
+    //s << "Hello! I'm parser. I work with " << argv[1] << " folder" << std::endl;
+    //PrintLine(s.str());
 
     try {
+        if (argc != 2)
+        {
+            throw BadCMDAgrsException(1);
+        }
+
         ParserManager r(argv[1]);
         r.run();
     }

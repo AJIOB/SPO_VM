@@ -7,53 +7,72 @@
 
 void *ReadThread(void *ptr)
 {
-    Sync &s = *reinterpret_cast<Sync*> (ptr);
+    Sync *s = reinterpret_cast<Sync*> (ptr);
 
-    while (!s.readWays.empty())
+    if (!s)
     {
-        while (!s.WeCanRead && !s.ThatIsAll)
+        pthread_exit(nullptr);
+    }
+
+    while (!s->readWays.empty())
+    {
+        while (!s->WeCanRead && !s->ThatIsAll)
         {
             Sleep(250);
         }
 
-        if (s.ThatIsAll)
+        if (s->ThatIsAll)
         {
             break;
         }
 
-        s.WeCanRead = false;
+        s->WeCanRead = false;
 
-        s.transfer = s.readFileFun(s.readWays.front());
-        s.readWays.pop();
+        s->transfer = s->readFileFun(s->readWays.front());
+        s->readWays.pop();
 
-        s.WeCanWrite = true;
+        s->WeCanWrite = true;
     }
+
+    s->ThisIsLast = true;
 
     pthread_exit(nullptr);
 }
 
 void *WriteThread(void *ptr)
 {
-    Sync &s = *reinterpret_cast<Sync*> (ptr);
+    Sync *s = reinterpret_cast<Sync*> (ptr);
+
+    if (!s)
+    {
+        pthread_exit(nullptr);
+    }
 
     while (true)
     {
-        while (!s.WeCanWrite && !s.ThatIsAll)
+        while (!s->WeCanWrite && !s->ThatIsAll)
         {
             Sleep(250);
         }
 
-        if (s.ThatIsAll)
+        if (s->ThatIsAll)
         {
             break;
         }
 
-        s.WeCanWrite = false;
+        s->WeCanWrite = false;
 
-        s.writeFileFun(s.writeWay, s.transfer);
+        s->writeFileFun(s->writeWay, s->transfer);
 
-        s.WeCanRead = true;
+        if (s->ThisIsLast)
+        {
+            break;
+        }
+
+        s->WeCanRead = true;
     }
+
+    s->ThatIsAll = true;
 
     pthread_exit(nullptr);
 }
