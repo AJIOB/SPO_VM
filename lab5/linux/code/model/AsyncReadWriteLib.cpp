@@ -5,8 +5,13 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <aio.h>
 #include <cstring>
+
+#ifdef VA_AIO
+#include <aio.h>
+#else
+#include <fstream>
+#endif
 
 #include "AsyncReadWriteLib.h"
 
@@ -14,6 +19,7 @@
 
 std::string asyncReadAllFile(const std::string &fileWay)
 {
+#ifdef VA_AIO
     using namespace VA_const;
 
     auto fsize = filelength(fileWay.c_str());
@@ -45,6 +51,21 @@ std::string asyncReadAllFile(const std::string &fileWay)
     delete[] buff;
     close(fileDescriptor);
     return res;
+#else
+    std::fstream f;
+    f.open(fileWay.c_str(), std::ios::in);
+
+    std::string res;
+    while(f)
+    {
+        res.push_back((char) f.get());
+    }
+    res.pop_back();
+
+    f.close();
+    return res;
+
+#endif
 }
 
 long filelength(const char *fileName) {
@@ -52,7 +73,7 @@ long filelength(const char *fileName) {
     stat(fileName, &st);
     return st.st_size;
 }
-
+#ifdef VA_AIO
 aiocb Make_aiocb(const int &fileDescriptor, __off_t posToRead, void *bufferToRead, const long &sizeOfBuffer, int signal, int sigval_int,
                  int operationCode) {
     sigevent tmpSigevent;
@@ -72,10 +93,9 @@ aiocb Make_aiocb(const int &fileDescriptor, __off_t posToRead, void *bufferToRea
 
     return controlBlock;
 }
-
+#endif
 void asyncWriteToFileEnd(const std::string &fileWay, const std::string &toWrite) {
-    //todo
-
+#ifdef VA_AIO
     using namespace VA_const;
 
     auto fsize = filelength(fileWay.c_str());
@@ -106,4 +126,11 @@ void asyncWriteToFileEnd(const std::string &fileWay, const std::string &toWrite)
 
     delete[] buff;
     close(fileDescriptor);
+#else
+    std::fstream f;
+    f.open(fileWay.c_str(), std::ios::out | std::ios::app);
+
+    f << toWrite;
+    f.close();
+#endif
 }

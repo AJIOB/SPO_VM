@@ -96,14 +96,12 @@ void ParserManager::run() {
     sync->writeWay = rootWay + extension;
 
     pthread_t reader, writer;
-    if (pthread_create(&reader, nullptr, ReadThread, sync))
+    if (pthread_create(&reader, nullptr, ReadThread, sync) || pthread_create(&writer, nullptr, WriteThread, sync))
     {
         throw CreatingNewThreadException();
     }
-    if (pthread_create(&writer, nullptr, WriteThread, sync))
-    {
-        throw CreatingNewThreadException();
-    }
+    
+    sync->WeCanRead = true;
 
     while (!sync->ThatIsAll)
     {
