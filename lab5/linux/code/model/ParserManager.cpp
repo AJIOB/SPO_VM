@@ -3,6 +3,7 @@
 //
 
 #include "ParserManager.h"
+#include "FindFuncs.h"
 
 ParserManager::ParserManager(const std::string &rootWay_) {
     this->rootWay = rootWay_;
@@ -10,55 +11,6 @@ ParserManager::ParserManager(const std::string &rootWay_) {
     {
         rootWay = rootWay.substr(0, rootWay.size() - 1);
     }
-
-    onlyFolders = [](const dirent* d)->int
-    {
-        //non-zero return => selected
-
-        if (!d)
-        {
-            return 0;
-        }
-
-        if (d->d_type != DT_DIR)
-        {
-            return 0;
-        }
-
-        if (d->d_name == std::string(".") || (d->d_name == std::string("..")))
-        {
-            return 0;
-        }
-
-        return 1;
-    };
-
-    onlyTextFiles = [](const dirent* d)->int
-    {
-        //non-zero return => selected
-        if (!d)
-        {
-            return 0;
-        }
-
-        std::string fName = d->d_name;
-        std::string requiredExtension[] = {".txt", ".TXT"};
-        if (fName.size() < requiredExtension[0].size())
-        {
-            return 0;
-        }
-
-        auto fExtension = fName.substr(fName.size() - requiredExtension[0].size(), requiredExtension[0].size());
-
-        bool isTXT = (fExtension == requiredExtension[0]) || (fExtension == requiredExtension[1]);
-
-        if ((d->d_type != DT_DIR) && (isTXT))
-        {
-            return 1;
-        }
-
-        return 0;
-    };
 }
 
 void ParserManager::run() {
@@ -118,6 +70,8 @@ void ParserManager::run() {
 
 void ParserManager::findFilesRecursively(const std::string &way)
 {
+    using namespace FindFuncs;
+
     dirent** listOfEntries;
     auto numDirEntries = scandir(way.c_str(), &listOfEntries, onlyFolders, alphasort);
     for (auto i = 0; i < numDirEntries; i++)

@@ -15,6 +15,8 @@ namespace VA_const
     static const int RWFinishedSignal = 12;
 
     static const char extension[] = ".txt";
+
+    static const char childCallName[] = "./parser";
 }
 
 #endif

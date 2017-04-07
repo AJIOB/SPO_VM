@@ -2,6 +2,7 @@
 // Created by Alex on 06.04.2017.
 //
 
+#include <unistd.h>
 #include "Threads.h"
 #include "Sync.h"
 
@@ -47,6 +48,8 @@ void *WriteThread(void *ptr)
     {
         pthread_exit(nullptr);
     }
+
+    unlink(s->writeWay.c_str());
 
     while (true)
     {

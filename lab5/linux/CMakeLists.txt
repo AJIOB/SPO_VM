@@ -23,9 +23,17 @@ set(VA_exceptions
         code/exceptions/headers/FileLengthException.h
         code/exceptions/headers/WaitSignalException.h
         code/exceptions/headers/BadLoadingDLLException.h
-        code/exceptions/headers/CreatingNewThreadException.h code/exceptions/headers/BadCMDAgrsException.h)
+        code/exceptions/headers/CreatingNewThreadException.h
+        code/exceptions/headers/BadCMDAgrsException.h
+        )
 
-set(SOURCE_FILES code/main.cpp code/model/ProcessCreator.cpp code/model/ProcessCreator.h)
+set(SOURCE_FILES
+        code/main.cpp
+        code/model/ProcessCreator.cpp
+        code/model/ProcessCreator.h
+        code/model/FindFuncs.cpp
+        code/model/FindFuncs.h
+        )
 
 set(parser_files
         code/parser_main.cpp
@@ -33,7 +41,13 @@ set(parser_files
         code/model/ParserManager.h
         code/model/handlers.h
         code/model/handlers.cpp
-        code/model/Threads.cpp code/model/Threads.h code/model/Sync.h code/model/Sync.cpp)
+        code/model/Threads.cpp
+        code/model/Threads.h
+        code/model/Sync.h
+        code/model/Sync.cpp
+        code/model/FindFuncs.cpp
+        code/model/FindFuncs.h
+        )
 
 set(dynamicLib_Files
         code/model/AsyncReadWriteLib.h
@@ -43,8 +57,8 @@ set(dynamicLib_Files
 add_library(VA_ARW SHARED ${dynamicLib_Files} ${VA_exceptions} code/model/Constants.h)
 
 add_executable(lab5 ${SOURCE_FILES} ${consoleIO_files} ${VA_exceptions})
-add_executable(oneFolderParser ${parser_files} ${consoleIO_files} ${VA_exceptions} code/model/Constants.h)
+add_executable(parser ${parser_files} ${consoleIO_files} ${VA_exceptions} code/model/Constants.h)
 
-target_link_libraries(oneFolderParser ${CMAKE_DL_LIBS})
+target_link_libraries(parser ${CMAKE_DL_LIBS})
 target_link_libraries(VA_ARW -lrt)
-target_link_libraries(oneFolderParser -pthread)
+target_link_libraries(parser -pthread)

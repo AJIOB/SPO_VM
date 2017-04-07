@@ -1,11 +1,13 @@
-ParserObjects = parser_main.o ParserManager.o handlers.o Threads.o Sync.o
+ParserObjects = parser_main.o ParserManager.o handlers.o Threads.o Sync.o FindFuncs.o
 ViewObjects = log.o StreamInput.o StreamOutput.o
 dllObjects = AsyncReadWriteLib.o
+mainObjects = main.o ProcessCreator.o FindFuncs.o
 
 CFLAGS = -std=c++11
 CXXFLAGS = $(CFLAGS)
 
-destinationLinkFlags = -lrt -ldl -pthread
+destinationLinkFlags = 
+parserLinkFlags = -lrt -ldl -pthread
 dllLinkFlags = -lrt
 
 sourceWay = code/
@@ -14,8 +16,9 @@ ViewWaySource = view/source/
 modelWay = model/
 
 destinationWay = bin/unix/
-destinationName = parser
+destinationName = lab5
 dllDestName = libVA_ARW.so
+parserDestName = parser
 
 deps = VA_$(destinationName).log
 
@@ -33,13 +36,22 @@ COPY = cp
 
 .PHONY: buildAll parser $(destinationName) clean max_clean baseInit copyDeps run runParams
 
-buildAll : baseInit $(destinationName) $(dllDestName) copyDeps
+buildAll : baseInit $(destinationName) $(parserDestName) $(dllDestName) copyDeps
 
-$(destinationName) : $(ParserObjects) $(ViewObjects)
-	$(compilerPrefix) -o $(objBackHome)$(destinationWay)$(destinationName) $(ParserObjects) $(ViewObjects) $(destinationLinkFlags)
+$(destinationName) : $(mainObjects) $(ViewObjects)
+	$(compilerPrefix) -o $(objBackHome)$(destinationWay)$(destinationName) $(mainObjects) $(ViewObjects) $(destinationLinkFlags)
+
+$(parserDestName) : $(ParserObjects) $(ViewObjects)
+	$(compilerPrefix) -o $(objBackHome)$(destinationWay)$(parserDestName) $(ParserObjects) $(ViewObjects) $(parserLinkFlags)
 
 $(dllDestName) : $(dllObjects)
 	$(compilerPrefix) -shared $(dllObjects) -o $(objBackHome)$(destinationWay)$(dllDestName) $(dllLinkFlags)
+
+#------------------------------------main-----------------------------
+main.o : $(sourceWay)main.cpp
+	$(prefix)main.cpp
+ProcessCreator.o : $(sourceWay)$(modelWay)ProcessCreator.cpp $(sourceWay)$(modelWay)ProcessCreator.h
+	$(prefix)$(modelWay)ProcessCreator.cpp
 
 #------------------------------------dll------------------------------
 AsyncReadWriteLib.o : $(sourceWay)$(modelWay)AsyncReadWriteLib.cpp $(sourceWay)$(modelWay)AsyncReadWriteLib.h
@@ -61,6 +73,9 @@ Threads.o : $(sourceWay)$(modelWay)Threads.cpp $(sourceWay)$(modelWay)Threads.h
 Sync.o : $(sourceWay)$(modelWay)Sync.cpp $(sourceWay)$(modelWay)Sync.h
 	$(prefix)$(modelWay)Sync.cpp
 
+FindFuncs.o : $(sourceWay)$(modelWay)FindFuncs.cpp $(sourceWay)$(modelWay)FindFuncs.h
+	$(prefix)$(modelWay)FindFuncs.cpp
+
 #------------------------------------view-----------------------------
 log.o : $(sourceWay)$(ViewWaySource)log.cpp $(sourceWay)$(ViewWayHeaders)log.h
 	$(prefix)$(ViewWaySource)log.cpp
@@ -70,6 +85,8 @@ StreamInput.o : $(sourceWay)$(ViewWaySource)StreamInput.cpp $(sourceWay)$(ViewWa
 
 StreamOutput.o : $(sourceWay)$(ViewWaySource)StreamOutput.cpp $(sourceWay)$(ViewWayHeaders)StreamOutput.h
 	$(prefix)$(ViewWaySource)StreamOutput.cpp	
+#------------------------------------logs-----------------------------
+
 
 #------------------------------------other----------------------------
 max_clean :
