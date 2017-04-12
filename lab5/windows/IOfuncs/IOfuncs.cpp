@@ -29,10 +29,10 @@ namespace IOfuncs
 			DWORD nWritten;
 			WriteFile(destinationFile, p->buffer, p -> filesize.QuadPart, &nWritten, NULL);
 			if (!SetEvent(p->writerCompleted))
-		{
-			std::cout << "error in setting event"; //error. Event is not pulsed
-			return -1;
-		}
+			{
+				std::cout << "error in setting event"; //error. Event is not pulsed
+				return -1;
+			}
 		} while(true);	
 
 		return 0;
@@ -78,10 +78,10 @@ namespace IOfuncs
 			while (FindNextFile(p->hFind, &p->ffd) != 0);
 
 			if (!SetEvent(p->readerStop))
-		{
-			std::cout << "Error working with events"; //error. Event is not pulsed
-			return -1;
-		}
+			{
+				std::cout << "Error working with events"; //error. Event is not pulsed
+				return -1;
+			}
 	
 		return 0;
 	}

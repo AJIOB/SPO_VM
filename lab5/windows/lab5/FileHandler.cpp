@@ -3,7 +3,7 @@
 
 FileHandler::FileHandler(char* mainDir_)
 {
-	this -> subDirsCount = -2;
+	this -> subDirsCount = 0;
 	this -> mainDir = mainDir_;
 }
 
@@ -13,6 +13,11 @@ FileHandler::~FileHandler(void)
 }
 
 bool FileHandler::getDirectories()
+{
+	return getDirectories(mainDir);
+}
+
+bool FileHandler::getDirectories(char* mainDir)
 {
 	WIN32_FIND_DATA ffd;
 	size_t length_of_arg;
@@ -49,12 +54,19 @@ bool FileHandler::getDirectories()
 	{
 		if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
-			if(subDirsCount>=0)
+			if (!strcmp(ffd.cFileName, ".") || !strcmp(ffd.cFileName, ".."))
 			{
-				std::cout<<"\n	"<<ffd.cFileName;
-				strcat(strcat(strcpy(this -> subDirs[subDirsCount],this->mainDir), "\\"),ffd.cFileName);
+				continue;
 			}
+
+			std::cout<<"\n	"<<ffd.cFileName;
+			strcat(strcat(strcpy(this -> subDirs[subDirsCount], mainDir), "\\"),ffd.cFileName);
 			this->subDirsCount++;
+
+			/*if (!getDirectories(subDirs[subDirsCount - 1]))
+			{
+				return false;
+			}*/
 		}
 	}
 	while (FindNextFile(hFind, &ffd) != 0);

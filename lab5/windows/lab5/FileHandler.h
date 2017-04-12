@@ -6,10 +6,9 @@
 #include <strsafe.h>
 class FileHandler
 {
-private:
+	bool getDirectories(char* mainDir);
 
-public:
-	
+public:	
 	char subDirs[MAX_PATH][100];
 	char* mainDir;
 	
@@ -17,7 +16,7 @@ public:
 	~FileHandler(void);
 	bool getDirectories();
 	bool getFiles();
-	bool createFileThreads(char* directory,char*file, LARGE_INTEGER ilesize,char* rootDir);
+	//bool createFileThreads(char* directory,char*file, LARGE_INTEGER ilesize,char* rootDir);
 	//static DWORD WINAPI runWriter(LPVOID lpParam);
 
 	int subDirsCount;
