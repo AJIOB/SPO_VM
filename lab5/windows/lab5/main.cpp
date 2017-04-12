@@ -3,13 +3,13 @@
 #include <stdio.h>
 #include <iostream>
 #include <strsafe.h>
-#include"FileHandler.h"
+#include "FileHandler.h"
 
 void DisplayErrorBox(LPTSTR lpszFunction);
 
 int _tmain(int argc, TCHAR *argv[])
 {
-	char directory[] = {"D:\\valik\\spo\\"};
+	char directory[] = {"D:\\Alex\\Documents\\SourceTree\\SPO\\labs\\lab5\\testing_folder"};
 	FileHandler fh(directory);
 	
 	if(!fh.getDirectories())

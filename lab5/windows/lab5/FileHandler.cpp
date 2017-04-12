@@ -52,7 +52,7 @@ bool FileHandler::getDirectories()
 			if(subDirsCount>=0)
 			{
 				std::cout<<"\n	"<<ffd.cFileName;
-				strcat(strcpy(this -> subDirs[subDirsCount],this->mainDir),ffd.cFileName);
+				strcat(strcat(strcpy(this -> subDirs[subDirsCount],this->mainDir), "\\"),ffd.cFileName);
 			}
 			this->subDirsCount++;
 		}
