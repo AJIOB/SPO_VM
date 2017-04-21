@@ -7,19 +7,20 @@ bool VA_FSClusterMetadata::fromString(const std::string& metaString)
 	size_t pos = 0;
 	size_t size = metaString.size();
 
-	if (pos + sizeof size_t >= size)
+	if (pos + sizeof size_t > size)
 	{
 		return false;
 	}
 
-	size_t numOfElements = (*reinterpret_cast<const size_t*> (str + pos) + 7) / 8;
+	size_t numOfElements = *reinterpret_cast<const size_t*> (str + pos);
+	size_t numOfBlocks = (numOfElements + 7) / 8;
 	pos += sizeof size_t;
 
 	std::vector<bool> vector;
 
-	for (auto i = 0; i < numOfElements; i++)
+	for (auto i = 0; i < numOfBlocks; i++)
 	{
-		if (pos + 1 >= size)
+		if (pos + 1 > size)
 		{
 			return false;
 		}
