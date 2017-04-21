@@ -27,10 +27,13 @@
     <ClInclude Include="VA_FSFileWayMetadata.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VA_FSClusterMetadata.h">
+    <ClInclude Include="VA_FSClusterHead.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VA_FSClusterHead.h">
+    <ClInclude Include="VA_FSCluster.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VA_FSClusterMetadata.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -44,10 +47,13 @@
     <ClCompile Include="VA_FSFileWayMetadata.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VA_FSClusterMetadata.cpp">
+    <ClCompile Include="VA_FSClusterHead.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VA_FSClusterHead.cpp">
+    <ClCompile Include="VA_FSCluster.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VA_FSClusterMetadata.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
