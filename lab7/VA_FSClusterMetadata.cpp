@@ -1,5 +1,6 @@
 ﻿#include "VA_FSClusterMetadata.h"
 #include <bitset>
+#include <algorithm>
 
 bool VA_FSClusterMetadata::fromString(const std::string& metaString)
 {
@@ -18,7 +19,7 @@ bool VA_FSClusterMetadata::fromString(const std::string& metaString)
 
 	std::vector<bool> vector;
 
-	for (auto i = 0; i < numOfBlocks; i++)
+	for (size_t i = 0; i < numOfBlocks; i++)
 	{
 		if (pos + 1 > size)
 		{
@@ -50,14 +51,14 @@ std::string VA_FSClusterMetadata::toString() const
 	std::string s(sizePtr, sizePtr + sizeof size);
 
 	std::bitset<8> byte;
-	auto i = 0, j = 0;
+	size_t i = 0, j = 0;
 	while(true)
 	{
 		if ((i + j) >= cl_data.size())
 		{
 			if (j > 0)
 			{
-				s += byte.to_ulong();
+				s += static_cast<char> (byte.to_ulong());
 			}
 			break;
 		}
@@ -66,11 +67,24 @@ std::string VA_FSClusterMetadata::toString() const
 		{
 			i += 8;
 			j = 0;
-			s += byte.to_ulong();
+			s += static_cast<char> (byte.to_ulong());
 		}
 
 		byte[j] = cl_data[i + j];
 		j++;
 	}
 	return s;
+}
+
+BigSize VA_FSClusterMetadata::getFreeBlockNum() const
+{
+	return std::count(cl_data.begin(), cl_data.end(), true);
+}
+
+BlockPtr VA_FSClusterMetadata::lockBlock()
+{
+	auto it = std::find(cl_data.begin(), cl_data.end(), true);
+	if (it != cl_data.end())
+		*it = false;
+	return it - cl_data.begin();
 }

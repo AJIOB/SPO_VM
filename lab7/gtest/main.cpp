@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "tests.h"
+#include "VA_FSClusterMetadata_tests.h"
 
 int main(int argc, char* argv[])
 {

@@ -20,7 +20,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tests.h">
+    <ClInclude Include="VA_FSClusterMetadata_tests.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

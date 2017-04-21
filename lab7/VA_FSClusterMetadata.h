@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <vector>
+#include "types.h"
 
 struct VA_FSClusterMetadata
 {
@@ -7,4 +8,7 @@ struct VA_FSClusterMetadata
 	
 	bool fromString(const std::string& metaString);
 	std::string toString() const;
+
+	BigSize getFreeBlockNum() const;
+	BlockPtr lockBlock();
 };

@@ -76,18 +76,17 @@
   <ItemGroup>
     <ClInclude Include="types.h" />
     <ClInclude Include="VA_FSCluster.h" />
-    <ClInclude Include="VA_FSClusterHead.h" />
+    <ClInclude Include="VA_FSClusterHeadMetadata.h" />
     <ClInclude Include="VA_FileSystem.h" />
     <ClInclude Include="VA_FSFileWayMetadata.h" />
-    <ClInclude Include="VA_FSHead.h" />
+    <ClInclude Include="VA_FSHeadMetadata.h" />
     <ClInclude Include="VA_FSClusterMetadata.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VA_FSCluster.cpp" />
-    <ClCompile Include="VA_FSClusterHead.cpp" />
     <ClCompile Include="VA_FileSystem.cpp" />
     <ClCompile Include="VA_FSFileWayMetadata.cpp" />
-    <ClCompile Include="VA_FSHead.cpp" />
+    <ClCompile Include="VA_FSHeadMetadata.cpp" />
     <ClCompile Include="VA_FSClusterMetadata.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

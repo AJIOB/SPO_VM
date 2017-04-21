@@ -1,9 +1,10 @@
 ﻿#pragma once
-#include "VA_FSClusterHead.h"
+#include "VA_FSClusterHeadMetadata.h"
 
 struct VA_FSCluster
 {
-	VA_FSClusterHead cl_head;
+	VA_FSClusterHeadMetadata cl_head;
+	static const LittleSize cl_maxClusterSize;
 	char* cl_data;
 
 	VA_FSCluster();

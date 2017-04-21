@@ -16,7 +16,7 @@ bool VA_FSFileWayMetadata::fromString(const std::string& metaString)
 
 	std::map<std::string, BlockPtr> map;
 
-	for (auto i = 0; i < numOfElements; i++)
+	for (size_t i = 0; i < numOfElements; i++)
 	{
 		if (pos + sizeof size_t >= size)
 		{
