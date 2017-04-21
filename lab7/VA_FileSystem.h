@@ -7,12 +7,16 @@ class VA_FileSystem
 	std::string cl_wayToFileOnDisk;
 	std::fstream cl_f;
 
-	VA_FSHead cl_head;
+	VA_FSHead cl_beginMetadata;
 	LittleSize cl_zeroClusterStartPos;
 
-	bool moveFrom(const std::string& startWay, const std::string& destinationWay);
-	bool moveTo(const std::string& startWay, const std::string& destinationWay);
-	bool moveIn(const std::string& startWay, const std::string& destinationWay);
+	bool readFromFS(const std::string& way, VA_File& file);
+	bool writeToFS(const std::string& way, const VA_File& file);
+	bool moveInFS(const std::string& sourceWay, const std::string& destinationWay);
+
+	static bool readFromExternal(const std::string& way, VA_File& file);
+	static bool writeToExternal(const std::string& way, const VA_File& file);
+
 	void resetMetadata();
 	void readMetadata();
 	void writeMetadata();
