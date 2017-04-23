@@ -11,4 +11,5 @@ struct VA_FSClusterMetadata
 
 	BigSize getFreeBlockNum() const;
 	BlockPtr lockBlock();
+	void freeBlock(const BlockPtr& num);
 };

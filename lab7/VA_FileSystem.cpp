@@ -23,6 +23,13 @@ VA_FileSystem::VA_FileSystem(const std::string& wayToFile)
 	: cl_wayToFileOnDisk(wayToFile, std::ios::in | std::ios::out | std::ios::binary), cl_f(cl_wayToFileOnDisk), cl_zeroClusterStartPos(sizeof cl_beginMetadata)
 {
 	readBeginMetadata();
+	//todo : read cluster & file metadata
+}
+
+VA_FileSystem::~VA_FileSystem()
+{
+	//todo: write all metadata
+	cl_f.close();
 }
 
 void VA_FileSystem::format()
@@ -32,14 +39,13 @@ void VA_FileSystem::format()
 	cl_clusterMetadata = VA_FSClusterMetadata();
 	cl_clusterMetadata.cl_data = std::vector<bool>(cl_beginMetadata.cl_numClusters, true);
 	
-	//todo: write add Metadata (fileWays & ClusterMetadata)
 	firstClusterMetadataProcessing();
 
-	//todo:
+	firstFileWayMetadataProcessing();
+	cl_beginMetadata.cl_fileWaysPos = generateNewStartingPos();
+	write(cl_fileWayMetadata.toString(), cl_beginMetadata.cl_fileWaysPos);
 
-	//cl_beginMetadata.cl_freeClustersPos =
 	writeClusterMetadata();
-
 	writeBeginMetadata();
 }
 
@@ -63,7 +69,7 @@ bool VA_FileSystem::deleteF(const std::string& way)
 
 BigSize VA_FileSystem::calculateNumOfBlocks(const VA_File& f)
 {
-	return (f.size() + VA_FSCluster::cl_maxClusterSize - 1) / VA_FSCluster::cl_maxClusterSize;
+	return (f.size() + VA_FSCluster::cl_maxClusterDataSize - 1) / VA_FSCluster::cl_maxClusterDataSize;
 }
 
 BigSize VA_FileSystem::calculatePosByBlockIndex(const BigSize& num) const
@@ -81,6 +87,19 @@ void VA_FileSystem::setPosToWrite(const BigSize& clusterNum)
 	cl_f.seekp(calculatePosByBlockIndex(clusterNum));
 }
 
+BlockPtr VA_FileSystem::generateNewStartingPos()
+{
+	auto pos = cl_clusterMetadata.lockBlock();
+	
+	VA_FSClusterHeadMetadata meta;
+	meta.next = meta.prev = pos;
+	meta.size = 0;
+
+	writeBlockHead(pos, meta);
+
+	return pos;
+}
+
 VA_FSClusterHeadMetadata VA_FileSystem::readBlockHead(const BigSize& num)
 {
 	setPosToRead(num);
@@ -95,6 +114,25 @@ void VA_FileSystem::writeBlockHead(const BigSize& num, const VA_FSClusterHeadMet
 	cl_f.write(reinterpret_cast<const char*>(&meta), sizeof meta);
 }
 
+VA_FSCluster VA_FileSystem::readBlock(const BigSize& num)
+{
+	setPosToRead(num);
+	VA_FSCluster cluster;
+
+	cl_f.read(reinterpret_cast<char*>(&cluster.cl_head), sizeof cluster.cl_head);
+	cl_f.read(cluster.cl_data, VA_FSCluster::cl_maxClusterDataSize);
+
+	return cluster;
+}
+
+void VA_FileSystem::writeBlock(const BigSize& num, const VA_FSCluster& cluster)
+{
+	setPosToWrite(num);
+
+	cl_f.write(reinterpret_cast<const char*>(&cluster.cl_head), sizeof cluster.cl_head);
+	cl_f.write(cluster.cl_data, VA_FSCluster::cl_maxClusterDataSize);
+}
+
 void VA_FileSystem::firstClusterMetadataProcessing()
 {
 	//first clusterMetadata lock
@@ -104,6 +142,8 @@ void VA_FileSystem::firstClusterMetadataProcessing()
 	{
 		clusterMetaBlocks.push_back(cl_clusterMetadata.lockBlock());
 	}
+
+	cl_beginMetadata.cl_freeClustersPos = clusterMetaBlocks.front();
 
 	for (auto it = clusterMetaBlocks.begin(); it != clusterMetaBlocks.end(); ++it)
 	{
@@ -125,27 +165,125 @@ void VA_FileSystem::firstClusterMetadataProcessing()
 		else
 		{
 			meta.prev = *(it + 1);
-			meta.size = VA_FSCluster::cl_maxClusterSize;
+			meta.size = VA_FSCluster::cl_maxClusterDataSize;
 		}
 		writeBlockHead(*it, meta);
 	}
 }
 
-bool VA_FileSystem::read(VA_File& file, const BlockPtr& startingPos)
+void VA_FileSystem::firstFileWayMetadataProcessing()
 {
 	//todo
-	return false;
 }
 
-bool VA_FileSystem::write(const VA_File& file, const BlockPtr& startingPos)
+void VA_FileSystem::readClusterMetadata()
 {
-	//todo
-	return 0;
+	auto nextBlockPos = cl_beginMetadata.cl_freeClustersPos;
+	auto blockPos = nextBlockPos + 1;				//чтобы не повторялось
+	std::string string;
+
+	do
+	{
+		blockPos = nextBlockPos;
+		auto block = readBlock(blockPos);
+		nextBlockPos = block.cl_head.next;
+		string += std::string(block.cl_data, block.cl_data + block.cl_head.size);
+	} while (blockPos != nextBlockPos);
+
+	cl_clusterMetadata.fromString(string);
 }
 
 void VA_FileSystem::writeClusterMetadata()
 {
-	//todo
+	auto nextBlockPos = cl_beginMetadata.cl_freeClustersPos;
+	auto blockPos = nextBlockPos + 1;				//чтобы не повторялось
+	auto string = cl_clusterMetadata.toString();
+	BigSize strPos = 0;
+
+	do
+	{
+		blockPos = nextBlockPos;
+		auto block = readBlock(blockPos);
+		nextBlockPos = block.cl_head.next;
+		memcpy(block.cl_data, string.c_str() + strPos, block.cl_head.size);
+		strPos += block.cl_head.size;
+		writeBlock(blockPos, block);
+	} while (blockPos != nextBlockPos);
+}
+
+bool VA_FileSystem::read(VA_File& file, const BlockPtr& startingPos)
+{
+	auto nextBlockPos = startingPos;
+	auto blockPos = nextBlockPos + 1;				//чтобы не повторялось
+	std::string string;
+
+	do
+	{
+		blockPos = nextBlockPos;
+		auto block = readBlock(blockPos);
+		nextBlockPos = block.cl_head.next;
+		string += std::string(block.cl_data, block.cl_data + block.cl_head.size);
+	} while (blockPos != nextBlockPos);
+
+	file = string;
+	return true;
+}
+
+bool VA_FileSystem::write(const VA_File& file, const BlockPtr& startingPos)
+{
+	BigSize filePos = 0;
+	auto nextBlock = startingPos;
+	auto currentBlock = startingPos;
+
+	if (calculateNumOfBlocks(file) > cl_clusterMetadata.getFreeBlockNum())
+	{
+		return false;
+	}
+
+	do
+	{
+		auto block = readBlock(nextBlock);
+		block.cl_head.prev = currentBlock;
+		currentBlock = nextBlock;
+		nextBlock = block.cl_head.next;
+		if (filePos + VA_FSCluster::cl_maxClusterDataSize > file.size())
+		{
+			memcpy(block.cl_data, file.c_str() + filePos, file.size() - filePos);
+			block.cl_head.next = currentBlock;
+			writeBlock(currentBlock, block);
+			break;
+		}
+		memcpy(block.cl_data, file.c_str() + filePos, VA_FSCluster::cl_maxClusterDataSize);
+		filePos += VA_FSCluster::cl_maxClusterDataSize;
+
+		if (currentBlock == nextBlock)
+		{
+			try
+			{
+				nextBlock = generateNewStartingPos();
+				block.cl_head.next = nextBlock;
+			}
+			catch (const int&)
+			{
+				return false;
+			}
+		}
+
+		writeBlock(currentBlock, block);
+	} while (true);
+
+	while (nextBlock != currentBlock)
+	{
+		currentBlock = nextBlock;
+		auto blockHead = readBlockHead(currentBlock);
+		nextBlock = blockHead.next;
+		blockHead.prev = blockHead.next = currentBlock;
+		blockHead.size = 0;
+		writeBlockHead(currentBlock, blockHead);
+		cl_clusterMetadata.freeBlock(currentBlock);
+	}
+
+	return true;
 }
 
 bool VA_FileSystem::readFromFS(const std::string& way, VA_File& file)

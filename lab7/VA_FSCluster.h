@@ -4,7 +4,7 @@
 struct VA_FSCluster
 {
 	VA_FSClusterHeadMetadata cl_head;
-	static const LittleSize cl_maxClusterSize;
+	static const LittleSize cl_maxClusterDataSize;
 	char* cl_data;
 
 	VA_FSCluster();

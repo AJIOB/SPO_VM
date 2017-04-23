@@ -3,6 +3,9 @@
 #include "VA_FSHeadMetadata.h"
 #include "VA_FSClusterMetadata.h"
 #include "VA_FSClusterHeadMetadata.h"
+#include "VA_FSFileWayMetadata.h"
+
+struct VA_FSCluster;
 
 class VA_FileSystem
 {
@@ -11,7 +14,8 @@ class VA_FileSystem
 
 	VA_FSHeadMetadata cl_beginMetadata;
 	VA_FSClusterMetadata cl_clusterMetadata;
-	LittleSize cl_zeroClusterStartPos;
+	VA_FSFileWayMetadata cl_fileWayMetadata;
+	const LittleSize cl_zeroClusterStartPos;
 
 	static BigSize calculateNumOfBlocks(const VA_File& f);
 
@@ -19,14 +23,22 @@ class VA_FileSystem
 	void setPosToRead(const BigSize& clusterNum);
 	void setPosToWrite(const BigSize& clusterNum);
 
+	BlockPtr generateNewStartingPos();
+
 	VA_FSClusterHeadMetadata readBlockHead(const BigSize& num);
 	void writeBlockHead(const BigSize& num, const VA_FSClusterHeadMetadata& meta);
+	
+	VA_FSCluster readBlock(const BigSize& num);
+	void writeBlock(const BigSize& num, const VA_FSCluster& cluster);
 
 	void firstClusterMetadataProcessing();
+	void firstFileWayMetadataProcessing();
+
+	void readClusterMetadata();
+	void writeClusterMetadata();
 
 	bool read(VA_File& file, const BlockPtr& startingPos);
 	bool write(const VA_File& file, const BlockPtr& startingPos);
-	void writeClusterMetadata();
 
 	bool readFromFS(const std::string& way, VA_File& file);
 	bool writeToFS(const std::string& way, const VA_File& file);
@@ -42,6 +54,7 @@ class VA_FileSystem
 
 public:
 	VA_FileSystem(const std::string& wayToFile);
+	~VA_FileSystem();
 
 	void format();
 	bool move(const std::string& startWay, const std::string& destinationWay);

@@ -84,7 +84,15 @@ BigSize VA_FSClusterMetadata::getFreeBlockNum() const
 BlockPtr VA_FSClusterMetadata::lockBlock()
 {
 	auto it = std::find(cl_data.begin(), cl_data.end(), true);
-	if (it != cl_data.end())
-		*it = false;
+	if (it == cl_data.end())
+	{
+		throw 1;
+	}
+	*it = false;
 	return it - cl_data.begin();
+}
+
+void VA_FSClusterMetadata::freeBlock(const BlockPtr& num)
+{
+	cl_data[num] = true;
 }
