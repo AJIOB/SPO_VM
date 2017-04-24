@@ -23,12 +23,14 @@ VA_FileSystem::VA_FileSystem(const std::string& wayToFile)
 	: cl_wayToFileOnDisk(wayToFile, std::ios::in | std::ios::out | std::ios::binary), cl_f(cl_wayToFileOnDisk), cl_zeroClusterStartPos(sizeof cl_beginMetadata)
 {
 	readBeginMetadata();
-	//todo : read cluster & file metadata
+	readClusterMetadata();
+	readFileWayMetadata();
 }
 
 VA_FileSystem::~VA_FileSystem()
-{
-	//todo: write all metadata
+{	
+	writeFileWayMetadata();
+	writeClusterMetadata();
 	cl_f.close();
 }
 
@@ -52,19 +54,99 @@ void VA_FileSystem::format()
 bool VA_FileSystem::move(const std::string& startWay, const std::string& destinationWay)
 {
 	//todo
-	return false;
+	if (startWay.empty() || destinationWay.empty() || startWay[0] != '/' && destinationWay[0] != '/')
+	{
+		return false;
+	}
+
+	if (startWay[0] == '/' && destinationWay[0] == '/')
+	{
+		return moveInFS(startWay, destinationWay);
+	}
+
+	VA_File f;
+	bool res = true;
+	switch (startWay[0])
+	{
+	case '/':
+		res = readFromFS(startWay, f);
+		break;
+	default:
+		res = readFromExternal(startWay, f);
+	}
+
+	if (!res)
+	{
+		return false;
+	}
+
+	switch (destinationWay[0])
+	{
+	case '/':
+		res = writeToFS(destinationWay, f);
+		break;
+	default:
+		res = writeToExternal(destinationWay, f);
+	}
+
+	if (res)
+	{
+		switch (startWay[0])
+		{
+		case '/':
+			res = deleteFromFS(startWay);
+			break;
+		default:
+			res = deleteFromExternal(startWay);
+		}
+	}
+
+	return res;
 }
 
 bool VA_FileSystem::copy(const std::string& startWay, const std::string& destinationWay)
 {
-	//todo
-	return false;
+	if (startWay.empty() || destinationWay.empty() || startWay[0] != '/' && destinationWay[0] != '/')
+	{
+		return false;
+	}
+
+	VA_File f;
+	bool res = true;
+	switch (startWay[0])
+	{
+	case '/':
+		res = readFromFS(startWay, f);
+		break;
+	default:
+		res = readFromExternal(startWay, f);
+	}
+
+	if (!res)
+	{
+		return false;
+	}
+
+	switch (destinationWay[0])
+	{
+	case '/':
+		res = writeToFS(destinationWay, f);
+		break;
+	default:
+		res = writeToExternal(destinationWay, f);
+	}
+
+	return res;
 }
 
 bool VA_FileSystem::deleteF(const std::string& way)
 {
-	//todo
-	return false;
+	if (way.empty() || way[0] != '/')
+	{
+		return false;
+	}
+
+	return deleteFromFS(way);
 }
 
 BigSize VA_FileSystem::calculateNumOfBlocks(const VA_File& f)
@@ -173,23 +255,15 @@ void VA_FileSystem::firstClusterMetadataProcessing()
 
 void VA_FileSystem::firstFileWayMetadataProcessing()
 {
-	//todo
+	cl_fileWayMetadata.cl_ways.clear();
+	cl_beginMetadata.cl_fileWaysPos = generateNewStartingPos();
+	write(cl_fileWayMetadata.toString(), cl_beginMetadata.cl_fileWaysPos);
 }
 
 void VA_FileSystem::readClusterMetadata()
 {
-	auto nextBlockPos = cl_beginMetadata.cl_freeClustersPos;
-	auto blockPos = nextBlockPos + 1;				//чтобы не повторялось
-	std::string string;
-
-	do
-	{
-		blockPos = nextBlockPos;
-		auto block = readBlock(blockPos);
-		nextBlockPos = block.cl_head.next;
-		string += std::string(block.cl_data, block.cl_data + block.cl_head.size);
-	} while (blockPos != nextBlockPos);
-
+	VA_File string;
+	read(string, cl_beginMetadata.cl_freeClustersPos);
 	cl_clusterMetadata.fromString(string);
 }
 
@@ -209,6 +283,35 @@ void VA_FileSystem::writeClusterMetadata()
 		strPos += block.cl_head.size;
 		writeBlock(blockPos, block);
 	} while (blockPos != nextBlockPos);
+}
+
+void VA_FileSystem::readFileWayMetadata()
+{
+	VA_File f;
+	read(f, cl_beginMetadata.cl_fileWaysPos);
+	cl_fileWayMetadata.fromString(f);
+}
+
+void VA_FileSystem::writeFileWayMetadata()
+{
+	write(cl_fileWayMetadata.toString(), cl_beginMetadata.cl_fileWaysPos);
+}
+
+void VA_FileSystem::freeBlocks(const BlockPtr& startingPos)
+{
+	auto nextBlock = startingPos;
+	auto currentBlock = startingPos + 1;
+
+	while (nextBlock != currentBlock)
+	{
+		currentBlock = nextBlock;
+		auto blockHead = readBlockHead(currentBlock);
+		nextBlock = blockHead.next;
+		blockHead.prev = blockHead.next = currentBlock;
+		blockHead.size = 0;
+		writeBlockHead(currentBlock, blockHead);
+		cl_clusterMetadata.freeBlock(currentBlock);
+	}
 }
 
 bool VA_FileSystem::read(VA_File& file, const BlockPtr& startingPos)
@@ -272,42 +375,74 @@ bool VA_FileSystem::write(const VA_File& file, const BlockPtr& startingPos)
 		writeBlock(currentBlock, block);
 	} while (true);
 
-	while (nextBlock != currentBlock)
-	{
-		currentBlock = nextBlock;
-		auto blockHead = readBlockHead(currentBlock);
-		nextBlock = blockHead.next;
-		blockHead.prev = blockHead.next = currentBlock;
-		blockHead.size = 0;
-		writeBlockHead(currentBlock, blockHead);
-		cl_clusterMetadata.freeBlock(currentBlock);
-	}
+	freeBlocks(nextBlock);
 
 	return true;
 }
 
 bool VA_FileSystem::readFromFS(const std::string& way, VA_File& file)
 {
-	//todo
-	return false;
+	auto map = &cl_fileWayMetadata.cl_ways;
+	auto it = map->find(way);
+	if (it == map->end())
+	{
+		return false;
+	}
+
+	return read(file, it->second);
 }
 
 bool VA_FileSystem::writeToFS(const std::string& way, const VA_File& file)
 {
-	//todo
+	auto map = &cl_fileWayMetadata.cl_ways;
+	auto it = map->find(way);
+	if (it != map->end())
+	{
+		return false;
+	}
+
+	map->insert(std::make_pair(way, generateNewStartingPos()));
+	if(write(file, map->find(way)->second))
+	{
+		return true;
+	}
+	deleteFromFS(way);
 	return false;
 }
 
 bool VA_FileSystem::moveInFS(const std::string& sourceWay, const std::string& destinationWay)
 {
-	//todo
+	auto map = &cl_fileWayMetadata.cl_ways;
+	auto it = map->find(destinationWay);
+	if (it != map->end())
+	{
+		return false;
+	}
+
+	it = map->find(sourceWay);
+	if (it == map->end())
+	{
+		return false;
+	}
+	
+	auto value = (*map)[sourceWay];
+	map->erase(it);
+	map->emplace(std::make_pair(destinationWay, value));
+	
 	return false;
 }
 
 bool VA_FileSystem::deleteFromFS(const std::string& way)
 {
-	//todo
-	return false;
+	auto map = &cl_fileWayMetadata.cl_ways;
+	auto it = map->find(way);
+	if (it == map->end())
+	{
+		return false;
+	}
+	freeBlocks(it->second);
+	map->erase(way);
+	return true;
 }
 
 bool VA_FileSystem::readFromExternal(const std::string& way, VA_File& file)
@@ -339,5 +474,11 @@ bool VA_FileSystem::writeToExternal(const std::string& way, const VA_File& file)
 	f.write(file.c_str(), file.size());
 
 	f.close();
+	return true;
+}
+
+bool VA_FileSystem::deleteFromExternal(const std::string& way)
+{
+	//todo
 	return true;
 }

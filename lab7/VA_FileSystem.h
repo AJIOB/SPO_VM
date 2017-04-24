@@ -37,6 +37,11 @@ class VA_FileSystem
 	void readClusterMetadata();
 	void writeClusterMetadata();
 
+	void readFileWayMetadata();
+	void writeFileWayMetadata();
+
+	void freeBlocks(const BlockPtr& startingPos);
+
 	bool read(VA_File& file, const BlockPtr& startingPos);
 	bool write(const VA_File& file, const BlockPtr& startingPos);
 
@@ -47,6 +52,7 @@ class VA_FileSystem
 
 	static bool readFromExternal(const std::string& way, VA_File& file);
 	static bool writeToExternal(const std::string& way, const VA_File& file);
+	static bool deleteFromExternal(const std::string& way);
 
 	void resetBeginMetadata();
 	void readBeginMetadata();
