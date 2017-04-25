@@ -387,7 +387,10 @@ bool VA_FileSystem::write(const VA_File& file, const BlockPtr& startingPos)
 	}
 	while (true);
 
-	freeBlocks(nextBlock);
+	if (currentBlock != nextBlock)
+	{
+		freeBlocks(nextBlock);
+	}
 
 	return true;
 }
