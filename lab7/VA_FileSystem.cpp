@@ -23,18 +23,11 @@ void VA_FileSystem::writeBeginMetadata()
 VA_FileSystem::VA_FileSystem(const std::string& wayToFile)
 	: cl_wayToFileOnDisk(wayToFile), cl_f(cl_wayToFileOnDisk, std::ios::in | std::ios::out | std::ios::binary), cl_zeroClusterStartPos(sizeof cl_beginMetadata)
 {
-	format();
-}
-
-/*
-VA_FileSystem::VA_FileSystem(const std::string& wayToFile)
-	: cl_wayToFileOnDisk(wayToFile), cl_f(cl_wayToFileOnDisk, std::ios::in | std::ios::out | std::ios::binary), cl_zeroClusterStartPos(sizeof cl_beginMetadata)
-{
 	readBeginMetadata();
 	readClusterMetadata();
 	readFileWayMetadata();
 }
-*/
+
 VA_FileSystem::~VA_FileSystem()
 {
 	writeFileWayMetadata();
@@ -62,8 +55,6 @@ void VA_FileSystem::format()
 	firstClusterMetadataProcessing();
 
 	firstFileWayMetadataProcessing();
-	cl_beginMetadata.cl_fileWaysPos = generateNewStartingPos();
-	write(cl_fileWayMetadata.toString(), cl_beginMetadata.cl_fileWaysPos);
 
 	writeClusterMetadata();
 	writeBeginMetadata();

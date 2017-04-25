@@ -5,6 +5,8 @@ class Menu
 {
 	VA_FileSystem* fs;
 
+	static std::string inputString();
+
 public:
 	void ShowFS();
 	void FormatFS();

@@ -19,6 +19,7 @@ int main(int argc, char* argv[])
 		std::cout << "Пожалуйста, сделайте свой выбор" << std::endl;
 
 		auto k = std::cin.get();
+		std::cin.get(); //for '\n'
 
 		switch (k)
 		{
