@@ -1,6 +1,7 @@
 ﻿#include "VA_FileSystem.h"
 #include "VA_FSClusterMetadata.h"
 #include "VA_FSCluster.h"
+#include <algorithm>
 
 void VA_FileSystem::resetBeginMetadata()
 {
@@ -20,18 +21,35 @@ void VA_FileSystem::writeBeginMetadata()
 }
 
 VA_FileSystem::VA_FileSystem(const std::string& wayToFile)
-	: cl_wayToFileOnDisk(wayToFile, std::ios::in | std::ios::out | std::ios::binary), cl_f(cl_wayToFileOnDisk), cl_zeroClusterStartPos(sizeof cl_beginMetadata)
+	: cl_wayToFileOnDisk(wayToFile), cl_f(cl_wayToFileOnDisk, std::ios::in | std::ios::out | std::ios::binary), cl_zeroClusterStartPos(sizeof cl_beginMetadata)
+{
+	format();
+}
+
+/*
+VA_FileSystem::VA_FileSystem(const std::string& wayToFile)
+	: cl_wayToFileOnDisk(wayToFile), cl_f(cl_wayToFileOnDisk, std::ios::in | std::ios::out | std::ios::binary), cl_zeroClusterStartPos(sizeof cl_beginMetadata)
 {
 	readBeginMetadata();
 	readClusterMetadata();
 	readFileWayMetadata();
 }
-
+*/
 VA_FileSystem::~VA_FileSystem()
-{	
+{
 	writeFileWayMetadata();
 	writeClusterMetadata();
 	cl_f.close();
+}
+
+std::set<std::string> VA_FileSystem::getListOfFiles() const
+{
+	std::set<std::string> res;
+	std::for_each(cl_fileWayMetadata.cl_ways.begin(), cl_fileWayMetadata.cl_ways.end(), [&res](const std::pair<std::string, BlockPtr>& pair)
+	              {
+		              res.insert(pair.first);
+	              });
+	return res;
 }
 
 void VA_FileSystem::format()
@@ -40,7 +58,7 @@ void VA_FileSystem::format()
 
 	cl_clusterMetadata = VA_FSClusterMetadata();
 	cl_clusterMetadata.cl_data = std::vector<bool>(cl_beginMetadata.cl_numClusters, true);
-	
+
 	firstClusterMetadataProcessing();
 
 	firstFileWayMetadataProcessing();
@@ -172,7 +190,7 @@ void VA_FileSystem::setPosToWrite(const BigSize& clusterNum)
 BlockPtr VA_FileSystem::generateNewStartingPos()
 {
 	auto pos = cl_clusterMetadata.lockBlock();
-	
+
 	VA_FSClusterHeadMetadata meta;
 	meta.next = meta.prev = pos;
 	meta.size = 0;
@@ -232,17 +250,17 @@ void VA_FileSystem::firstClusterMetadataProcessing()
 		auto meta = readBlockHead(*it);
 		if (it == clusterMetaBlocks.begin())
 		{
-			meta.prev = *it;			
+			meta.prev = *it;
 		}
 		else
 		{
 			meta.prev = *(it - 1);
 		}
-		
-		if (it == clusterMetaBlocks.end())
+
+		if (it == clusterMetaBlocks.end() - 1)
 		{
 			meta.next = *it;
-			meta.size = static_cast<LittleSize> (cl_clusterMetadata.toString().size() - clusterMetaSize * cl_beginMetadata.cl_clusterSize);
+			meta.size = static_cast<LittleSize>(cl_clusterMetadata.toString().size() - (clusterMetaSize - 1) * cl_beginMetadata.cl_clusterSize);
 		}
 		else
 		{
@@ -270,7 +288,7 @@ void VA_FileSystem::readClusterMetadata()
 void VA_FileSystem::writeClusterMetadata()
 {
 	auto nextBlockPos = cl_beginMetadata.cl_freeClustersPos;
-	auto blockPos = nextBlockPos + 1;				//чтобы не повторялось
+	auto blockPos = nextBlockPos + 1; //чтобы не повторялось
 	auto string = cl_clusterMetadata.toString();
 	BigSize strPos = 0;
 
@@ -282,7 +300,8 @@ void VA_FileSystem::writeClusterMetadata()
 		memcpy(block.cl_data, string.c_str() + strPos, block.cl_head.size);
 		strPos += block.cl_head.size;
 		writeBlock(blockPos, block);
-	} while (blockPos != nextBlockPos);
+	}
+	while (blockPos != nextBlockPos);
 }
 
 void VA_FileSystem::readFileWayMetadata()
@@ -317,7 +336,7 @@ void VA_FileSystem::freeBlocks(const BlockPtr& startingPos)
 bool VA_FileSystem::read(VA_File& file, const BlockPtr& startingPos)
 {
 	auto nextBlockPos = startingPos;
-	auto blockPos = nextBlockPos + 1;				//чтобы не повторялось
+	auto blockPos = nextBlockPos + 1; //чтобы не повторялось
 	std::string string;
 
 	do
@@ -326,7 +345,8 @@ bool VA_FileSystem::read(VA_File& file, const BlockPtr& startingPos)
 		auto block = readBlock(blockPos);
 		nextBlockPos = block.cl_head.next;
 		string += std::string(block.cl_data, block.cl_data + block.cl_head.size);
-	} while (blockPos != nextBlockPos);
+	}
+	while (blockPos != nextBlockPos);
 
 	file = string;
 	return true;
@@ -373,7 +393,8 @@ bool VA_FileSystem::write(const VA_File& file, const BlockPtr& startingPos)
 		}
 
 		writeBlock(currentBlock, block);
-	} while (true);
+	}
+	while (true);
 
 	freeBlocks(nextBlock);
 
@@ -401,8 +422,8 @@ bool VA_FileSystem::writeToFS(const std::string& way, const VA_File& file)
 		return false;
 	}
 
-	map->insert(std::make_pair(way, generateNewStartingPos()));
-	if(write(file, map->find(way)->second))
+	map->insert(make_pair(way, generateNewStartingPos()));
+	if (write(file, map->find(way)->second))
 	{
 		return true;
 	}
@@ -424,11 +445,11 @@ bool VA_FileSystem::moveInFS(const std::string& sourceWay, const std::string& de
 	{
 		return false;
 	}
-	
+
 	auto value = (*map)[sourceWay];
 	map->erase(it);
-	map->emplace(std::make_pair(destinationWay, value));
-	
+	map->emplace(make_pair(destinationWay, value));
+
 	return false;
 }
 
@@ -479,6 +500,5 @@ bool VA_FileSystem::writeToExternal(const std::string& way, const VA_File& file)
 
 bool VA_FileSystem::deleteFromExternal(const std::string& way)
 {
-	//todo
-	return true;
+	return remove(way.c_str()) == 0;
 }

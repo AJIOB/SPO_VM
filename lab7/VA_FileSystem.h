@@ -4,6 +4,7 @@
 #include "VA_FSClusterMetadata.h"
 #include "VA_FSClusterHeadMetadata.h"
 #include "VA_FSFileWayMetadata.h"
+#include <set>
 
 struct VA_FSCluster;
 
@@ -27,7 +28,7 @@ class VA_FileSystem
 
 	VA_FSClusterHeadMetadata readBlockHead(const BigSize& num);
 	void writeBlockHead(const BigSize& num, const VA_FSClusterHeadMetadata& meta);
-	
+
 	VA_FSCluster readBlock(const BigSize& num);
 	void writeBlock(const BigSize& num, const VA_FSCluster& cluster);
 
@@ -59,8 +60,10 @@ class VA_FileSystem
 	void writeBeginMetadata();
 
 public:
-	VA_FileSystem(const std::string& wayToFile);
+	VA_FileSystem(const std::string& wayToFile = "D:\\file.VA_FS.bin");
 	~VA_FileSystem();
+
+	std::set<std::string> getListOfFiles() const;
 
 	void format();
 	bool move(const std::string& startWay, const std::string& destinationWay);

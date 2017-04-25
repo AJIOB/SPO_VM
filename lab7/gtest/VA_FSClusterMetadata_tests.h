@@ -99,7 +99,7 @@ namespace VA_FSClusterMetadata_tests
 		s.push_back(0);
 		s.push_back(0);
 		s.push_back(171);
-		s.push_back(37);			//must be num % 8 = 5
+		s.push_back(37); //must be num % 8 = 5
 
 		EXPECT_TRUE(cm.fromString(s));
 		EXPECT_TRUE(cm.cl_data == vec);

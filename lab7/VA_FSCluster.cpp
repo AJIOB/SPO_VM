@@ -6,6 +6,12 @@ VA_FSCluster::VA_FSCluster(): cl_data(new char[cl_maxClusterDataSize])
 {
 }
 
+VA_FSCluster::VA_FSCluster(const VA_FSCluster& other)
+{
+	cl_data = new char[cl_maxClusterDataSize];
+	memcpy(cl_data, other.cl_data, cl_maxClusterDataSize);
+}
+
 VA_FSCluster::~VA_FSCluster()
 {
 	if (cl_data)

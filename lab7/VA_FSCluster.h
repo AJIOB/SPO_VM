@@ -8,5 +8,6 @@ struct VA_FSCluster
 	char* cl_data;
 
 	VA_FSCluster();
+	VA_FSCluster(const VA_FSCluster& other);
 	~VA_FSCluster();
 };

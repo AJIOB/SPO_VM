@@ -11,7 +11,7 @@ bool VA_FSFileWayMetadata::fromString(const std::string& metaString)
 		return false;
 	}
 
-	size_t numOfElements = *reinterpret_cast<const size_t*> (str + pos);
+	size_t numOfElements = *reinterpret_cast<const size_t*>(str + pos);
 	pos += sizeof size_t;
 
 	std::map<std::string, BlockPtr> map;
@@ -22,21 +22,21 @@ bool VA_FSFileWayMetadata::fromString(const std::string& metaString)
 		{
 			return false;
 		}
-		size_t elementSize = *reinterpret_cast<const size_t*> (str + pos);
+		size_t elementSize = *reinterpret_cast<const size_t*>(str + pos);
 		pos += sizeof size_t;
 
 		if (pos + elementSize >= size)
 		{
 			return false;
 		}
-		std::string element (str + pos, str + pos + elementSize);
+		std::string element(str + pos, str + pos + elementSize);
 		pos += elementSize;
 
 		if (pos + sizeof BlockPtr >= size)
 		{
 			return false;
 		}
-		BlockPtr startPos = *reinterpret_cast<const BlockPtr*> (str + pos);
+		BlockPtr startPos = *reinterpret_cast<const BlockPtr*>(str + pos);
 		pos += sizeof BlockPtr;
 
 		map.insert(std::pair<std::string, BlockPtr>(element, startPos));

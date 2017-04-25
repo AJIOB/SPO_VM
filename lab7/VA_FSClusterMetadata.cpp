@@ -13,7 +13,7 @@ bool VA_FSClusterMetadata::fromString(const std::string& metaString)
 		return false;
 	}
 
-	size_t numOfElements = *reinterpret_cast<const size_t*> (str + pos);
+	size_t numOfElements = *reinterpret_cast<const size_t*>(str + pos);
 	size_t numOfBlocks = (numOfElements + 7) / 8;
 	pos += sizeof size_t;
 
@@ -25,7 +25,7 @@ bool VA_FSClusterMetadata::fromString(const std::string& metaString)
 		{
 			return false;
 		}
-		std::bitset<8> byte = *reinterpret_cast<const std::bitset<8>*> (str + pos);
+		std::bitset<8> byte = *reinterpret_cast<const std::bitset<8>*>(str + pos);
 		pos++;
 
 		for (auto j = 0; j < 8; j++)
@@ -52,13 +52,13 @@ std::string VA_FSClusterMetadata::toString() const
 
 	std::bitset<8> byte;
 	size_t i = 0, j = 0;
-	while(true)
+	while (true)
 	{
 		if ((i + j) >= cl_data.size())
 		{
 			if (j > 0)
 			{
-				s += static_cast<char> (byte.to_ulong());
+				s += static_cast<char>(byte.to_ulong());
 			}
 			break;
 		}
@@ -67,7 +67,7 @@ std::string VA_FSClusterMetadata::toString() const
 		{
 			i += 8;
 			j = 0;
-			s += static_cast<char> (byte.to_ulong());
+			s += static_cast<char>(byte.to_ulong());
 		}
 
 		byte[j] = cl_data[i + j];
@@ -78,12 +78,12 @@ std::string VA_FSClusterMetadata::toString() const
 
 BigSize VA_FSClusterMetadata::getFreeBlockNum() const
 {
-	return std::count(cl_data.begin(), cl_data.end(), true);
+	return count(cl_data.begin(), cl_data.end(), true);
 }
 
 BlockPtr VA_FSClusterMetadata::lockBlock()
 {
-	auto it = std::find(cl_data.begin(), cl_data.end(), true);
+	auto it = find(cl_data.begin(), cl_data.end(), true);
 	if (it == cl_data.end())
 	{
 		throw 1;
