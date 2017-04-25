@@ -6,6 +6,7 @@ std::string Menu::inputString()
 {
 	std::string res;
 	std::cin >> res;
+	std::cin.ignore(512,'\n');
 	return res;
 }
 
@@ -26,35 +27,35 @@ void Menu::FormatFS()
 
 void Menu::Copy()
 {
-	std::cout << "Ââåäèòå ïóòü èñòî÷íèêà (ñ èìåíåì)" << std::endl;
+	std::cout << "Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð¿ÑƒÑ‚ÑŒ Ð¸ÑÑ‚Ð¾Ñ‡Ð½Ð¸ÐºÐ° (Ñ Ð¸Ð¼ÐµÐ½ÐµÐ¼)" << std::endl;
 	auto source = inputString();
-	std::cout << "Ââåäèòå ïóòü ïðèåìíèêà (ñ èìåíåì)" << std::endl;
+	std::cout << "Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð¿ÑƒÑ‚ÑŒ Ð¿Ñ€Ð¸ÐµÐ¼Ð½Ð¸ÐºÐ° (Ñ Ð¸Ð¼ÐµÐ½ÐµÐ¼)" << std::endl;
 	auto destination = inputString();
 	if (!fs->copy(source, destination))
 	{
-		std::cout << "Îøèáêà êîïèðîâàíèÿ" << std::endl;
+		std::cout << "ÐžÑˆÐ¸Ð±ÐºÐ° ÐºÐ¾Ð¿Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ñ" << std::endl;
 	}
 }
 
 void Menu::Move()
 {
-	std::cout << "Ââåäèòå ïóòü èñòî÷íèêà (ñ èìåíåì)" << std::endl;
+	std::cout << "Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð¿ÑƒÑ‚ÑŒ Ð¸ÑÑ‚Ð¾Ñ‡Ð½Ð¸ÐºÐ° (Ñ Ð¸Ð¼ÐµÐ½ÐµÐ¼)" << std::endl;
 	auto source = inputString();
-	std::cout << "Ââåäèòå ïóòü ïðèåìíèêà (ñ èìåíåì)" << std::endl;
+	std::cout << "Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð¿ÑƒÑ‚ÑŒ Ð¿Ñ€Ð¸ÐµÐ¼Ð½Ð¸ÐºÐ° (Ñ Ð¸Ð¼ÐµÐ½ÐµÐ¼)" << std::endl;
 	auto destination = inputString();
 	if (!fs->move(source, destination))
 	{
-		std::cout << "Îøèáêà ïåðåìåùåíèÿ" << std::endl;
+		std::cout << "ÐžÑˆÐ¸Ð±ÐºÐ° Ð¿ÐµÑ€ÐµÐ¼ÐµÑ‰ÐµÐ½Ð¸Ñ" << std::endl;
 	}
 }
 
 void Menu::Delete()
 {
-	std::cout << "Ââåäèòå ïóòü èñòî÷íèêà (ñ èìåíåì)" << std::endl;
+	std::cout << "Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð¿ÑƒÑ‚ÑŒ Ð¸ÑÑ‚Ð¾Ñ‡Ð½Ð¸ÐºÐ° (Ñ Ð¸Ð¼ÐµÐ½ÐµÐ¼)" << std::endl;
 	auto source = inputString();
 	if (!fs->deleteF(source))
 	{
-		std::cout << "Îøèáêà óäàëåíèÿ" << std::endl;
+		std::cout << "ÐžÑˆÐ¸Ð±ÐºÐ° ÑƒÐ´Ð°Ð»ÐµÐ½Ð¸Ñ" << std::endl;
 	}
 }
 

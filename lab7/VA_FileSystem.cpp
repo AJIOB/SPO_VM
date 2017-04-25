@@ -327,7 +327,7 @@ void VA_FileSystem::freeBlocks(const BlockPtr& startingPos)
 bool VA_FileSystem::read(VA_File& file, const BlockPtr& startingPos)
 {
 	auto nextBlockPos = startingPos;
-	auto blockPos = nextBlockPos + 1; //чтобы не повторялось
+	auto blockPos = nextBlockPos;
 	std::string string;
 
 	do
@@ -362,12 +362,15 @@ bool VA_FileSystem::write(const VA_File& file, const BlockPtr& startingPos)
 		nextBlock = block.cl_head.next;
 		if (filePos + VA_FSCluster::cl_maxClusterDataSize > file.size())
 		{
-			memcpy(block.cl_data, file.c_str() + filePos, file.size() - filePos);
+			block.cl_head.size = file.size() - filePos;
+			memcpy(block.cl_data, file.c_str() + filePos, block.cl_head.size);
 			block.cl_head.next = currentBlock;
 			writeBlock(currentBlock, block);
 			break;
 		}
-		memcpy(block.cl_data, file.c_str() + filePos, VA_FSCluster::cl_maxClusterDataSize);
+
+		block.cl_head.size = VA_FSCluster::cl_maxClusterDataSize;
+		memcpy(block.cl_data, file.c_str() + filePos, block.cl_head.size);
 		filePos += VA_FSCluster::cl_maxClusterDataSize;
 
 		if (currentBlock == nextBlock)

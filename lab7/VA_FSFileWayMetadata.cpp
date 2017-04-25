@@ -57,7 +57,7 @@ std::string VA_FSFileWayMetadata::toString() const
 		auto keySize = it->first.size();
 		auto key = it->first;
 		auto value = it->second;
-		s += std::string(&keySize, &keySize + sizeof keySize) + key + std::string(&value, &value + sizeof value);
+		s += std::string(&keySize, &keySize + sizeof keySize) + key + std::string(&value, &value + sizeof value);		//todo: fix bad convert
 	}
 
 	return s;
