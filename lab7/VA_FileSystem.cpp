@@ -447,7 +447,7 @@ bool VA_FileSystem::moveInFS(const std::string& sourceWay, const std::string& de
 	map->erase(it);
 	map->emplace(make_pair(destinationWay, value));
 
-	return false;
+	return true;
 }
 
 bool VA_FileSystem::deleteFromFS(const std::string& way)
