@@ -362,7 +362,7 @@ bool VA_FileSystem::write(const VA_File& file, const BlockPtr& startingPos)
 		nextBlock = block.cl_head.next;
 		if (filePos + VA_FSCluster::cl_maxClusterDataSize > file.size())
 		{
-			block.cl_head.size = file.size() - filePos;
+			block.cl_head.size = static_cast<LittleSize>(file.size() - filePos);
 			memcpy(block.cl_data, file.c_str() + filePos, block.cl_head.size);
 			block.cl_head.next = currentBlock;
 			writeBlock(currentBlock, block);

@@ -18,21 +18,21 @@ bool VA_FSFileWayMetadata::fromString(const std::string& metaString)
 
 	for (size_t i = 0; i < numOfElements; i++)
 	{
-		if (pos + sizeof size_t >= size)
+		if (pos + sizeof size_t > size)
 		{
 			return false;
 		}
 		size_t elementSize = *reinterpret_cast<const size_t*>(str + pos);
 		pos += sizeof size_t;
 
-		if (pos + elementSize >= size)
+		if (pos + elementSize > size)
 		{
 			return false;
 		}
 		std::string element(str + pos, str + pos + elementSize);
 		pos += elementSize;
 
-		if (pos + sizeof BlockPtr >= size)
+		if (pos + sizeof BlockPtr > size)
 		{
 			return false;
 		}
@@ -57,7 +57,10 @@ std::string VA_FSFileWayMetadata::toString() const
 		auto keySize = it->first.size();
 		auto key = it->first;
 		auto value = it->second;
-		s += std::string(&keySize, &keySize + sizeof keySize) + key + std::string(&value, &value + sizeof value);		//todo: fix bad convert
+		sizePtr = reinterpret_cast<char*>(&keySize);
+		s += std::string(sizePtr, sizePtr + sizeof keySize) + key;
+		sizePtr = reinterpret_cast<char*>(&value);
+		s += std::string(sizePtr, sizePtr + sizeof value);		//todo: fix bad convert
 	}
 
 	return s;

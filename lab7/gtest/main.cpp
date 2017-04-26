@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "VA_FSClusterMetadata_tests.h"
+#include "VA_FSFileWayMetadata_tests.h"
 
 int main(int argc, char* argv[])
 {

@@ -23,5 +23,8 @@
     <ClInclude Include="VA_FSClusterMetadata_tests.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="VA_FSFileWayMetadata_tests.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
