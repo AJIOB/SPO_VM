@@ -26,7 +26,7 @@ int main()
 
 void* myMalloc(int size)
 {
-	// находит место и возвращает дескриптор
+	// РЅР°С…РѕРґРёС‚ РјРµСЃС‚Рѕ Рё РІРѕР·РІСЂР°С‰Р°РµС‚ РґРµСЃРєСЂРёРїС‚РѕСЂ
 	
 	void*  pLocal;
 	UINT   uMaxFreeMem;
@@ -35,7 +35,7 @@ void* myMalloc(int size)
 
     if(pLocal == NULL)
 	{
-		// попытка дефрагментации памяти и ее повторного выделения
+		// РїРѕРїС‹С‚РєР° РґРµС„СЂР°РіРјРµРЅС‚Р°С†РёРё РїР°РјСЏС‚Рё Рё РµРµ РїРѕРІС‚РѕСЂРЅРѕРіРѕ РІС‹РґРµР»РµРЅРёСЏ
 		uMaxFreeMem = LocalCompact(size);
 		std::cout<<"Trying to defragmentate memory"<<std::endl;
 		pLocal = memoryAllocation(size);
@@ -57,18 +57,18 @@ void* memoryAllocation(int size)
 	HLOCAL hmemLocal;
 	void*  pLocal;
 
-	// получение дескриптора выделяемой памяти
+	// РїРѕР»СѓС‡РµРЅРёРµ РґРµСЃРєСЂРёРїС‚РѕСЂР° РІС‹РґРµР»СЏРµРјРѕР№ РїР°РјСЏС‚Рё
 	hmemLocal = LocalAlloc(GHND, size + sizeof(HLOCAL));
 
 	if(hmemLocal != NULL)
 	{
-		// Если буфер получен, фиксируем его в памяти
+		// Р•СЃР»Рё Р±СѓС„РµСЂ РїРѕР»СѓС‡РµРЅ, С„РёРєСЃРёСЂСѓРµРј РµРіРѕ РІ РїР°РјСЏС‚Рё
 		pLocal = LocalLock(hmemLocal);
 		if(pLocal != NULL)
 		{
-			// Запись дескриптора в начало выделенной памяти
+			// Р—Р°РїРёСЃСЊ РґРµСЃРєСЂРёРїС‚РѕСЂР° РІ РЅР°С‡Р°Р»Рѕ РІС‹РґРµР»РµРЅРЅРѕР№ РїР°РјСЏС‚Рё
 			pLocal = hmemLocal;
-			// установка начала памяти на следующий после дескриптора байт
+			// СѓСЃС‚Р°РЅРѕРІРєР° РЅР°С‡Р°Р»Р° РїР°РјСЏС‚Рё РЅР° СЃР»РµРґСѓСЋС‰РёР№ РїРѕСЃР»Рµ РґРµСЃРєСЂРёРїС‚РѕСЂР° Р±Р°Р№С‚
 			pLocal = (char*)pLocal +sizeof(HLOCAL);  
 			return pLocal;
 		}
@@ -87,11 +87,11 @@ void* memoryAllocation(int size)
 void  myFree(void* ptr)
 {
 	HLOCAL hmemLocal;
-	// получение дескриптора памяти
+	// РїРѕР»СѓС‡РµРЅРёРµ РґРµСЃРєСЂРёРїС‚РѕСЂР° РїР°РјСЏС‚Рё
 	hmemLocal=(char*)ptr-sizeof(HLOCAL);
-	// разлок hmemLocal
+	// СЂР°Р·Р»РѕРє hmemLocal
 	LocalUnlock(hmemLocal);
-	// возвращает NULL при успешном освобождении памяти
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ NULL РїСЂРё СѓСЃРїРµС€РЅРѕРј РѕСЃРІРѕР±РѕР¶РґРµРЅРёРё РїР°РјСЏС‚Рё
 	if(LocalFree(hmemLocal) != NULL)
 	{
 		std::cout<<std::endl<<"Error in making memory free";
