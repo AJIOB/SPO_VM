@@ -3,7 +3,8 @@ CFLAGS = -std=c++11
 CXXFLAGS = $(CFLAGS)
 linkFlags = -lrt -lpthread
 sourceWay = code/
-deps = VA_lab4.log
+logFiles = VA_lab4.log
+deps = $(logFiles)
 destinationWay = bin/unix/
 destinationName = lab4
 
@@ -53,6 +54,9 @@ baseInit :
 
 copyDeps : $(deps)
 	$(COPY) $(deps) $(destinationWay)
+
+$(logFiles) :
+	touch $(logFiles)
 
 run :
 	cd $(destinationWay) && ./$(destinationName)

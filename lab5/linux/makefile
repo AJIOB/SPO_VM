@@ -20,7 +20,8 @@ destinationName = lab5
 dllDestName = libVA_ARW.so
 parserDestName = parser
 
-deps = VA_$(destinationName).log
+logFiles = VA_$(destinationName).log
+deps = $(logFiles)
 
 objWay = $(destinationWay)obj/
 objBackHome = ../../../
@@ -84,9 +85,11 @@ StreamInput.o : $(sourceWay)$(ViewWaySource)StreamInput.cpp $(sourceWay)$(ViewWa
 	$(prefix)$(ViewWaySource)StreamInput.cpp
 
 StreamOutput.o : $(sourceWay)$(ViewWaySource)StreamOutput.cpp $(sourceWay)$(ViewWayHeaders)StreamOutput.h
-	$(prefix)$(ViewWaySource)StreamOutput.cpp	
-#------------------------------------logs-----------------------------
+	$(prefix)$(ViewWaySource)StreamOutput.cpp
 
+#------------------------------------logs-----------------------------
+$(logFiles) :
+	touch $(logFiles)
 
 #------------------------------------other----------------------------
 max_clean :

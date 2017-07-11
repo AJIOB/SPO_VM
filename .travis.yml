@@ -1,0 +1,24 @@
+language: c
+
+sudo: false
+dist: trusty
+
+addons:
+  apt:
+    packages:
+    - make
+    - g++
+
+compiler:
+  - gcc
+
+#Setting every project home directory to build
+env:
+  - HOME_FOLDER=lab1
+  - HOME_FOLDER=lab2
+  - HOME_FOLDER=lab3
+  - HOME_FOLDER=lab4
+  - HOME_FOLDER=lab5/linux
+
+script:
+  - cd ${HOME_FOLDER} && make
