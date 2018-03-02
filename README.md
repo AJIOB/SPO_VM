@@ -1,6 +1,6 @@
 # СПОВМ (системное программное обеспечение вычислительных машин). Лабораторные работы
 
-[![Build Status](https://travis-ci.org/AJIOB/AllTestFeatures.svg?branch=travis_ci_testing)](https://travis-ci.org/AJIOB/AllTestFeatures)  
+[![Build Status](https://travis-ci.org/VA-Minsk/SPO_VM.svg?branch=master)](https://travis-ci.org/VA-Minsk/SPO_VM)  
 Лабораторные работы 1-5 должны компилироваться как под Windows, так и под Linux.  
 Остальные - под Windows только.  
 P.S. Все авторские права на предоставленные ниже условия лабораторных работ принадлежат Белорусскому Государственному Университету Информатики и Радиоэлектроники ([БГУИР](https://www.bsuir.by), [BSUIR](https://www.bsuir.by/en/))  
